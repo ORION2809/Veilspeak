@@ -1,0 +1,18 @@
+path                                       mode     frames   worst   lost relock  jumps repaired
+clean wire                                 fast     100.0%  100.0%      8      0      0        0
+clean wire                                 robust   100.0%  100.0%      8      0      0        0
+clean wire                                 idle     100.0%  100.0%      8      0      0        0
+AMR 12.2, 3% loss in runs                  fast      99.1%   98.6%      8      0      0        0
+AMR 12.2, 3% loss in runs                  robust    99.8%   98.6%      9      0      0        0
+AMR 7.4, 1% loss                           robust   100.0%  100.0%      8      0      0        0
+AMR 4.75                                   idle     100.0%  100.0%      8      0      0        0
+AMR-WB 12.65, 0.5% loss                    fast     100.0%  100.0%      8      0      0        0
+AMR-WB 12.65, 0.5% loss                    robust   100.0%  100.0%      8      0      0        0
+VoLTE > G.711 > AMR 7.4                    robust   100.0%  100.0%      8      0      0        0
+EVS 13.2, jitter 10 ms, 1% loss            fast      99.9%   99.3%      8      0      0        0
+EVS 13.2, jitter 10 ms, 1% loss            robust   100.0%  100.0%      8      0      0        0
+EVS 9.6, jitter 10 ms                      robust   100.0%  100.0%      8      0      0        0
+AMR-WB in EVS phone, jitter 10 ms          robust   100.0%  100.0%      8      0      1        1
+EVS 13.2, jitter 25 ms, spikes, 2% loss    fast      98.7%   97.8%      8      0     74       55
+EVS 13.2, jitter 25 ms, spikes, 2% loss    robust    98.7%   97.1%      8      0     75       51
+all                                                 99.72%

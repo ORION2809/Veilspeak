@@ -1,0 +1,41 @@
+codec,fast_frames,robust_frames,idle_frames,sdr_db,verdict
+2G/3G  AMR 12.20,1.0,1.0,1.0,6.8,FAST
+2G/3G  AMR 10.20,1.0,1.0,1.0,5.1,FAST
+2G/3G  AMR 7.95,0.125,1.0,1.0,1.5,ROBUST
+2G/3G  AMR 7.40,0.721,1.0,1.0,1.7,ROBUST
+2G/3G  AMR 6.70,0.0,1.0,1.0,-0.7,ROBUST
+2G/3G  AMR 5.90,0.0,0.4891,1.0,-2.0,link
+2G/3G  AMR 5.15,0.0,0.0109,1.0,-2.9,link
+2G/3G  AMR 4.75,0.0,0.0,1.0,-3.2,link
+"2G/3G  AMR 12.20, second silence detector",1.0,1.0,1.0,6.8,FAST
+"2G/3G  AMR 7.40, second silence detector",0.721,1.0,1.0,1.7,ROBUST
+VoLTE  AMR-WB 23.85,1.0,1.0,1.0,10.5,FAST
+VoLTE  AMR-WB 23.05,1.0,1.0,1.0,10.6,FAST
+VoLTE  AMR-WB 19.85,1.0,1.0,1.0,9.4,FAST
+VoLTE  AMR-WB 18.25,1.0,1.0,1.0,8.9,FAST
+VoLTE  AMR-WB 15.85,1.0,1.0,1.0,7.5,FAST
+VoLTE  AMR-WB 14.25,1.0,1.0,1.0,6.7,FAST
+VoLTE  AMR-WB 12.65,1.0,1.0,1.0,5.7,FAST
+VoLTE  AMR-WB 8.85,0.5471,1.0,1.0,2.4,ROBUST
+VoLTE  AMR-WB 6.60,0.0,0.971,1.0,-0.7,marginal
+VoLTE  EVS 24.4 wideband,1.0,1.0,1.0,11.9,FAST
+VoLTE  EVS 16.4 wideband,1.0,1.0,1.0,8.1,FAST
+VoLTE  EVS 13.2 wideband,1.0,1.0,1.0,7.3,FAST
+VoLTE  EVS 9.6 wideband,0.9674,1.0,1.0,2.9,ROBUST
+VoLTE  EVS 8.0 wideband,0.0,1.0,1.0,0.1,ROBUST
+VoLTE  EVS 7.2 wideband,0.0,0.9058,1.0,-0.9,marginal
+VoLTE  EVS 5.9 variable rate,0.0,0.9855,1.0,-0.3,marginal
+VoLTE  EVS 13.2 channel-aware,0.7554,1.0,1.0,3.5,ROBUST
+VoLTE  EVS 13.2 narrowband,1.0,1.0,1.0,5.2,FAST
+VoLTE  EVS 9.6 narrowband,0.9728,1.0,1.0,3.2,ROBUST
+VoLTE  AMR-WB 12.65 inside an EVS phone,1.0,1.0,1.0,4.4,ROBUST
+VoLTE  AMR-WB 8.85 inside an EVS phone,0.0,1.0,1.0,1.2,ROBUST
+landline G.711,1.0,1.0,1.0,20.1,FAST
+across networks  AMR 12.2 > G.711 > AMR 12.2,1.0,1.0,1.0,3.7,ROBUST
+across networks  AMR 12.2 > G.711 > AMR 7.4,0.0036,1.0,1.0,0.2,ROBUST
+across networks  AMR 7.4 > G.711 > AMR 7.4,0.0,0.9964,1.0,-1.2,ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR 12.2,0.9964,1.0,1.0,2.8,ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR 7.4,0.0,1.0,1.0,-0.4,ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR-WB 12.65,0.9348,1.0,1.0,2.8,ROBUST
+across networks  EVS 13.2 > G.711 > AMR 12.2,0.9982,1.0,1.0,3.6,ROBUST
+across networks  EVS 13.2 > G.711 > EVS 13.2,0.942,1.0,1.0,2.2,ROBUST

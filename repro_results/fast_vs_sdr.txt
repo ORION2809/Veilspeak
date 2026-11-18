@@ -1,0 +1,84 @@
+path               mode    frames    SDR dB  wear ok  windows
+amr122             fast    100.0%       6.7    0.000      280
+amr122             robust  100.0%       6.8    0.000      280
+amr122             idle    100.0%       6.8    0.000      280
+amr102             fast    100.0%       5.1    0.002      280
+amr102             robust  100.0%       5.1    0.000      280
+amr102             idle    100.0%       5.0    0.000      280
+amr795             fast     10.5%       1.0    0.157      280
+amr795             robust  100.0%       1.4    0.001      280
+amr795             idle    100.0%       1.5    0.000      280
+amr74              fast     72.1%       1.6    0.140      280
+amr74              robust  100.0%       1.6    0.000      280
+amr74              idle    100.0%       1.7    0.000      280
+amr67              fast      0.0%         -        -        0
+amr67              robust  100.0%      -0.7    0.030      280
+amr67              idle    100.0%      -0.7    0.000      280
+amr59              fast      0.0%         -        -        0
+amr59              robust   48.2%      -2.0    0.099      135
+amr59              idle    100.0%      -2.0    0.006      280
+amr515             fast      0.0%         -        -        0
+amr515             robust    1.1%      -2.7    0.140        3
+amr515             idle    100.0%      -2.9    0.016      280
+amr475             fast      0.0%         -        -        0
+amr475             robust    0.0%         -        -        0
+amr475             idle    100.0%      -3.2    0.022      280
+wb2385             fast    100.0%      10.5    0.000      280
+wb2385             robust  100.0%      10.5    0.000      280
+wb2385             idle    100.0%      10.5    0.000      280
+wb1265             fast    100.0%       5.7    0.004      280
+wb1265             robust  100.0%       5.7    0.000      280
+wb1265             idle    100.0%       5.7    0.000      280
+wb885              fast     54.7%       2.5    0.151      280
+wb885              robust  100.0%       2.4    0.000      280
+wb885              idle    100.0%       2.3    0.000      280
+wb66               fast      0.0%      -0.6        -      277
+wb66               robust   96.7%      -0.7    0.063      280
+wb66               idle    100.0%      -0.8    0.001      280
+evs132             fast    100.0%       7.5    0.001      280
+evs132             robust  100.0%       5.4    0.000      280
+evs132             idle    100.0%       6.4    0.000      280
+evs96              fast     96.7%       3.0    0.067      280
+evs96              robust  100.0%       3.0    0.000      280
+evs96              idle    100.0%       2.8    0.000      280
+evs8               fast      0.0%       1.3        -      271
+evs8               robust  100.0%       0.3    0.014      280
+evs8               idle    100.0%       0.1    0.001      280
+evs72              fast      0.0%       0.6        -      266
+evs72              robust   89.5%      -0.7    0.053      277
+evs72              idle    100.0%      -0.9    0.003      280
+wbio1265           fast    100.0%       4.4    0.013      280
+wbio1265           robust  100.0%       4.5    0.000      280
+wbio1265           idle    100.0%       4.4    0.000      280
+x_wb_g711_amr122   fast     99.6%       2.8    0.081      280
+x_wb_g711_amr122   robust  100.0%       2.8    0.000      280
+x_wb_g711_amr122   idle    100.0%       2.8    0.000      280
+x_wb_g711_wb       fast     93.5%       2.9    0.118      280
+x_wb_g711_wb       robust  100.0%       2.8    0.000      280
+x_wb_g711_wb       idle    100.0%       2.7    0.000      280
+x_wb_g711_amr74    fast      0.0%      -0.8        -      196
+x_wb_g711_amr74    robust  100.0%      -0.4    0.017      280
+x_wb_g711_amr74    idle    100.0%      -0.4    0.000      280
+x_evs_g711_amr122  fast     99.8%       3.8    0.033      280
+x_evs_g711_amr122  robust  100.0%       2.4    0.000      280
+x_evs_g711_amr122  idle    100.0%       3.3    0.000      280
+FAST frame failure rate by SDR estimate (all paths pooled):
+     -2..-1   dB: 100.0% of 164 frames failed
+     -1..0    dB: 100.0% of 960 frames failed
+      0..1    dB: 100.0% of 588 frames failed
+      1..2    dB:  59.2% of 1142 frames failed
+      2..3    dB:  23.7% of 2240 frames failed
+      3..4    dB:   9.7% of 700 frames failed
+      4..5    dB:   0.0% of 876 frames failed
+      5..6    dB:   0.0% of 1120 frames failed
+      6..7    dB:   0.0% of 570 frames failed
+      7..8    dB:   0.0% of 372 frames failed
+      8..9    dB:   0.0% of 8 frames failed
+ROBUST frame failure rate by SDR estimate:
+     -3..-2   dB:   0.0% of 59 frames failed
+     -2..-1   dB:   5.8% of 155 frames failed
+     -1..0    dB:   2.1% of 1136 frames failed
+      0..1    dB:   0.5% of 183 frames failed
+      1..2    dB:   0.2% of 642 frames failed
+      2..3    dB:   0.0% of 1036 frames failed
+      3..4    dB:   0.0% of 258 frames failed

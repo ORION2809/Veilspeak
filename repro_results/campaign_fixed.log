@@ -1,0 +1,30 @@
+scenario                                                         calls  secure   setup s   speech   worst   longest   fast  wrong
+2G full rate, good signal                                            2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    92%      0
+2G full rate, other silence detector                                 2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    92%      0
+2G full rate, fading (3% frames lost in runs)                        2    2/2    6.7-7.2    98.8%   98.0%      0.2 s    86%      0
+2G half rate (AMR 7.4), 1% loss                                      2    2/2    6.7-7.2   100.0%  100.0%      0.0 s     0%      0
+2G, rate drops 12.2 > 7.4 > 12.2, one handover                       2    2/2    6.7-7.2    97.0%   96.0%      0.7 s    57%      0
+2G cell edge: 12.2 > 5.9 > 4.75 > 12.2                               2    2/2    6.7-7.2    58.9%   52.8%     10.6 s    36%      0
+2G deep fade: 12.2 > 4.75 for 7 s > 12.2                             2    2/2    6.7-6.7    80.2%   78.8%      7.0 s    63%      0
+VoLTE AMR-WB 12.65, 0.5% loss                                        2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    92%      0
+VoLTE AMR-WB 23.85                                                   2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    88%      0
+VoLTE AMR-WB 8.85 (reduced rate)                                     2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE EVS 13.2, jitter buffer, 1% loss                               2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    81%      0
+VoLTE EVS 13.2, heavy jitter, delay spikes, 2% loss                  2    2/2    6.7-6.7    98.8%   98.0%      0.5 s    62%      0
+VoLTE EVS 9.6, jitter buffer                                         2    2/2    6.7-6.7    99.8%   99.3%      0.2 s    23%      0
+VoLTE AMR-WB 12.65 inside an EVS phone, jitter buffer                2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    52%      0
+2G to 2G, both full rate (transcoded)                                2    2/2    6.7-7.2   100.0%  100.0%      0.0 s     0%      0
+2G to 2G, both half rate (transcoded)                                2    2/2    7.2-8.2    98.7%   96.0%      0.5 s     0%      0
+VoLTE to 2G full rate (transcoded)                                   2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE to 2G full rate (transcoded), network noise reduction 12 d     2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE to 2G half rate (transcoded)                                   2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE to VoLTE across operators (transcoded)                         2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE EVS with jitter buffer to 2G half rate (transcoded)            2    2/2    6.7-7.2    98.3%   97.2%      0.5 s     0%      0
+VoLTE call handed over to 2G after 20 s                              2    2/2    6.7-6.7    97.8%   97.3%      1.0 s    29%      0
+2G full rate + noise suppressor 12 dB + gain control                 2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    92%      0
+VoLTE AMR-WB 12.65 + noise suppressor 12 dB + gain control           2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    74%      0
+VoLTE AMR-WB 12.65 + noise suppressor 18 dB at both phones           2    2/2    6.7-6.7    71.8%   58.6%      2.4 s     0%      0
+2G full rate, low level (-12 dB), noisy line, 120 ppm clocks         2    2/2    6.7-6.7   100.0%  100.0%      0.0 s    92%      0
+2G full rate, sidetone 10 dB below the far end                       2    2/2    6.7-6.7   100.0%  100.0%      0.0 s     0%      0
+VoLTE EVS 13.2, jitter buffer, sidetone 10 dB below the far end      2    2/2    6.7-6.7    99.8%   99.3%      0.2 s    29%      0
+56 calls, 56 with keys agreed and matching codes, 0 wrong frames accepted

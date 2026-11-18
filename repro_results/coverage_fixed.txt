@@ -1,0 +1,41 @@
+codec                                                   fast  robust    idle   SDR dB  verdict
+2G/3G  AMR 12.20                                      100.0%  100.0%  100.0%      6.8  FAST
+2G/3G  AMR 10.20                                      100.0%  100.0%  100.0%      5.0  FAST
+2G/3G  AMR 7.95                                         7.1%  100.0%  100.0%      1.5  ROBUST
+2G/3G  AMR 7.40                                        69.0%  100.0%  100.0%      1.7  ROBUST
+2G/3G  AMR 6.70                                         0.0%  100.0%  100.0%     -0.7  ROBUST
+2G/3G  AMR 5.90                                         0.0%   44.9%  100.0%     -2.0  link
+2G/3G  AMR 5.15                                         0.0%    0.7%  100.0%     -2.9  link
+2G/3G  AMR 4.75                                         0.0%    0.0%  100.0%     -3.2  link
+2G/3G  AMR 12.20, second silence detector             100.0%  100.0%  100.0%      6.8  FAST
+2G/3G  AMR 7.40, second silence detector               69.0%  100.0%  100.0%      1.7  ROBUST
+VoLTE  AMR-WB 23.85                                   100.0%  100.0%  100.0%     10.5  FAST
+VoLTE  AMR-WB 23.05                                   100.0%  100.0%  100.0%     10.7  FAST
+VoLTE  AMR-WB 19.85                                   100.0%  100.0%  100.0%      9.4  FAST
+VoLTE  AMR-WB 18.25                                   100.0%  100.0%  100.0%      8.9  FAST
+VoLTE  AMR-WB 15.85                                   100.0%  100.0%  100.0%      7.5  FAST
+VoLTE  AMR-WB 14.25                                   100.0%  100.0%  100.0%      6.7  FAST
+VoLTE  AMR-WB 12.65                                   100.0%  100.0%  100.0%      5.7  FAST
+VoLTE  AMR-WB 8.85                                     59.1%  100.0%  100.0%      2.4  ROBUST
+VoLTE  AMR-WB 6.60                                      0.0%   93.8%  100.0%     -0.8  marginal
+VoLTE  EVS 24.4 wideband                              100.0%  100.0%  100.0%     11.9  FAST
+VoLTE  EVS 16.4 wideband                              100.0%  100.0%  100.0%      8.2  FAST
+VoLTE  EVS 13.2 wideband                              100.0%  100.0%  100.0%      4.5  FAST
+VoLTE  EVS 9.6 wideband                                96.6%  100.0%  100.0%      3.0  ROBUST
+VoLTE  EVS 8.0 wideband                                 0.0%  100.0%  100.0%      0.7  ROBUST
+VoLTE  EVS 7.2 wideband                                 0.0%   98.6%  100.0%     -0.4  marginal
+VoLTE  EVS 5.9 variable rate                            0.0%  100.0%  100.0%     -0.3  ROBUST
+VoLTE  EVS 13.2 channel-aware                          69.9%  100.0%  100.0%      3.4  ROBUST
+VoLTE  EVS 13.2 narrowband                            100.0%  100.0%  100.0%      5.3  FAST
+VoLTE  EVS 9.6 narrowband                              98.9%  100.0%  100.0%      3.2  ROBUST
+VoLTE  AMR-WB 12.65 inside an EVS phone               100.0%  100.0%  100.0%      4.4  ROBUST
+VoLTE  AMR-WB 8.85 inside an EVS phone                  0.0%  100.0%  100.0%      1.1  ROBUST
+landline G.711                                        100.0%  100.0%  100.0%     20.1  FAST
+across networks  AMR 12.2 > G.711 > AMR 12.2          100.0%  100.0%  100.0%      3.7  ROBUST
+across networks  AMR 12.2 > G.711 > AMR 7.4             0.2%  100.0%  100.0%      0.2  ROBUST
+across networks  AMR 7.4 > G.711 > AMR 7.4              0.0%   99.6%  100.0%     -1.2  ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR 12.2       99.3%  100.0%  100.0%      2.8  ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR 7.4         0.0%  100.0%  100.0%     -0.4  ROBUST
+across networks  AMR-WB 12.65 > G.711 > AMR-WB 12.65   94.6%  100.0%  100.0%      2.8  ROBUST
+across networks  EVS 13.2 > G.711 > AMR 12.2           95.7%  100.0%  100.0%      2.0  ROBUST
+across networks  EVS 13.2 > G.711 > EVS 13.2           69.4%  100.0%  100.0%      1.6  ROBUST

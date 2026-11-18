@@ -1,0 +1,28 @@
+Covert-mode baseline (B0): detectability of the current Track A signal
+======================================================================
+Windows: 167 speech (demo_out say voices), 278 modem (fast+robust, synthesised).
+Each window is 1 s, scaled to unit RMS before features (level-blind).
+
+Per-feature separability (univariate AUC; 0.50 = useless, 1.00 = perfect):
+  band_frac    1.000  ####################
+  lo_frac      0.000  ####################
+  f0_std       0.000  ####################
+  voiced_frac  0.000  ####################
+  burst_ac     1.000  ####################
+  flatness     0.993  ####################
+  crest        0.010  ####################
+  f0_med       0.039  ##################
+  silent_frac  0.052  ##################
+  comb_db      0.714  #########
+  hi_frac      0.668  #######
+  zcr_std      0.492  
+
+Single best feature alone (band_frac), no training: AUC 1.000
+
+Full logistic-regression detector (12 features, 70/30 train/test split):
+  test AUC       1.0000
+  test accuracy  100.0%  (at the train-optimal threshold)
+
+Verdict: the current Track A signal is trivially detectable (AUC 1.0000).
+This documents a limitation, not a target: the signal is plainly a modem that a
+network can detect and could block (plan_v3.md section 9). It is measurement only.

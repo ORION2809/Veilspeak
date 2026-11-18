@@ -1,0 +1,1124 @@
+
+
+===== PAGE 1 =====
+INTRODUCING A NOVEL DATA OVER VOICE TECHNIQUE
+FOR SECURE VOICE COMMUNICATION
+A PREPRINT
+Piotr Krasnowski,
+ Jerome Lebrun,
+ Bruno Martin
+University Côte d’Azur, I3S-CNRS, 2000, route des Lucioles,
+06900 Sophia Antipolis, France
+p.g.krasnowski@gmail.com, {lebrun,bruno.martin}@i3s.unice.fr
+ABSTRACT
+The increasing need for privacy-preserving voice communications is encouraging the investigation
+of new secure voice transmission techniques. This paper refers to the original concept of sending
+encrypted data or speech as pseudo-speech in the audio domain over existing voice communication
+infrastructures, like 3G cellular network and V oice over IP (V oIP). The distinctive characteristic of
+such a communication system is that it relies on the robust transmission of binary information in the
+form of audio signal.
+This work presents a novel Data over V oice (DoV) technique based on codebooks of short harmonic
+waveforms. The technique provides a sufﬁciently fast and reliable data rate over cellular networks and
+many V oIP applications. The new method relies on general principles of Linear Predictive Coding for
+voice compression (LPC voice coding) and is more versatile compared to solutions trained on exact
+channel models. The technique gives by design a high control over the desired rate of transmission
+and provides robustness to channel distortion. In addition, an efﬁcient codebook design approach
+inspired by quaternary error correcting codes is proposed.
+The usability of the proposed DoV technique for secure voice communication over cellular networks
+and V oIP has been successfully validated by empirical experiments. The paper details the system
+parameters, putting a special emphasis on system’s security and technical challenges.
+Keywords Secure voice communications· Data over voice· Digital voice channels· V oIP· Quaternary ECC
+1 Introduction
+The growing risk of privacy violation associated with the rapid spread of mobile communications has motivated the
+development of secure V oIP communicators, with Telegram and Signal being the iconic examples.1 However, these
+applications cannot protect against spying malware, which could be installed directly on smartphones [1]. To prevent
+this risk, voice can be encrypted in the audio domain by an external unit, secured against remote interception. In such a
+setting, voice signal is ﬁrstly transformed into an encrypted data stream shaped as pseudo-speech. Then, the encrypted
+audio signal is sent over the network instead of true speech signal.
+Parallely, cellular vocal networks, thanks to their high reliability and wide coverage, attracted attention as a potential
+high-priority, low-bandwidth data communication channel with errors. The work on Data over V oice (DoV) technology
+enabled new applications, such as emergency call system eCall [ 2], messaging over voice [ 3], point of sell (POS)
+ﬁnancial transactions [4], and secure data and voice communications [5, 6].
+With the quickly expanding data-driven 5G networks, the use of voice channels for sending data diminishes. Never-
+theless, DoV techniques are still crucial in secure voice communications, for example, provided by Crypto Phones or
+other specialized devices [7]. On the other hand, voice channels can be maliciously used for extruding private data or in
+Advanced Persistent Threat (APT) attacks [8].
+1https://core.telegram.org, https://signal.org
+arXiv:2102.10869v4  [cs.CR]  1 Feb 2022
+
+===== PAGE 2 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+The crucial challenges related to DoV are a consequence of principles underlying digital voice channels. Namely, voice
+channels aim at preserving speech intelligibility and quality while reducing the perceptually redundant information. In
+contrast to classical data channels, voice channels signiﬁcantly distort the sent signal due to transcodings and audio
+processing. Moreover, modern digital voice channels are selective to signal parameters conforming to the speech model
+adopted in a particular system. To mitigate signal degradation caused by voice channels, several authors proposed DoV
+techniques based on encoding the data signal into speech-like parameters, codebook training, or modulation techniques.
+Katugampala et al. [6] proposed a system that uses predeﬁned codebooks to map bits into vocal parameters: energy,
+pitch, and spectral envelope (encoded as line spectral pairs, LSP [ 9]). The encoded parameters are transformed
+into a pseudo-speech signal adapted to transmission over a cellular network. Data extraction is done by a paired
+speech analyzer, which restores vocal parameters from the signal and decodes codebook indices. The system enabled
+transmission over a real GSM voice channel at the rate of 3000 bps with 2.9% BER [ 10]. Similar techniques were
+presented by Ozkan et al. [11], and Rashidi et al. [12], who achieved respectively transmission rates of 1600 bps and
+2000 bps by simulations.
+LaDue et al. [13], and Sapozhnykov and Fienberg [14] investigated genetic and pattern matching algorithms to construct
+codebooks of short speech-like waveforms. Instead of synthesizing pseudo-speech, the authors proposed encoding
+bitstream directly into a sequence of symbols selected from a trained wavetable. Upon reception, received symbols
+were decoded with a bank of matched ﬁlters. The technique achieved the bandwidth of 4000 bps with 2.3 % BER
+over enhanced full rate (EFR) voice channel. Unfortunately, the training process was time-consuming and required
+considerable computational resources. Moreover, the obtained wavetable was compatible with a unique channel model
+and hence impractical in real communication.
+The problem of long and heavy computations has been tackled by Shahbazi et al. [15], and Boloursaz et al. [16], who
+simpliﬁed the codebook construction by limiting the search to signals from the TIMIT speech database [17]. Parallelly,
+Kazemi et al. [ 18] proposed a new idea to exploit sphere packing techniques to construct waveforms with a large
+minimum distance and an improved detection rate. Very recently, Zhang et al. [19] showed an analogous DoV technique
+based on sphere surface packing.
+Finally, there exists a range of DoV techniques based on well-established, classical signal modulation. Zhan Xu [20],
+Chmayssani and Baudoin [21] tested by simulations phase shift keying modulation (PSK) and quadrature amplitude
+modulation (QAM), and achieved bitrates within the range 1 - 3 kbps. Ali et al. [22] exploited M-ary frequency shift
+keying (M-FSK), whereas Dhananjay et al. [3] introduced a modiﬁed binary FSK (BFSK) tolerant to a small frequency
+deviation. Chen and Guo [5] reported a solution using orthogonal frequency division multiplexing (OFDM) modulation
+combined with PSK.
+An inspiring technique based on Amplitude Shift keying (ASK), named PCCD-OFDM-ASK, has been presented by
+Mezgec et al. [4]. Phase-Continuity and Context Dependency (PCCD) refers to techniques providing phase continuity
+of the modulated signal. In PCCD-OFDM-ASK, blocks of 8-bit sequences are encoded onto eight orthogonal harmonics,
+numbered from 1 to 8. In contrast to classical OFDM, each bit in the 8-bit block is represented by the presence or
+absence of an orthogonal carrier. For instance, the binary 8-bit sequence ‘10001010’ is mapped to a symbol with
+harmonics present only at positions 1, 5, and 7. The scheme offers robust transmission up to 500 bps over real cellular
+voice channels.
+This article introduces a new DoV codebook-based modulation over cellular networks and V oIP for the needs of secure
+voice communication. The novelty comes from our simpliﬁed and universal codebook design process compared with
+the usual extensive codebook training on a selected voice model. Nevertheless, the method can be adapted to a particular
+channel, avoiding codebook over-tuning in the presence of ﬂuctuating channel characteristics. Modulation parameters
+are easily adjustable in order to balance the transmission bitrate and the robustness to errors.
+The proposed technique was thoroughly tested with real voice calls. The scheme achieves up to 6.4 kbps over V oIP
+voice channels using 4G wireless network and 2.4 kbps over 3G cellular calls (see Section 4.2). It also enables safe
+voice transmission with an effective binary error rate signiﬁcantly below 1%.
+This paper is organized as follows. Section 2 outlines challenges related to sending data over voice channels with
+LPC-based speech compression. Section 3 investigates signal distortion introduced by three selected LPC coders:
+AMR, Speex, and Opus-Silk. Next, the section describes the novel DoV technique, including codebook construction,
+signal generation, and demodulation. Section 4 presents performance results obtained by simulations and real-world
+experiments, and Section 5 proposes a secure voice communication scheme using DoV . Finally, Section 6 concludes the
+article and gives prospects for a future work.
+2
+
+===== PAGE 3 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+2 Digital V oice Channels
+This section introduces crucial challenges related to data transmission over voice channels. It outlines the speciﬁc
+behavior of voice channels, very different compared to classical communication channels, and highlights the desired
+properties of DoV signals.
+2.1 V oice channel characteristics
+In real-world implementations, a complete voice channel is typically the concatenation of algorithms that transform a
+speech signal into binary data suitable for transmission over the network. Despite the lossy nature of speech processing,
+the received binary information is sufﬁcient to re-synthesize a speech perceptually similar to the initial. However,
+from a DoV perspective, it is more convenient to consider voice channels as communication channels with particular
+constraints and signal distortion characteristics.
+The core elements of any digital voice channel are voice coders, which compress and encode sampled speech waveform
+exploiting principles of speech production and perception [23]. Real-time voice coders usually process speech on a
+frame basis by mapping portions of a speech waveform into sets of vocal parameters. These algorithms may perform
+high-pass ﬁltering, differential encoding, and adaptive quantization to improve the compression ratio depending on the
+available network throughput. Unfortunately, such operations add memory and latency to a voice channel, and make it
+non-linear and non-stationary.
+In addition to voice compression, modern voice communication systems apply techniques such as voice activity
+detection (V AD) [24], adaptive gain control (AGC) [25] or noise suppression (NS) [26]. In opposition to voice coders,
+the implementation of these algorithms is rarely public and their impact on the DoV cannot be fully predicted.
+Combining all the mentioned elements of real voice channels, achieving an analytic model of signal distortion is usually
+intractable. Nevertheless, it is still worthwhile to consider the most fundamental properties of voice channels and
+construct the DoV scheme agnostic to small variations of the voice channel characteristics.
+2.2 LPC coders
+Most of the voice coders operating in the upper-middle bitrate range (10 kbps –16 kbps) listed in ITU, IETF and 3GPP
+standards, and which are widely adopted in cellular and V oIP systems, rely onlinear predictive coding (LPC). LPC
+coders take their inspiration from the simpliﬁed speech production model, often referred to as a source-ﬁlter model
+[27, 28]. According to the model, voice sound originates from a single sourcee(t) and is ﬁltered by a vocal tract with an
+impulse responsev(t). Such a simpliﬁcation is justiﬁed for voiced and stationary sounds, which can be approximately
+represented by the buzzing excitation produced in the glottis and shaped when passing through the pharynx and between
+tongue, teeth, and lips. The resulting signal has the forms(t) =e(t)∗v(t), where∗ denotes the convolution product.
+Furthermore, considering voice as the convolution of excitation and vocal tract shaping would be of little practical value
+without effective methods for separating these components. The excitation and vocal tract characteristics can be well
+approximated during LPC analysis (hence LPC coders). The outputs of LPC analysis consist of a linear prediction ﬁlter
+describing the vocal tract’s ﬁltering effect and a residual that can be viewed as an excitation signal.
+As an example, Figs. 1a and Fig. 1b present 100 ms of a real recording of vowel /a/ in the time and the frequency
+domain. It can be noticed that this spectrum has an harmonic structure and could be accurately parameterized by its
+energy, spectral envelope, and fundamental frequency. The dashed line in Fig. 1b, which coincides with the spectral
+envelope of a vowel, represents the frequency response of the estimated LPC ﬁlter. On the other hand, the peaks of
+the residual signal in Fig. 1c correspond to a buzzing excitation from the glottis. Finally, the frequency spectrum of a
+residual in Fig. 1d is relatively ﬂat and has less different formants (acoustic harmonic resonances), compared to the
+initial spectrum in Fig. 1a. Thus, we can reach the intuitive conclusion that LPC analysis separates the spectral envelope
+from the harmonic content of the signal.
+Source-ﬁlter separation emphasizes the relevant vocal information, which is advantageous in signal compression.
+Figure 2 depicts a simpliﬁed diagram of speech analysis and synthesis by a generic LPC coder. The encoder estimates
+LPC coefﬁcients and calculates the excitation of a small portion of speech (typically 5ms –20ms). Lossy excitation
+encoding puts stress on preserving the harmonic content of the speech, whereas LPC ﬁlters are often weighted to boost
+formants, taking advantage of the human auditory system’s speciﬁcities and information redundancy. From this point, it
+is understandable that vocal parameters in a waveform are usually well preserved during compression, while the less
+speech-like are removed. The output waveform is also smoothed in the time and spectral domains to remove ringing
+effects caused by frame-based processing.
+3
+
+===== PAGE 4 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+time (ms)
+(a)
+frequency (kHz) (b)
+time (ms)
+(c)
+frequency (kHz) (d)
+Figure 1: LPC analysis of vowel/a/: (a) time domain waveform, (b) spectrum of the waveform (blue solid line) and
+frequency response of the 12th order LPC ﬁlter (red dashed line), (c) residual of LPC analysis (solid blue line) and
+excitation peaks (red dashed line), (d) frequency spectrum of a residual.
+Linear Predictive Coding achieves remarkable results in representing and compressing smoothly varying voiced sounds
+but often struggles with encoding short and noisy plosives (like /p/ or/t/), which do not ﬁt into the source-ﬁlter
+speech model. To improve the robustness for noisy sounds, LPC coders incorporate more ﬂexibility into the excitation
+encoder. This observation suggests that the potential performance of the DoV technique would mostly depend on the
+accuracy and reaction time of excitation encoding.
+Despite preserving core speech intelligibility, time-domain LPC coding destroys the ﬁne time-structure of compressed
+signals. Thus, it is not obvious how voice channels equipped with LPC coders modify the sent signal. In Section 3, we
+describe a simpliﬁed framework that will allow us to evaluate the typical distortion introduced by LPC voice channels.
+Figure 2: Simpliﬁed diagram of LPC encoder and decoder.
+4
+
+===== PAGE 5 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+3 Data over LPC V oice Coders
+This section presents a novel DoV technique based on codebooks of phase-modulated harmonic waveforms. The
+proposed solution is the result of extensive simulation experiments with three representative LPC narrow-band coders:
+AMR [29], Speex v1.2 [30] and Opus-Silk v1.3.1 [31].
+The section begins with a thorough analysis of signal distortion characteristics caused by selected voice compression
+algorithms. The investigation leads to a signiﬁcant improvement in harmonic signal demodulation. Finally, the section
+proposes a simpliﬁed codebook design approach.
+3.1 Multiharmonic modulation over LPC voice coders
+By their construction optimized to vowel sounds, LPC coders are suitable for synthesizing multi-harmonic signals. On
+the other hand, the versatility of excitation encoding allows easy manipulation of phase information, which above 2 kHz
+typically plays a lesser role in speech intelligibility [23, 32]. Combining phase modulation with multiple subcarriers
+is particularly interesting, as it opens the possibility of applying spectrally-efﬁcient orthogonal frequency-division
+multiplexing (OFDM) modulation [33]. The OFDM approach has been already analyzed in the context of DoV in [5].
+Their solution is based on 27 independently modulated carriers and achieved a high bitrate of 2.4 kbps over the (now
+obsolete) RPE-LTP GSM voice coder at an acceptably low error rate.
+Figure 3 presents a signal-to-noise ratio (SNR) of a multi-tone signal compressed by AMR, Speex, and Opus-Silk
+at different compression rates. It may be noticed that distortions introduced by coders are roughly similar. However,
+the large amount of distortion poses a big challenge for reliable data transmission, especially at compression bitrates
+below 10 kbps. Thus, a better understanding of the characteristics of signal distortion would help designing a more
+robust communication scheme. For the sake of consistency, the following experiments were performed only for ﬁxed
+compression bitrates: AMR 12.2 kbs, Speex 11 kbps, and Opus-Silk 12 kbps.
+7 8 9 10 11 12 13 14 15
+2
+4
+6
+bitrate (kbps)
+SNR (dB) AM R
+SP EEX
+SILK
+Figure 3: SNR of a multi-tone signal compressed by a selection of LPC coders. The multi-tone signal consisted of
+eight harmonics at frequencies 400 Hz, 800 Hz, ..., 3200 Hz with a 400 Hz step. Harmonics were independently
+phase-modulated with a modulation order 4 and a modulation rate of 200 baud.
+Since LPC coders process the signal jointly, it is not clear how the presence of other harmonics affects the distortion of
+each component. Figure 4 presents the energy-normalized variance of spectral distortion and related error rates of phase
+detection in multi-tone signals compressed by a selection of LPC coders. It can be noticed, that there is a direct relation
+between the variance of distortion and the error rate. In addition, as the cardinality of harmonics in the multi-tone signal
+goes up, the variability of error rates rises. Nevertheless, harmonics are not distorted uniformly, which is especially
+noticeable for Silk. It is because the codec puts a more signiﬁcant emphasis on preserving lower frequencies [ 31],
+especially important for the auditory perception of voice [34].
+The distortion introduced by each studied coder has a similar nature, as presented in Fig. 5. Apart from random
+noise-like distortion, all samples are subject to constant phase shift (this effect was also observed in [8, 20]). The phase
+shift depends on the frequency and the speciﬁc LPC coder, but not on symbol duration. The phase shift is probably
+introduced during speech synthesis by the LPC reconstruction ﬁlter with a non-uniform phase response.
+The sample density distributions of the variable part of distortion are approximately Gaussian, like those presented in
+Fig. 6. As the frequency goes up, the width (i.e., variance) is getting larger. This observation supports the intuition that
+the harmonics at lower frequencies are generally less distorted by compression.
+5
+
+===== PAGE 6 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+4 5 6 7 8
+0.2
+0.4
+0.6
+cardinality of harmonics used
+AM R
+SP EEX
+SILK
+(a) Radial variance of distortion.
+4 5 6 7 8
+0
+0.05
+0.10
+0.15
+cardinality of harmonics used
+AM R
+SP EEX
+SILK (b) Error rate of phase detection.
+Figure 4: Energy-normalized variance of spectral distortion and related error rates of phase detection in multi-tone
+signals compressed by a selection of LPC coders. The initial multi-tone signal consisted of four independently
+phase-modulated harmonics at frequencies 400 Hz, 800 Hz, 1200 Hz, and 1600 Hz, with a modulation order 4 and a
+modulation rate of 200 baud. Then, the set of carriers was expanded by adding harmonics at 2000 Hz, 2400 Hz, ...,
+3200 Hz with a 400 Hz step. Colored bars denote the lowest and highest values among harmonics, and dots indicate the
+average.
+(a) 400 Hz.
+ (b) 800 Hz.
+ (c) 1200 Hz.
+ (d) 1600 Hz.
+Figure 5: Scatter plots of a four-harmonic signal compressed by AMR. Each plot represents a distortion of one
+phase-modulated harmonic at 400 Hz, 800 Hz, 1200 Hz, and 1600 Hz, with a modulation rate of 200 baud. Blue points
+correspond to compressed symbols, whereas red dots denote the initial phase constellation. The angle of the phase shift
+(restricted by black rays) varies in frequency.
+Figures 7a and 7b present Mardia’s bivariate skewness and kurtosis of a variable part of distortion. Mardia’s skewness
+and kurtosis of ap-variate random sample x1, ..., xn whose sample mean vector ¯x and sample covarianceS are deﬁned
+as [35]:
+skewness = 1
+n2
+n∑
+k=1
+n∑
+𝓁=1
+[
+(xk− ¯x)S−1 (x𝓁− ¯x)
+]3
+, (1)
+kurtosis = 1
+n
+n∑
+k=1
+[
+(xk− ¯x)S−1 (xk− ¯x)
+]2
+. (2)
+For a sample taken from ap-variate normal distribution, the statistics simplify to:
+skewness = 0 and kurtosis = p (p + 2). (3)
+6
+
+===== PAGE 7 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+It can be noticed that in the case of AMR and Speex (and to some extent Silk), the computed Mardia’s skewness
+and kurtosis are close respectively to 0 and 8, which are the values characterizing symmetric bivariate normal
+distribution [36]. Crucially, distortion is not signiﬁcantly correlated both in time and between harmonics (Fig. 7c
+and Fig. 7d). As a result, there is some evidence to treat the variable part of signal distortion as independent and
+memoryless. It can be seen as an advantage for demodulation but is also quite surprising because the analyzed coders
+are deterministic and non-linear. It suggests that distortion characteristics depend not only on LPC coders but also on
+statistical properties of the modulated signal.
+0 0.5 1 1.5 20.0
+0.02
+0.04
+0.06
+AM R
+SP EEX
+SILK
+(a) Skewness.
+−0.5 0 0.50.0
+0.02
+0.04
+0.06
+AM R
+SP EEX
+SILK (b) Kurtosis.
+−0.5 0 0.50.0
+0.02
+0.04
+0.06
+AM R
+SP EEX
+SILK
+(c) Inter-harmonic correlation.
+0 0.5 1 1.5 20.0
+0.02
+0.04
+0.06
+AM R
+SP EEX
+SILK (d) Time correlation.
+Figure 6: Sample probability density function of a variable part of distortion of two harmonics at frequencies 800 Hz
+and 1600 Hz, compressed by a selection of LPC coders. The compressed signal consisted of four independently
+phase-modulated carriers at frequencies 400 Hz, 800 Hz, 1200 Hz, and 1600 Hz, with a modulation order 4 and a
+modulation rate of 200 baud. Distortion in the transversal axis is centered using mean phase shift compensation, and
+the x-axes are normalized to the initial amplitude value of each harmonic.
+An open question remains, though, for other LPC coders at similar compression rates. Precisely, LPC coding’s basic
+principles do not imply the independence of distortion in time or frequency. On the other hand, it is arguable that such
+properties of the proposed modulation, like harmonicity and constant spectral amplitude, are compatible with LPC
+coding’s fundamental properties. Therefore, it should be suitable for the vast majority of LPC coders.
+3.2 DoV signal generation and demodulation
+Figure 8 depicts the typical diagram of a data transmission system over voice channel, which uses a codebook ofM
+pre-deﬁned discrete-time audio waveforms. Signal generation is a two-step procedure that ﬁrstly encodes the binary
+input into a sequence of indices (m0,m 1,... ) and then maps these indices into a concatenation of codebook symbols
+s = (sm0, sm1,... ). Finally, the resulting discrete-time audio signals is played to the (digital) audio input of a voice
+channel.
+On the reception side, the demodulator splits the received sampled audio signalr = (rm0, rm1,... ) into short chunks of
+ﬁxed length corresponding to the symbol duration, and then performs symbol-by-symbol matched-ﬁltering with all
+codebook entries. In the last steps, the demodulator extracts the indices of the codebook symbols giving the highest
+correlation value and decodes the binary information.
+7
+
+===== PAGE 8 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+4 5 6 7 8
+0
+0.1
+0.2
+cardinality of harmonics used
+AM R
+SP EEX
+SILK
+(a) Skewness.
+4 5 6 7 87.5
+8
+8.5
+9
+9.5
+cardinality of harmonics used
+AM R
+SP EEX
+SILK (b) Kurtosis.
+4 5 6 7 8
+0
+0.1
+0.2
+cardinality of harmonics used
+AM R
+SP EEX
+SILK
+(c) Inter-harmonic correlation.
+4 5 6 7 8
+0
+0.1
+0.2
+cardinality of harmonics used
+AM R
+SP EEX
+SILK (d) Time correlation.
+Figure 7: Statistical parameters of spectral distortion in multi-tone signals compressed by a selection of LPC coders.
+The initial multi-tone signal consisted of four independently phase-modulated harmonics at frequencies 400 Hz, 800 Hz,
+1200 Hz, and 1600 Hz, with a modulation order 4 and a modulation rate of 200 baud. Then, the set of carriers was
+expanded by adding harmonics at 2000 Hz, 2400 Hz, ..., 3200 Hz with a 400 Hz step. Colored bars denote the lowest
+and highest values among harmonics, and dots indicate the average.
+In the proposed DoV technique, a codebook symbol is a vector of waveform samples sm = [sm[0],...,s m[N− 1]]
+sampled at 8 kHz and of duration between 2.5-10 ms. Each symbol consists of some small numberK (between 7-10)
+of orthogonal harmonics modulated by quadrature phase-shift keying (4-PSK):
+sm[n] = Real
+(K−1∑
+k=0
+Cm,k exp
+(
+j(k +k0)ω0
+n
+N
+))
+, n = 0, 1,...,N − 1, (4)
+where 0≤m<M is the symbol index,ω0 denotes the fundamental angular frequency andk0 is the subband of the
+lowest harmonic. Finally, Cm ={Cm,k| 0≤ k < K} denotes a sequence of K complex PSK symbols over the
+phase-amplitude plane:
+Cm,k =A· exp(j2πϕm,k/4), k = 0,...,K − 1, (5)
+whereA is the amplitude and Φm ={2πϕm,k/4| 0≤k <K, ϕm,k∈ Z4} denotes a sequence of PSK phases (the
+selection of phase sequences will be detailed in Section 3.3). Examples of such waveforms are presented in Fig. 9.
+The symbol structure is equivalent to the discrete-time base-band representation of 4PSK-OFDM modulation [ 33].
+Therefore, the received symbols can be processed in a similar manner using subband de-multiplexing. Let ˜Cm =
+{ ˜Cm,k| 0≤k<K } be the sequence of PSK symbols obtained from some received codebook symbol rm. Assuming
+8
+
+===== PAGE 9 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+Figure 8: Modulation and demodulation of a discrete DoV signal using a codebook ofM pre-deﬁned discrete audio
+waveforms.
+0 2.50 5.00 7.50 10.00 12.50 15.00
+miliseconds
+Figure 9: Three discrete-time codebook waveforms (respectively blue, red and green dots) of duration 5 ms and
+consisting of 10 harmonics at frequencies 600 Hz, 800 Hz, ..., 2400 Hz, with a 200 Hz step.
+a typical AWGN (Additive White Gaussian Noise) channel, the maximum likelihood OFDM symbol detection can be
+expressed by the L2 norm minimization in the complex plane [37]:
+˜m = arg min
+m
+K−1∑
+k=0
+⏐⏐⏐ ˜Cm,k−A exp (j2πϕm,k/4)
+⏐⏐⏐
+2
+. (6)
+However, the experiments in Section 3.1 indicate that compression by the selected LPC coders causes group delay in
+the processed signal and alters each harmonic with a distortion of different variance. The estimated phase shift ˆφk and
+the variance of distortion ˆσ2
+k respective to each harmonic can be computed using a training sequence and the following
+estimators for sample mean and sample variance [38]:
+ˆµk =|ˆµk| exp
+(
+j ˆφk
+)
+= 1
+L
+L−1∑
+𝓁=0
+˜Cm𝓁,k exp(−j2πϕm𝓁,k/4), (7)
+ˆσ2
+k = 1
+L− 1
+L−1∑
+𝓁=0
+⏐⏐⏐ ˜Cm𝓁,k exp(−j2πϕm𝓁,k/4)− ˆµk
+⏐⏐⏐
+2
+, (8)
+where ˜Cm𝓁 ={ ˜Cm𝓁,k| 0≤k <K} denotes the𝓁−th sequence of PSK symbols measured at the reception side and
+Φm𝓁 ={2πϕm𝓁,k/4| 0≤k <K, ϕm𝓁,k∈ Z4} denotes the initial phases of the corresponding codebook symbols in
+the training sequence.
+With the estimated ˆφk and ˆσ2
+k, one may apply the phase shift compensation and spectral weighting of distortion in the
+demodulation rule from Eq. (6):
+˜m = arg min
+m
+K−1∑
+k=0
+⏐⏐⏐ ˜Ck exp(−j ˆφk)−A exp (j2πϕm,k/4)
+⏐⏐⏐
+2
+/ˆσ2
+k. (9)
+9
+
+===== PAGE 10 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+Finally, rewriting Eq. (9) and removing the constant terms gives a more convenient demodulation rule, which is
+maximizing the real part of a complex dot product [37]:
+˜m = arg max
+m
+Real
+(K−1∑
+k=0
+˜Ck· A
+ˆσ2
+k
+exp
+(
+−j2πϕm,k/4−j ˆφk
+))
+. (10)
+In contrast to time-domain matched-ﬁltering, the proposed demodulation rule enables phase and variance correction
+in the channel distortion. Secondly, it becomes more efﬁcient when the codebook size grows. Instead of performing
+M matched-ﬁltering operations on a symbol of lengthN, this demodulator needs to compute the in-phase/quadrature
+(I/Q) representations ofK <N PSK symbols and to correlate them withM different phase sequences. As an example,
+given the triple (K,M,N ) = (8, 256, 40), matched ﬁltering in the time domain requires at least 256· 40 = 10 240
+real-value multiplications. On the other hand, demodulation using Eq. (10) involves computing the complex PSK
+symbols (2· 8· 40 = 640 real-value multiplications) and comparing the obtained sequence with all phase combinations
+in the codebook (8· 256 = 2048 complex multiplications, or at least 4096 real-value multiplications).
+Despite the computational improvement, the codebook’s preferable size ranges between 64 and 256 elements and
+should not overreach 4096 elements. These values would make the real-time demodulation computationally practical on
+portable devices, especially if the codebook has a symmetric structure that enables further computational optimizations.
+Another factor in the process of selecting the codebook size is the transmission bitrate. Full 4PSK-OFDM modulation
+offers transmission up to 2K = log2(4K) information bits per symbol. However, the modulation is susceptible to
+excessive distortion or attenuation of some harmonics in spectrally selective voice channels. Instead, it is advisable to
+choose only a subset of all possible OFDM phase combinations to enlarge the minimum distance between symbols. This
+approach makes a transmission over voice channels more robust to spectrally selective distortion, as a large distortion of
+some harmonics would be compensated by a moderate distortion of the others. On the other hand, smaller modulation
+orderM <4K decreases the bitrate.
+3.3 Codebook design
+Construction of a suitable DoV codebook relies on ﬁnding (or training) a subset of harmonic symbols with a large
+minimum distance. However, this task becomes challenging as the number of symbol combinations increases. This
+subsection gives a proposition of a suboptimal codebook design method, which produces a set of harmonic waveforms
+sufﬁciently different from each other.
+For x1, x2∈ CK, let dE(x1, x2) be the Euclidean metric over the complex space and for y1, y2∈ ZK
+4 , let dL(y1, y2)
+be the Lee metric over ZK
+4 :
+dL(y1, y2) =
+K−1∑
+k=0
+min(|y1,k−y2,k|, 4−|y1,k−y2,k|).
+In addition, let us deﬁne the bijective function f : CK → ZK
+4 which takes the phase indices ϕm,k of every
+4-PSK sequence Cm ={A· exp(j2πϕm,k/4)| 0≤ k < K, ϕm,k∈ Z4}, and maps to a quaternary codeword
+f(Cm) ={ϕm,k| 0≤k<K } over ZK
+4 . For any two 4-PSK sequences Cm1 and Cm2, we get an isometric property:
+2A2dL(f(Cm1),f (Cm2)) = d 2
+E(Cm1, Cm2).
+It can be noticed that the same relation holds for the minimum distance between all PSK sequences in the OFDM
+codebook and elements of the associated quaternary codewords. The selection of the most distinct OFDM symbols
+could be thus replaced by the construction of a quaternary codeC⊂ ZK
+4 (not necessarily a subgroup), that maximizes
+the minimum Lee distance.
+In the perspective of non-binary codes with a deﬁned minimum distance, these OFDM symbols can be seen as error
+correcting codes encoded in the spectral domain [39]. In consequence, quaternary codes provide a new degree of freedom
+in the DoV codebook design. By some sensible manipulation of the number of harmonicsK, the symbol durationN,
+and the minimum distance between codebook symbolsd, it is possible to ﬁnd a codebook providing the required bitrate
+and maintaining sufﬁcient robustness to distortion. Moreover, the codebook generation is computationally constrained
+mostly by ﬁnding quaternary codes, which is a much faster process compared to training a full codebook of waveforms.
+Finally, quaternary codes can be reused to produce waveforms of different duration and harmonic frequencies. It is also
+worth noticing that the above motivation for exploiting non-binary codes is slightly different from other works focusing
+mainly on reducing the peak-to-mean energy ratio of the OFDM signal [40, 41, 42, 43].
+10
+
+===== PAGE 11 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+Due to some rotational symmetries of quaternary codes, there is no unique codebook with the largest minimum distance.
+It gives more ﬂexibility in the ﬁne-tuning of the codes to make them more suitable in real operation. It is advisable to
+select a codebook with a possibly uniform distribution of phase values and remove symbols with the highest maximum
+amplitude. Table 1 presents the minimum distance of several quaternary codes found by a greedy Algorithm 1. The
+subroutine ChooseInitial inserts a random or some pre-deﬁned initial codeword into the codebook, while the
+subroutine SelectCodeword iteratively selects a codeword to remain within the uniform distribution of phase values
+in the expanded set.
+To improve the computational demodulation efﬁciency, one may exploit the reﬂection symmetry of the codebook
+produced by the algorithm. Since for any 0≤ 2m < Mwe have s2m =−s2m+1, it is sufﬁcient to correlate the
+received PSK sequence only with codebook symbols having the even indices and then to check the sign of computation.
+Algorithm 1: CodebookSearch(C, M)
+Data: the set of quaternary codewords C, an even size of codebookM;
+Result: a set Cb ofM quaternary codes;
+Cb←− ∅;
+// select the first codeword (random or pre-defined)
+c0←−ChooseInitial(C);
+Cb←−Cb∪{ c0,−c0};
+fori← 1 to⌊M/2⌋− 1 do
+// select codewords in C with a maximum Lee distance from Cb
+S←−MaxLeeDistance(C, Cb);
+// select a codeword from S respective to uniform distribution
+c2i←−ChooseCodeword(S, Cb);
+Cb←−Cb∪{ c2i,−c2i};
+end
+Table 1: Minimum Lee distance of additive quaternary codes of length n = 7, 8, 9 and 10, found by Algorithm 1.
+Parameterk denotes the number of (quaternary) information bits of the code. From the perspective of OFDM symbols,
+valuen is related to the cardinality of harmonics, whilek describes the codebook size equal to 4k.
+n\k 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0
+7 6 6 4 4 3 3 2 2 2 1 1 - -
+8 8 8 6 6 4 4 4 4 2 2 2 2 1
+9 8 8 6 6 5 4 4 4 3 2 2 2 1
+10 10 9 7 6 6 5 5 4 4 3 3 2 2
+4 Experiments
+This section presents the performance results of the DoV scheme described in Section 3. Simulations are followed by
+experimental tests over 3G and V oIP. Examples of some DoV signals recorded during tests are available online.2
+4.0.1 Channel estimation
+Efﬁcient detection of received DoV symbols, described by Eq. (10) in Section 3, requires voice channel characterization
+using the training sequence. Intuitively, the larger number of symbols in the sequence, the more accurate is the
+estimation. We estimated the standard error ( SE) of the phase shift ˆφk(t) and the variance of distortion ˆσ2
+k(t) as a
+function of training durationt, using Monte Carlo simulations and the following formulas:
+ˆSE
+2
+ˆφk(t) = 1
+L
+L∑
+𝓁=1
+(
+ˆφk,𝓁(t)− ¯φk
+)2
+, (11)
+ˆSE
+2
+ˆσ2
+k(t)/¯σ2
+k
+= 1
+L
+L∑
+𝓁=1
+(
+ˆσ2
+k,𝓁(t)− ¯σ2
+k
+)2
+/¯σ2
+k, (12)
+2https://github.com/PiotrKrasnowski/Data_over_Voice
+11
+
+===== PAGE 12 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+whereL is the number of Monte Carlo runs, ˆφk,𝓁(t) and ˆσ2
+k,𝓁(t) denote respectively the estimated phase shifts and
+the variances of distortion in the𝓁−th Monte Carlo run, and the reference values ¯φk and ¯σ2
+k were obtained from a
+sequence of 50 000 DoV symbols (250 seconds of a signal). Figure 10 depicts the maximum standard error of ˆφk(t)
+and ˆσ2
+k(t)/¯σ2
+k taken over all harmonicsk and for everyt between 0.5 and 2.5 seconds with a 0.05 second step. It can be
+observed that 2 seconds of training period should give a sufﬁciently accurate channel characterization.
+0.5 1 1.5 2 2.5
+0.05
+0.1
+0.15
+training period duration (s)
+error (rad)
+AM R
+SP EEX
+SILK
+(a) Standard error of phase-shift estimation.
+0.5 1 1.5 2 2.5
+0.05
+0.1
+0.15
+0.2
+0.25
+0.3
+training period duration (s)
+error (unitless)
+AM R
+SP EEX
+SILK (b) Standard error of variance estimation.
+Figure 10: Estimated standard error of the phase-shift ˆφk and the normalized variance ˆσ2
+k/¯σ2
+k estimators of distortion
+introduced by a selection of coders. The graphs present the maximum standard error over all harmonics k, and for
+everyt between 0.5 and 2.5 seconds with a 0.05 second step. Results obtained based on 1000 Monte Carlo runs. The
+reference values ¯φk and ¯σ2
+k were computed from a sample of 50 000 symbols. The DoV signal consisted of 8 harmonics
+at frequencies 400 Hz, 800 Hz, ..., 3200 Hz with a modulation rate of 200 baud.
+4.1 Simulations
+The symbol error rate primarily depends on the distortion variance and the minimum distance between codebook
+symbols. For example, it can be noticed in Fig. 11a that compressing by AMR leads to signiﬁcantly lower error rates
+when compared to compression using the Silk codec. This result agrees with the experimental outcomes shown in Fig. 4
+in Section 3. Nevertheless, when the voice channel’s capacity goes up, the amount of distortion, and thus the error rate
+gradually decreases, as indicated by Fig. 11b.
+The characteristic staircase shape of the graphs in Figs. 11a and 11b corresponds to the codebook minimum distance d
+in function of the codebook size (ref. Table 1). Thus, the symbol error rates obtained can be viewed as the approximated
+probability of the signal distortion exceeding the distanced/2. Consequently, it is generally advantageous to design
+the codebook with a larger number of orthogonal harmonics, leading to increased minimum distance and improved
+robustness.
+Despite its simplicity, the presented scheme suffers from the large size of the codebooks used, especially at higher
+bitrates. The exponentially growing number of correlations becomes a major practical limitation for real-time signal
+demodulation. The problem can be tackled by scaling down the symbol duration at the expense of higher relative
+distortion and a smaller number of orthogonal frequency slots. As shown by Fig. 11c, a modulation based on smaller
+codebooks of shorter symbols provides similar performance at a much lower computational cost.
+4.2 Real-world tests
+The DoV technique has been tested over a real voice channel between mobile phones, using pre-computed DoV signals.
+The selected phones for experiments were two iPhones 6 running iOS 12 and a Huawei P8 Lite running Android 8,
+each registered to a different major French mobile network operator. The DoV performance over 3G calls is displayed
+in Table 2, and the performance over V oIP calls using 4G wireless network is shown in Table 3. The duration of the
+training period was extended to 4 seconds to ensure the reliability of the experiments.
+In the case of 3G connection, the overall symbol error rates given in Table 2 are higher compared to the simulation results
+presented in Fig. 11. Additional signal distortion is possibly caused by several signal processing stages in the phones
+12
+
+===== PAGE 13 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2
+10−7
+10−6
+10−5
+10−4
+10−3
+10−2
+10−1
+100
+256 512 1024 2048 4096 8192 16384 32768 65536
+bitrate (kbps) :
+codebook size :
+symbol error rate (log. scale)
+AM R − 8 harm. AM R − 10 harm.
+SP EEX − 8 harm. SP EEX − 10 harm.
+SILK − 8 harm. SILK − 10 harm.
+1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2
+10−5
+10−4
+10−3
+10−2
+10−1
+100
+256 512 1024 2048 4096 8192 16384 32768 65536
+bitrate (kbps) :
+codebook size :
+symbol error rate (log. scale)
+SILK − 12 kbps, 8 harm.
+SILK − 14 kbps, 8 harm.
+SILK − 16 kbps, 8 harm.
+2.0 2.4 2.8 3.2 3.6 4.0 4.4 4.8
+10−4
+10−3
+10−2
+10−1
+32 64 128 256 512 1024 2048 4096
+bitrate (kbps) :
+codebook size :
+symbol error rate (log. scale)
+AM R − 8 harm., rate = 400 baud
+SP EEX − 8 harm., rate = 400 baud
+SILK − 8 harm., rate = 400 baud
+Figure 11: Decoding symbol error rate of a DoV signal compressed by AMR, Speex and Opus-Silk. To ensure reliability
+of the simulations, duration of the training period was extended to 4 seconds. If not indicated otherwise, symbol rate
+equals 200 baud. DoV signals consisted of 107 symbols produced according to an output of a built-in pseudo-random
+generator with a pre-deﬁned seed. 13
+
+===== PAGE 14 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+Table 2: Symbol error rate of DoV signal over 3G call with and without channel estimation.
+10 harmonics, symbol duration 5 ms
+bitrate 4 s training period no training
+1.0 kbps < 1.0· 10−4 < 1.0· 10−4
+1.2 kbps < 1.0· 10−4 < 1.0· 10−4
+1.4 kbps 1.2· 10−4 2.9· 10−4
+1.6 kbps 2.6· 10−4 4.8· 10−4
+1.8 kbps 6.0· 10−4 1.5· 10−3
+2.0 kbps 1.2· 10−3 2.6· 10−3
+2.2 kbps 9.4· 10−3 1.4· 10−2
+2.4 kbps 1.6· 10−2 2.2· 10−2
+8 harmonics, symbol duration 2.5 ms
+bitrate 4 s training period no training
+1.2 kbps < 1.0· 10−3 < 1.0· 10−3
+1.6 kbps < 1.0· 10−3 1.3· 10−3
+2.0 kbps 1.2· 10−3 3.5· 10−3
+2.4 kbps 1.3· 10−2 2.6· 10−2
+2.8 kbps 3.4· 10−2 6.6· 10−2
+3.2 kbps 1.0· 10−1 1.3· 10−1
+3.6 kbps 1.2· 10−1 1.9· 10−1
+4.0 kbps 2.0· 10−1 2.6· 10−1
+Table 3: Symbol error rate of DoV signal over V oIP.
+8 harmonics, symbol duration 2.5 ms, 4 s training period
+bitrate Face Time Skype Signal Messenger WhatsApp
+4.0 kbps < 1.0· 10−4 < 1.0· 10−4 1.0· 10−4 9.6· 10−4
+4.8 kbps < 1.0· 10−4 1.0· 10−4 9.3· 10−4 5.1· 10−3
+5.6 kbps < 1.0· 10−4 1.2· 10−4 4.4· 10−3 1.7· 10−2
+6.4 kbps 6.7· 10−4 3.0· 10−3 6.2· 10−2 8.6· 10−2
+and also by multiple voice compression in the network [6]. Nevertheless, the DoV signal based on faster modulation
+and smaller codebook sizes again demonstrated lower error rates. Finally, the results emphasize the importance of voice
+channel estimation, which signiﬁcantly improves the symbol error rate. Figure 12 displays the small fragment of the
+DoV signal sent over the 3G channel.
+Contrary to 3G, V oIP enables very high DoV bitrates, up to full OFDM narrowband transmission at 6.4 kbps. The
+improved results provided in Table 3 are achieved due to mild signal distortion given by high throughput and network
+stability. However, since V oIP is a packet-based system without any guarantee of Quality of Service (QoS), short
+interruptions in the network connection may cause many packet dropouts. The negative impact of dropouts is typically
+mitigated by the re-synthesis of lost frames by V oIP application, leading to non-recoverable damages to the DoV signal
+and hindering the system’s re-synchronization.
+0 2.5 5 7.5 10 12.5 15 17.5 20
+miliseconds
+Figure 12: DoV signal at the bitrate 2.8 kbps, before (black line) and after (red line) transmission over the 3G network.
+The fragment displays eight consecutive DoV symbols of duration 2.5 ms consisting of 8 harmonics at frequencies
+400 Hz, 800 Hz, ..., 3200 Hz, with a 400 Hz step.
+5 Secure V oice Communication
+This section provides a detailed proposition of a scheme for secure voice communication over 3G and V oIP, using small
+portable devices with limited battery capacity. The system has been successfully tested in a controlled, real-world
+environment and with pre-computed DoV signals. The performance results are followed by a short discussion on
+security and computational complexity.
+14
+
+===== PAGE 15 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+5.1 Communication system
+Figure 13 presents a simpliﬁed diagram of a system for secure voice communication over a voice channel, which
+transforms consecutive portions of speech into DoV frames of the same duration. The scheme substantially resembles
+a classical digital communication system: it consists of speech encoding, followed by encryption, error correction,
+and data modulation blocks. Although the input and output signals of the processing chain are analog, all internal
+processing is performed digitally.
+Figure 13: Encrypted speech over voice channel scheme.
+The system settings should be a trade-off between operational constraints (restricted bandwidth, real-time processing,
+synchronization) and the desired security level against eavesdroppers and active attackers from within the network.
+Depending on the voice channel type, two modes of operation may be considered: a low mode designed for 3G cellular
+calls and a high mode for V oIP. The system parameters selected in the following experiments are presented in Table 4
+and are used only for illustration.
+Table 4: Selected parameters of the secure voice communication system.
+version: low mode ( 3G ) high mode ( V oIP )
+DoV frame
+codebook size: 64 4096
+DoV symbol order: 6 bits 12 bits
+modulation rate: 400 baud 400 baud
+bitrate: 2400 bps 4800 bps
+frame duration: 80 ms 60 ms
+frame length: 32 symbols / 192 bits 24 symbols / 288 bits
+Reed-Solomon coding
+RS symbol order: 6 bits 6 bits
+message length: 20 symbols / 120 bits 28 symbols / 168 bits
+· encrypted speech: 96 bits 144 bits
+· frame counter: 16 bits 16 bits
+· control checksum: 8 bits 8 bits
+code length: 28 symbols / 168 bits 40 symbols / 240 bits
+redundancy: 8 symbols / 48 bits 12 symbols / 72 bits
+V oice enciphering AES 256 (CTR mode) AES 256 (CTR mode)
+V oice compression Codec2 1200 bps Codec2 2400 bps
+The processing chain starts with low-bitrate speech compression. In this work, voice is encoded by Codec2, an
+open-source algorithm developed by Rowe3 and J.-M. Valin, which offers speech compression down to 450 bps [44]. In
+the next step, the encoded voice frames are enciphered by AES in the counter mode of operation and with a secret key
+of 256 bits with a random initial value (IV).
+The encrypted binary stream is protected against channel errors by shortened Reed-Solomon (RS) codes with erasures
+[45, 46] and 6-bit symbols. The error correction capabilities of RS codes depend only on the redundancy length,
+which is not the case for Turbo and LDPC codes [ 47]. Moreover, non-binary symbol processing of RS codewords
+seems suitable for symbol-to-symbol demodulation of the DoV signal. In particular, one or more RS symbols can be
+represented by a single DoV symbol.
+3https://rowetel.com
+15
+
+===== PAGE 16 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+Erasure decoding improves correction capabilities of RS codes, provided that the localization of errors are known. The
+demodulator may try to guess the erroneous symbols, using a straightforward metric that considers symbol energy and
+its distance to the closest codebook symbol. Thus, when the ﬁrst decoding attempt fails, the decoder may reiterate
+decoding with new estimated erasure positions until the 8-bit control checksum (8-CRC) matches.
+In the proposed scheme, each RS codeword is directly encoded into one DoV frame, as described in Fig. 14. A constant
+header and a counter (CTR) enable decoding and decryption of DoV frames independently from each other, simplifying
+the re-synchronization in the presence of signal dropouts. Extensive experiments have shown that a 10-ms header is
+usually sufﬁciently long to keep signal synchronization or detect a DoV frame after signal restoration. In addition, the
+16-bit counter permits re-synchronization after more than one hour of lost connection.
+Figure 14: DoV frame structure in a low (up) and a high (bottom) mode of operation. The numbers indicate the lengths
+of frame sections, given as a cardinality of DoV symbols. In the high mode, one DoV symbol represents two RS
+symbols.
+The duration of a DoV frame is equal to the portion of speech encoded by this frame, which is a valid requirement for
+real-time communication. Selected voice compression rates, 1.2 kbps, and 2.4 kbps depending on the mode, are low
+enough to append error correction redundancy at the end of each DoV frame.
+The system was tested over cellular and V oIP calls. Table 5 presents the decoding results of several minutes of speech
+recording sent through using the 4G mobile data connectivity between two iPhones 6 registered to different network
+operators. The effective bit error rates (BER) and frame error rates (FER) take into account errors due to system
+de-synchronizations and short signal dropouts.
+Table 5: Performance of encrypted voice transmission over cellular voice channels and V oIP.
+3G Face Time Skype Signal Messenger WhatsApp
+effective BER: 3.7· 10−3 < 1.0· 10−4 < 1.0· 10−4 < 1.0· 10−4 7.8· 10−4
+effective FER: 1.9· 10−2 < 1.0· 10−3 < 1.0· 10−3 < 1.0· 10−3 2.1· 10−3
+Figure 15 shows the consecutive waveforms of a signal processed by a 3G network. The initial speech waveform
+presented in Fig. 15a is compressed, encrypted, and encoded into the DoV signal of equal duration in Fig. 15b. The
+received signal displayed in Fig. 15c is strongly attenuated after less than 2 seconds of transmission, classiﬁed by the
+V oice Activity Detector (V AD) as non-speech-like. However, correct decoding is still possible as long as the harmonic
+structure of the signal is preserved, as shown in Fig. 15d.
+The distortion of the received signal can vary, depending on the network type and the phones used for communication.
+To counteract the blockage of stationary signals by V AD and Noise Suppression, several authors suggest to alternate two
+DoV codebooks deﬁned over two non-overlapping bandwidths [48, 14]. This work proposes another complementary
+technique: periodic silence insertion in place of some DoV frames, as depicted in Fig. 16. It was observed that
+depending on the chosen rate of silence insertion and the type of connection, these silences signiﬁcantly postpone or
+even prevent signal suppression. On the reception side, these inserted silences can be classiﬁed as lost frames and
+re-synthesized.
+5.2 Security discussion
+The presented voice communication scheme must offer sufﬁciently high levels of secrecy and authentication in order to
+prevent speech interception. A major risk is the recording and off-line cryptanalysis of the network trafﬁc by passive
+16
+
+===== PAGE 17 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+0 1 2 3 4 5
+seconds
+0 1 2 3 4 5
+seconds
+0 1 2 3 4 5
+seconds
+0 1 2 3 4 5
+seconds
+Figure 15: Consecutive stages of the signal in secure voice communication over a 3G call. From top to bottom: the
+initial speech, the sent DoV signal, the received DoV signal and the re-synthesized speech. The received signal was
+fully decodable despite strong signal attenuation.
+eavesdroppers. Securing the communication against eavesdroppers is especially important because the encrypted and
+non-speech signal can be easily detected by some advanced Data Leakage Prevention (DLP) and Content Monitoring
+and Filtering (CMF) systems protecting against unauthorized data extrusion [49, 50, 8]. Active attackers controlling
+the network are more likely to block or distort the fragile DoV signal, which is technically very simple. However, a
+powerful and knowledgeable attacker who can synthesize a compatible DoV signal in real-time may modify the signal
+or insert its own.
+The chosen AES cipher in the counter mode of operation, if implemented correctly, is believed to provide security
+against passive eavesdroppers [ 51, 52]. On the other hand, enciphering in counter mode does not guarantee data
+integrity [53], giving some space for adversarial manipulations. Therefore, the common practice is to combine the AES
+in counter mode with a cryptographic message authentication function [54]. Unfortunately, due to severe bandwidth
+limitations appending the authentication check is not viable. Instead, it would be possible to randomly shufﬂe the
+positions of encrypted bits within one DoV frame [55, 56]. The motivation for this is to prevent malicious attackers
+from intentional modiﬁcations of the transmitted content. While still capable of replacing several DoV symbols, the
+attacker should not beneﬁt from distorting the transmitted signals.
+Finally, it is assumed that both users share a common secret cryptographic key used for encryption. Secure key exchange
+can become challenging when the voice channel is the only available communication channel. With decentralized
+implementations of the proposed system, there would be no practical possibility to add the Trusted Third Party for user’s
+authentication. A few protocols overcome this limitation by using vocal veriﬁcation [ 57, 58, 7]. In such a scenario,
+users compare freshly generated random strings vocally while challenging another speaker’s voice proﬁle.
+17
+
+===== PAGE 18 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+0 1 2 3 4 5
+seconds
+0 1 2 3 4 5
+seconds
+Figure 16: Comparison of the received DoV signal in a 3G call (top) without and (bottom) with silence insertion every
+16th frame. Depending on the connection type and the silence insertion rate, this technique may postpone or prevent
+signal suppression.
+5.3 Computational complexity
+The goal of real-time operation on small portable devices puts a big emphasis on computational optimization of the
+proposed system. It can be noticed that PSK-OFDM modulation [59], AES-CTR encryption [54, 60], Reed-Solomon
+error correction [61, 62] and the speech encoding [63] algorithms mentioned in this work have been already widely
+adopted in wireless communication with mobile phones or in the computationally constrained environment, including
+real-time applications. However, the presented system was implemented in GNU Octave environment,4 serving as a
+proof-of-concept only. There is still considerable work to be done to efﬁciently integrate all these elements into a single
+system operating on a device with limited resources, like mid-range smartphones.
+6 Conclusion
+In this article, we detailed a new and versatile Data over V oice technique for secure voice communications over
+LPC-based voice channels, like cellular networks and V oIP. Based on codebooks with harmonic symbols, the proposed
+solution is well-grounded on the fundamental principles of LPC coding.
+A thorough analysis of OFDM signals compressed by some prominent voice coders revealed that the distortion is
+statistically close to a symmetric bivariate Gaussian distribution over the complex phase-amplitude plane. However,
+this distortion is not uniformly distributed in the spectral domain. Thus, we proposed an optimized demodulation metric
+based on spectrally weighted Euclidean distance with phase shift correction.
+The tedious design process of DoV codebooks has been considerably simpliﬁed by using quaternary error correction
+codes. With OFDM symbols being treated as codes over a quaternary ring, codebook construction reduces to ﬁnding a
+set of quaternary codes that maximizes the minimum Lee distance.
+The performance of our DoV technique has been evaluated through simulations and real-world tests over real voice
+connections between two mobile phones. A bitrate of 2.4 kbps over 3G call and 6.4 kbps over V oIP have been achieved
+with acceptably low symbol error rates. These tests highlight the need to properly characterize the channel distortion
+before transmission properly.
+Finally, the work described a scheme for secure voice communications over voice channels in high and low bitrate
+modes of operation. The system has been practically validated for real-time voice transmission over cellular networks
+and V oIP with small effective bit error rates. To mitigate the negative impact of V AD, we also proposed a new method
+based on the insertion of repetitive silences.
+The promising results presented in this work suggest some further investigation of the proposed DoV technique. A big
+emphasis has to be put on signal synchronization on the reception side and reducing the computational cost of signal
+4https://www.gnu.org/software/octave/
+18
+
+===== PAGE 19 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+demodulation. Additionally, sensible codebook structuring, combined with the exploitation of phase symmetries, may
+signiﬁcantly lower the number of correlations in a demodulator.
+7 Acknowledgments
+This work is supported by grant DGA Cifre-Defense program No 01D17022178 DGA/DS/MRIS and AID program
+No SED0456JE75.
+References
+[1] John Scott-Railton, Bill Marczak, Bahr Abdul Razzak, Masashi Crete-Nishihata, and Ron Deibert. Reck-
+less Exploit: Mexican Journalists, Lawyers, and a Child Targeted with NSO Spyware. Report, The Cit-
+izen Lab, 2017. URL https://tspace.library.utoronto.ca/bitstream/1807/96731/1/Report%
+2393--recklessexploit.pdf. Accessed 13 July 2020.
+[2] Marc Werner, Christian Pietsch, Christoph Joetten, Christian Sgraja, Georg Frank, Wolfgang Granzow, and Jeff
+Huang. Cellular In-Band Modem Solution for eCall Emergency Data Transmission. In VTC Spring 2009 - IEEE
+69th V ehicular Technology Conference. IEEE, 2009. doi:https://doi.org/10.1109/VETECS.2009.5073434.
+[3] Aditya Dhananjay, Ashlesh Sharma, Michael Paik, Jay Chen, Trishank Karthik Kuppusamy, Jinyang Li, and
+Lakshminarayanan Subramanian. Hermes: data transmission over unknown voice channels. In Proceedings of
+the sixteenth annual international conference on Mobile computing and networking . Association for Computing
+Machinery, 2010. doi:https://doi.org/10.1145/1859995.1860010.
+[4] Zdenko Mezgec, Amor Chowdhury, Bojan Kotnik, and Rajko Sve ˇcko. Implementation of
+PCCD-OFDM-ASK robust data transmission over GSM speech channel. Informatica, 20, 2009.
+doi:https://doi.org/10.15388/Informatica.2009.237.
+[5] Liquan Chen and Qi Guo. An OFDM-based secure data communicating scheme in GSM voice chan-
+nel. In 2011 International Conference on Electronics, Communications and Control (ICECC) . IEEE, 2011.
+doi:https://doi.org/10.1109/ICECC.2011.6066715.
+[6] Nilantha Katugampala, Stephane Villette, and Ahmet M. Kondoz. Secure voice over GSM and other low bit rate
+systems. In IEE Seminar on Secure GSM and Beyond (Digest No. 2003/10059) . IET, 2003.
+[7] Piotr Krasnowski, Jerome Lebrun, and Bruno Martin. Introducing a Veriﬁed Authenticated Key Ex-
+change Protocol over Voice Channels for Secure Voice Communication. In 6th International Confer-
+ence on Information Systems Security and Privacy , pages 683–690. Scitepress Digital Library, 2020.
+doi:https://doi.org/10.5220/0009156506830690.
+[8] Seungjoon Lee, Youngmok Ha, Sungjun Yoon, Hyunju Jo, Soohee Jang, Jiyeon Lee, Youngan Kim, and Ji Yoon.
+The Vulnerability Exploitation Conveying Digital Data Over Mobile Voice Call Channels. Wireless Personal
+Communications, 96:1–28, 2017. doi:https://doi.org/10.1007/s11277-017-4229-9.
+[9] Frank Soong and Biing-H. Juang. Line spectrum pair (LSP) and speech data compression. In ICASSP ’84. IEEE
+International Conference on Acoustics, Speech, and Signal Processing , volume 9, pages 37–40. IEEE, 1984.
+doi:https://doi.org/10.1109/ICASSP.1984.1172448.
+[10] Nilantha N. Katugampala, Kholdoon T. Al-Naimi, Stephane Villette, and Ahmet M. Kondoz. Real-time end-to-end
+secure voice communications over GSM voice channel. In 2005 13th European Signal Processing Conference,
+pages 1–4. IEEE, 2005. ISBN 978-160-4238-21-1.
+[11] Mehmet Akif Özkan and S Berna Örs. Data transmission via GSM voice channel for end to end secu-
+rity. In 2015 IEEE 5th International Conference on Consumer Electronics-Berlin (ICCE-Berlin) . IEEE, 2015.
+doi:https://doi.org/10.1109/ICCE-Berlin.2015.7391285.
+[12] Mahsa Rashidi, Abolghasem Sayadiyan, and Pejman Mowlaee. A Harmonic Approach to Data Transmission over
+GSM Voice Channel. In 2008 3rd International Conference on Information and Communication Technologies:
+From Theory to Applications, pages 1–4. IEEE, 2008. doi:https://doi.org/10.1109/ICTTA.2008.4530052.
+[13] Christoph K. LaDue, Vitaily V . Sapozhnykov, and Kurt S. Fienberg. A Data Modem for GSM Voice Channel.IEEE
+Transactions on V ehicular Technology, 57(4):2205–2218, 2008. doi:https://doi.org/10.1109/TVT.2007.912322.
+[14] Vitaliy V . Sapozhnykov and Kurt S. Fienberg. A low-rate data transfer technique for compressed voice channels.
+Journal of Signal Processing Systems , 2012. doi:https://doi.org/10.1007/s11265-011-0594-x.
+19
+
+===== PAGE 20 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+[15] Ali Shahbazi, Amir Hossein Rezaie, Abolghasem Sayadiyan, and Saeed Mosayyebpour. A novel speech-like
+symbol design for data transmission through GSM voice channel. In2009 IEEE International Symposium on Signal
+Processing and Information Technology (ISSPIT). IEEE, 2009. doi:https://doi.org/10.1109/ISSPIT.2009.5407541.
+[16] Mahdu Boloursaz, Amirhossein Hadavi, Rohullah Kazemi, and Fereidoon Behnia. A data modem for GSM
+Adaptive Multi Rate voice channel. In East-West Design Test Symposium (EWDTS 2013), pages 1–4. IEEE, 2013.
+doi:https://doi.org/10.1109/EWDTS.2013.6673152.
+[17] Victor Zue, Stephanie Seneff, and James Glass. Speech database development at MIT: Timit and beyond. Speech
+Communication, 9(4):351 – 356, 1990. doi:https://doi.org/10.1016/0167-6393(90)90010-7.
+[18] Reza Kazemi, Mahdi Boloursaz Mashhadi, Mohsen Heidari Khoozani, and Fereydoon Behnia. Modem based on
+sphere packing techniques in high-dimensional Euclidian sub-space for efﬁcient data over voice communication
+through mobile voice channels. IET Communications, 9, 2015. doi:https://doi.org/10.1049/iet-com.2014.0610.
+[19] Tikui Zhang, Sensen Li, and Bin Yu. A universal data transfer technique over voice channels of cellular mobile
+communication networks. IET Communications, 15(1):22–32, 2021. doi:https://doi.org/10.1049/cmu2.12047.
+[20] Zhan Xu. Data transmission method based on single carrier over GSM voice channel. Revista de la Facultad de
+Ingeniera, 32(9):23–29, 2017.
+[21] Touﬁc Chmayssani and Genevieve Baudoin. Data transmission over voice dedicated channels us-
+ing digital modulations. In 2008 18th International Conference Radioelektronika . IEEE, 2008.
+doi:https://doi.org/10.1109/RADIOELEK.2008.4542682.
+[22] Bechir Taleb Ali, Genevieve Baudoin, and Olivier Venard. Data transmission over mobile voice channel based
+on M-FSK modulation. In 2013 IEEE Wireless Communications and Networking Conference (WCNC) , pages
+4416–4421. IEEE, 2013. doi:https://doi.org/10.1109/WCNC.2013.6555289.
+[23] Lawrence R. Rabiner and Ronald W. Schafer. Theory and applications of digital speech processing . Pearson,
+Upper Saddle River, NJ, 2011.
+[24] Tom Bäckström. Speech Coding with Code-Excited Linear Prediction . Springer, Cham, Switzerland, 2017.
+[25] P. Heitkamper. Optimization of an Acoustic Echo Canceller Combined with Adaptive Gain Control. In 1995
+International Conference on Acoustics, Speech, and Signal Processing , 1995. doi:10.1109/ICASSP.1995.479488.
+[26] Dionysis E. Tsoukalas, John N. Mourjopoulos, and George Kokkinakis. Speech Enhancement Based
+on Audible Noise Suppression. IEEE Transactions on Speech and Audio Processing , 5, 1997.
+doi:https://doi.org/10.1109/89.641296.
+[27] Gunnar Fant. Acoustic Theory of Speech Production: With Calculations based on X-Ray Studies of Russian
+Articulations. De Gruyter Mouton, Berlin, Boston, 1960. doi:https://doi.org/10.1515/9783110873429.
+[28] Carol Lochbaum and John Kelly. Speech synthesis. In Proceedings of the Speech Communication Seminar , pages
+583–596. Speech Transmission Laboratory, 1962.
+[29] 3GPP. Adaptive Multi-Rate (AMR) speech codec; Transcoding functions. Technical Report TS 26.090, Release 15,
+3GPP, 2018. URL http://www.3gpp.org/ftp//Specs/archive/26_series/26.090/26090-f00.zip.
+[30] Greg Herlein, Jean-Marc Valin, Alfred Heggestad, and Aymeric Moizard. RTP Payload Format for the Speex
+Codec. Technical Speciﬁcation RFC 5574, IETF, 2009. URL https://tools.ietf.org/html/rfc5574.
+[31] Jean-Marc Valin, Koen V os, and Timothy Terriberry. Deﬁnition of the Opus Audio Codec. Technical Speciﬁcation
+RFC 6176, IETF, 2012. URL https://tools.ietf.org/html/rfc6716.
+[32] Ana Alves-Pinto, Alan R. Palmer, and Enrique A. Lopez-Poveda. Perception and coding of high-frequency
+spectral notches: potential implications for sound localization. Frontiers in neuroscience , 8:112, 2014.
+doi:https://doi.org/10.3389/fnins.2014.00112.
+[33] Richard van Nee and Ramjee Prasad. OFDM for Wireless Multimedia Communications . Artech House, Boston,
+MT, 2000.
+[34] Ben Gold, Nelson Morgan, and Dan Ellis. Speech and Audio Signal Processing: Processing and Perception of
+Speech and Music. John Wiley & Sons, Hoboken, NJ, 2011.
+[35] Kanti V . Mardia. Measures of multivariate skewness and kurtosis with applications. Biometrika, 57, 1970.
+doi:https://doi.org/10.2307/2334770.
+[36] Kanti V . Mardia. Applications of Some Measures of Multivariate Skewness and Kurtosis in Testing Normality
+and Robustness Studies. Sankhy¯a: The Indian Journal of Statistics, Series B , 32(2):115–128, 1974. URL
+https://www.jstor.org/stable/pdf/25051892.pdf.
+20
+
+===== PAGE 21 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+[37] Henrik Schulze and Christian Lüders. Theory and Applications of OFDM and CDMA: Wideband Wireless
+Communications. John Wiley & Sons, Chichester, GB, 2005.
+[38] Robert Witte and John Witte. Statisticss. Wiley, Hoboken, NJ, 2017. ISBN 978-1-119-25451-5.
+[39] Tim A. Wilkinson and Alan E. Jones. Minimisation of the Peak to Mean Envelope Power Ratio of Multicarrier
+Transmission Schemes by Block Coding. In 1995 IEEE 45th V ehicular Technology Conference. Countdown to the
+Wireless Twenty-First Century, volume 2. IEEE, 1995. doi:https://doi.org/10.1109/VETEC.1995.504983.
+[40] James A Davis and Jonathan Jedwab. Peak-to-mean power control in OFDM, Golay complementary sequences, and
+Reed-Muller codes. IEEE Transactions on Information Theory , 45, 1999. doi:https://doi.org/10.1109/18.796380.
+[41] Houshou Chen and Hsinying Liang. Combined selective mapping and binary cyclic codes for
+PAPR reduction in OFDM systems. IEEE Transactions on Wireless Communications , 6, 2007.
+doi:https://doi.org/10.1109/TWC.2007.060145.
+[42] Thilak Ginige, Nandana Rajatheva, and Kazi M. Ahmed. Dynamic spreading code selection method for
+PAPR reduction in OFDM-CDMA systems with 4-QAM modulation. IEEE Communications Letters, 5, 2001.
+doi:https://doi.org/10.1109/4234.957377.
+[43] Miguel Angel Hisojo, Jerome Lebrun, and Luc Deneire. Low PAPR and spatial diversity for OFDM schemes by
+using L2-orthogonal CPM ST-codes with fast decoding. In 2014 IEEE Latin-America Conference on Communica-
+tions (LATINCOM). Springer, 2014. doi:https://doi.org/10.1007/s11277-013-1108-x.
+[44] Stefan Erhardt, Thomas Kurin, Fabian Lurz, Robert Weigel, and Alexander Koelpin. An Open-Source Speech
+Codec at 450 bit/s with Pseudo-Wideband Mode. In 2019 49th European Microwave Conference (EuMC) , pages
+1048–1051. IEEE, 2019.
+[45] Shu Lin and Daniel J. Costello. Error control coding, Second Edition. Prentice Hall, Lebanon, IN, 2001.
+[46] Andre Neubauer, Jurgen Freudenberger, and V olker Kuhn. Coding Theory: Algorithms, Architectures and
+Applications. John Wiley & Sons, Chichester, UK, 2007.
+[47] Bashar Tahir, Stefan Schwarz, and Markus Rupp. BER comparison between convolutional, Turbo, LDPC,
+and Polar codes. In 2017 24th international conference on telecommunications (ICT) . IEEE, 2017.
+doi:https://doi.org/10.1109/ICT.2017.7998249.
+[48] Ali Shahbazi, Amir Hossein Rezaei, Abolghasem Sayadiyan, and Saeed Mosayyebpour. Data transmission over
+GSM adaptive multi rate voice channel using speech-like symbols. In 2010 International Conference on Signal
+Acquisition and Processing. IEEE, 2010. doi:https://doi.org/10.1109/ICSAP.2010.72.
+[49] Cheol-Joo Chae, Yongju Shin, Kiseok Choi, Ki-Bong Kim, and Kwang-Nam Choi. A privacy data
+leakage prevention method in P2P networks. Peer-to-Peer Networking and Applications , 9, 05 2015.
+doi:https://doi.org/10.1007/s12083-015-0371-x.
+[50] Barbara Hauer. Data and Information Leakage Prevention Within the Scope of Information Security. IEEE Access,
+3:2554–2565, 2015. doi:https://doi.org/10.1109/ACCESS.2015.2506185.
+[51] Helger Lipmaa, Phillip Rogaway, and David Wagner. CTR-mode encryption. In 1st NIST Workshop on Modes of
+Operation, volume 39, 2000.
+[52] Jakob Jonsson. On the security of CTR+ CBC-MAC. In Selected Areas in Cryptography . Springer, 2003.
+doi:https://doi.org/10.1007/3-540-36492-7_7.
+[53] Jonathan Katz and Yehuda Lindell. Introduction to modern cryptography. CRC press, Boca raton, FL, 2015.
+[54] Russell Housley. Using Advanced Encryption Standard (AES) counter mode with IPsec encapsulating security
+payload (ESP). Technical Speciﬁcation RFC 3686, IETF, 2004. URL https://tools.ietf.org/html/
+rfc3686.
+[55] Ben Morris, Phillip Rogaway, and Till Stegers. How to Encipher Messages on a Small Domain. In Advances in
+Cryptology - CRYPTO 2009. Springer, 2009. doi:https://doi.org/10.1007/978-3-642-03356-8_17.
+[56] Emil Stefanov and Elaine Shi. FastPRP: Fast Pseudo-Random Permutations for Small Domains. IACR Cryptology
+ePrint Report 2012/254, 2012. URL https://eprint.iacr.org/2012/254.pdf.
+[57] Sylvain Pasini and Serge Vaudenay. SAS-Based Authenticated Key Agreement. In Public Key Cryptography -
+PKC 2006, pages 395–409. Springer, 2006. doi:https://doi.org/10.1007/11745853_26.
+[58] Jon Callas, Alan Johnston, and Philip Zimmermann. ZRTP: Media path key agreement for unicast secure RTP.
+Technical Speciﬁcation RFC 6189, IETF, 2011. URL https://tools.ietf.org/html/rfc6189.
+21
+
+===== PAGE 22 =====
+Introducing a Novel Data over V oice Technique for Secure V oice Communication A PREPRINT
+[59] 3GPP. LTE; Evolved Universal Terrestrial Radio Access (E-UTRA); Physical channels and modulation. Tech-
+nical Report TS 36.211, Release 16, 3GPP, 2020. URL https://portal.3gpp.org/desktopmodules/
+Specifications/SpecificationDetails.aspx?specificationId=2425.
+[60] Jin-Hyung Park, Jung-Ha Paik, and Dong-Hoon Lee. Efﬁcient implementation of AES CTR Mode for a Mobile
+Environment. Journal of the KIISC , 21(5):47–58, 2011. URL https://www.koreascience.or.kr/article/
+JAKO201109649106054.pdf.
+[61] Lionel Biard and Dominique Noguet. Reed-Solomon Codes for Low Power Communications. Journal of
+Communications, 3, 2008. doi:https://doi.org/10.4304/jcm.3.2.13-21.
+[62] 3GPP. Universal Mobile Telecommunications System (UMTS); Multiplexing and Channel Coding (FDD).
+Technical Report TS 25.212, Release 15, 3GPP, 2017. URL https://portal.3gpp.org/desktopmodules/
+Specifications/SpecificationDetails.aspx?specificationId=468.
+[63] Sumek Wisayataksin. An Efﬁcient Hardware Architecture of Codec2 Low Bit-rate Speech Decoder. In
+2019 5th International Conference on Engineering, Applied Sciences and Technology (ICEAST) . IEEE, 2019.
+doi:https://doi.org/10.1109/ICEAST.2019.8802570.
+22

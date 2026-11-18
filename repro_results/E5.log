@@ -1,0 +1,78 @@
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 7.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:               7.200 kb/s
+maximum bitrate:               7.200 kb/s
+active bitrate:                7.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:               7.200 kb/s
+maximum bitrate:               7.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 9.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:               9.200 kb/s
+maximum bitrate:               9.200 kb/s
+active bitrate:                9.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:               9.200 kb/s
+maximum bitrate:               9.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 11.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              11.200 kb/s
+maximum bitrate:              11.200 kb/s
+active bitrate:               11.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              11.200 kb/s
+maximum bitrate:              11.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 13.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              13.200 kb/s
+maximum bitrate:              13.200 kb/s
+active bitrate:               13.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              13.200 kb/s
+maximum bitrate:              13.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 15.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              15.200 kb/s
+maximum bitrate:              15.200 kb/s
+active bitrate:               15.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              15.200 kb/s
+maximum bitrate:              15.200 kb/s
+bitrate standard deviation:    0.000 kb/s
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s

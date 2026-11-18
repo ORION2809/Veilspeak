@@ -1,0 +1,684 @@
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Encoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Code compiled with VAD option: VAD1 (ENS)
+
+ Input speech file:      ../channel/temp/temp_AMR_in.raw
+ Output bitstream file:  ../channel/temp/AMR-enc.out
+frame=50       mode=MR122 used_mode=MR122frame=100      mode=MR122 used_mode=MR122frame=150      mode=MR122 used_mode=MR122frame=200      mode=MR122 used_mode=MR122frame=250      mode=MR122 used_mode=MR122frame=300      mode=MR122 used_mode=MR122frame=350      mode=MR122 used_mode=MR122frame=400      mode=MR122 used_mode=MR122frame=450      mode=MR122 used_mode=MR122frame=500      mode=MR122 used_mode=MR122frame=550      mode=MR122 used_mode=MR122frame=600      mode=MR122 used_mode=MR122frame=650      mode=MR122 used_mode=MR122frame=700      mode=MR122 used_mode=MR122frame=750      mode=MR122 used_mode=MR122frame=800      mode=MR122 used_mode=MR122frame=850      mode=MR122 used_mode=MR122frame=900      mode=MR122 used_mode=MR122frame=950      mode=MR122 used_mode=MR122frame=1000     mode=MR122 used_mode=MR122frame=1050     mode=MR122 used_mode=MR122frame=1100     mode=MR122 used_mode=MR122frame=1150     mode=MR122 used_mode=MR122frame=1200     mode=MR122 used_mode=MR122frame=1250     mode=MR122 used_mode=MR122frame=1300     mode=MR122 used_mode=MR122frame=1350     mode=MR122 used_mode=MR122frame=1400     mode=MR122 used_mode=MR122frame=1450     mode=MR122 used_mode=MR122frame=1500     mode=MR122 used_mode=MR122frame=1550     mode=MR122 used_mode=MR122frame=1600     mode=MR122 used_mode=MR122frame=1650     mode=MR122 used_mode=MR122frame=1700     mode=MR122 used_mode=MR122frame=1750     mode=MR122 used_mode=MR122frame=1800     mode=MR122 used_mode=MR122frame=1850     mode=MR122 used_mode=MR122frame=1900     mode=MR122 used_mode=MR122frame=1950     mode=MR122 used_mode=MR122frame=2000     mode=MR122 used_mode=MR122frame=2050     mode=MR122 used_mode=MR122frame=2100     mode=MR122 used_mode=MR122frame=2150     mode=MR122 used_mode=MR122frame=2200     mode=MR122 used_mode=MR122frame=2250     mode=MR122 used_mode=MR122frame=2300     mode=MR122 used_mode=MR122frame=2350     mode=MR122 used_mode=MR122frame=2400     mode=MR122 used_mode=MR122frame=2450     mode=MR122 used_mode=MR122frame=2500     mode=MR122 used_mode=MR122frame=2550     mode=MR122 used_mode=MR122frame=2600     mode=MR122 used_mode=MR122frame=2650     mode=MR122 used_mode=MR122frame=2700     mode=MR122 used_mode=MR122frame=2750     mode=MR122 used_mode=MR122frame=2800     mode=MR122 used_mode=MR122frame=2850     mode=MR122 used_mode=MR122frame=2900     mode=MR122 used_mode=MR122frame=2950     mode=MR122 used_mode=MR122frame=3000     mode=MR122 used_mode=MR122frame=3050     mode=MR122 used_mode=MR122frame=3100     mode=MR122 used_mode=MR122frame=3150     mode=MR122 used_mode=MR122frame=3200     mode=MR122 used_mode=MR122frame=3250     mode=MR122 used_mode=MR122frame=3300     mode=MR122 used_mode=MR122frame=3350     mode=MR122 used_mode=MR122frame=3400     mode=MR122 used_mode=MR122frame=3450     mode=MR122 used_mode=MR122frame=3500     mode=MR122 used_mode=MR122frame=3550     mode=MR122 used_mode=MR122frame=3600     mode=MR122 used_mode=MR122frame=3650     mode=MR122 used_mode=MR122frame=3700     mode=MR122 used_mode=MR122frame=3750     mode=MR122 used_mode=MR122frame=3800     mode=MR122 used_mode=MR122frame=3850     mode=MR122 used_mode=MR122frame=3900     mode=MR122 used_mode=MR122frame=3950     mode=MR122 used_mode=MR122frame=4000     mode=MR122 used_mode=MR122frame=4050     mode=MR122 used_mode=MR122frame=4100     mode=MR122 used_mode=MR122frame=4150     mode=MR122 used_mode=MR122frame=4200     mode=MR122 used_mode=MR122frame=4250     mode=MR122 used_mode=MR122frame=4300     mode=MR122 used_mode=MR122frame=4350     mode=MR122 used_mode=MR122frame=4400     mode=MR122 used_mode=MR122frame=4450     mode=MR122 used_mode=MR122frame=4500     mode=MR122 used_mode=MR122frame=4550     mode=MR122 used_mode=MR122frame=4600     mode=MR122 used_mode=MR122frame=4650     mode=MR122 used_mode=MR122frame=4700     mode=MR122 used_mode=MR122frame=4750     mode=MR122 used_mode=MR122frame=4800     mode=MR122 used_mode=MR122frame=4850     mode=MR122 used_mode=MR122frame=4900     mode=MR122 used_mode=MR122frame=4950     mode=MR122 used_mode=MR122frame=5000     mode=MR122 used_mode=MR122
+5000 frame(s) processed
+
+**************************************************************
+
+     European digital cellular telecommunications system
+           4750 ... 12200 bits/s speech codec for
+         Adaptive Multi-Rate speech traffic channels
+
+     Bit-Exact C Simulation Code - Decoder
+
+     R98:   Version 7.6.0  
+     R99:   Version 3.3.0  
+     REL-4: Version 4.1.0   December 12, 2001
+     REL-5: Version 5.1.0   March 26, 2003
+**************************************************************
+
+Input bitstream file:   ../channel/temp/AMR-enc.out
+Synthesis speech file:  ../channel/temp/temp_AMR_out.raw
+frame=50  frame=100  frame=150  frame=200  frame=250  frame=300  frame=350  frame=400  frame=450  frame=500  frame=550  frame=600  frame=650  frame=700  frame=750  frame=800  frame=850  frame=900  frame=950  frame=1000  frame=1050  frame=1100  frame=1150  frame=1200  frame=1250  frame=1300  frame=1350  frame=1400  frame=1450  frame=1500  frame=1550  frame=1600  frame=1650  frame=1700  frame=1750  frame=1800  frame=1850  frame=1900  frame=1950  frame=2000  frame=2050  frame=2100  frame=2150  frame=2200  frame=2250  frame=2300  frame=2350  frame=2400  frame=2450  frame=2500  frame=2550  frame=2600  frame=2650  frame=2700  frame=2750  frame=2800  frame=2850  frame=2900  frame=2950  frame=3000  frame=3050  frame=3100  frame=3150  frame=3200  frame=3250  frame=3300  frame=3350  frame=3400  frame=3450  frame=3500  frame=3550  frame=3600  frame=3650  frame=3700  frame=3750  frame=3800  frame=3850  frame=3900  frame=3950  frame=4000  frame=4050  frame=4100  frame=4150  frame=4200  frame=4250  frame=4300  frame=4350  frame=4400  frame=4450  frame=4500  frame=4550  frame=4600  frame=4650  frame=4700  frame=4750  frame=4800  frame=4850  frame=4900  frame=4950  frame=5000  
+5000 frame(s) processed
+Encoding 8000 Hz audio using narrowband mode (mono)
+Decoding 8000 Hz audio using narrowband mode (mono)
+Encoded with Speex 1.2rc1
+libopus 1.3.1
+Encoding 8000 Hz input at 12.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+active bitrate:               12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              12.000 kb/s
+maximum bitrate:              12.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 14.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+active bitrate:               14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              14.000 kb/s
+maximum bitrate:              14.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Encoding 8000 Hz input at 16.000 kb/s in auto bandwidth with 160-sample frames.
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+active bitrate:               16.000 kb/s
+bitrate standard deviation:    0.000 kb/s
+libopus 1.3.1
+Decoding with 8000 Hz output (1 channels)
+average bitrate:              16.000 kb/s
+maximum bitrate:              16.000 kb/s
+bitrate standard deviation:    0.000 kb/s

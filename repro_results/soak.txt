@@ -1,0 +1,8 @@
+path                                           mode     min   frames   longest relocks  jumps  repaired      clock ppm
+2G full rate AMR 12.2, 1% loss                 fast      10   99.84%    0.24 s       0      0         0     40 (+40)
+2G half rate AMR 7.4, 1% loss                  robust    10   99.92%    0.48 s       0      0         0    -40 (-40)
+VoLTE AMR-WB 12.65, 0.5% loss                  fast      10   99.96%    0.24 s       0      0         0     40 (+40)
+VoLTE EVS 13.2, jitter buffer, 1% loss         fast      10   99.72%    0.24 s       0      1         1    -40 (-40)
+VoLTE EVS 9.6, jitter buffer, 1% loss          robust    10   99.60%    0.48 s       0      3         3     39 (+40)
+VoLTE > G.711 > 2G half rate                   robust    10  100.00%    0.00 s       0      0         0    -41 (-40)
+2G lowest rate AMR 4.75 (keep-alive frames)    idle      10  100.00%    0.00 s       0      0         0     39 (+40)

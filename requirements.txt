@@ -1,0 +1,16 @@
+numpy
+scipy
+cryptography
+reedsolo
+soundfile
+pycodec2
+pytest
+sounddevice    # only for veilspeak/live.py
+
+# optional — speech quality measurement (tools/speech_quality.py)
+# pesq
+# pystoi
+# openai-whisper
+
+# optional — real ML-KEM-768 post-quantum hybrid (veilspeak/session.py)
+# liboqs-python

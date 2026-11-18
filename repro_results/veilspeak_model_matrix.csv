@@ -1,0 +1,33 @@
+mode,channel,impairments,frames,FER,SER_before_FEC,wrong_frames
+low,g711,delay+40ppm,1500,0.0000,0.0000,0
+low,g711,same+1% dropouts,1500,0.0040,0.0088,0
+low,amr:12200,delay+40ppm,1500,0.0000,0.0006,0
+low,amr:12200,same+1% dropouts,1500,0.0207,0.0052,0
+low,amr:10200,delay+40ppm,1500,0.0000,0.0106,0
+low,amr:10200,same+1% dropouts,1500,0.0307,0.0142,0
+low,amr:7950,delay+40ppm,1500,1.0000,-,0
+low,amr:7950,same+1% dropouts,1500,0.9647,0.1550,0
+low,opus:10000,delay+40ppm,1500,0.0000,0.0130,0
+low,opus:10000,same+1% dropouts,1500,0.0300,0.0154,0
+low,opus:12000,delay+40ppm,1500,0.0000,0.0007,0
+low,opus:12000,same+1% dropouts,1500,0.0180,0.0057,0
+low,opus:16000,delay+40ppm,1500,0.0000,0.0000,0
+low,opus:16000,same+1% dropouts,1500,0.0060,0.0085,0
+low,speex:8000,delay+40ppm,1500,0.0027,0.0490,0
+low,speex:8000,same+1% dropouts,1500,0.0340,0.0504,0
+low,speex:11000,delay+40ppm,1500,0.0000,0.0021,0
+low,speex:11000,same+1% dropouts,1500,0.0200,0.0073,0
+high,g711,delay+40ppm,2000,0.0000,0.0000,0
+high,g711,same+1% dropouts,2000,0.0170,0.0036,0
+high,amr:12200,delay+40ppm,2000,0.3485,0.1377,0
+high,amr:12200,same+1% dropouts,2000,0.3930,0.1318,0
+high,opus:12000,delay+40ppm,2000,0.4135,0.1337,0
+high,opus:12000,same+1% dropouts,2000,0.4400,0.1306,0
+high,opus:16000,delay+40ppm,2000,0.0000,0.0150,0
+high,opus:16000,same+1% dropouts,2000,0.0265,0.0151,0
+high,opus:20000,delay+40ppm,2000,0.0000,0.0006,0
+high,opus:20000,same+1% dropouts,2000,0.0220,0.0029,0
+high,opus:24000,delay+40ppm,2000,0.0000,0.0000,0
+high,opus:24000,same+1% dropouts,2000,0.0195,0.0030,0
+high,speex:15000,delay+40ppm,2000,0.0015,0.0398,0
+high,speex:15000,same+1% dropouts,2000,0.0215,0.0380,0

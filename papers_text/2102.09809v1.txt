@@ -1,0 +1,2639 @@
+
+
+===== PAGE 1 =====
+Introducing an experimental distortion-tolerant speech encryption
+scheme for secure voice communication
+A Preprint
+ID Piotr Krasnowski, ID Jerome Lebrun, ID Bruno Martin
+Côte d’Azur, 98, Boulevard Edouard Herriot, 06200 Nice-Cedex, France
+I3S-CNRS, 2000, Route des Lucioles, BP 121, 06903 Sophia Antipolis-Cedex, France
+{krasnowski,lebrun,bruno.martin}@i3s.unice.fr
+Abstract
+The current increasing need for privacy-preserving voice communications is leading to new ideas for securing
+voice transmission. This paper refers to a relatively new concept of sending encrypted speech as pseudo-speech
+in the audio domain over digital voice communication infrastructures, like 3G cellular network and V oIP. This
+setting is more versatile compared with secure V oIP applications because vocal communication does not depend
+on a speciﬁc transmission medium. However, it is very challenging to maintain simultaneously high security and
+robustness of communication over voice channels.
+This work presents a novel distortion-tolerant speech encryption scheme for secure voice communications over
+voice channels that combines the robustness of analog speech scrambling and elevated security oﬀered by digital
+ciphers like AES-CTR. The system scrambles vocal parameters of a speech signal (loudness, pitch, timbre) using
+distance-preserving pseudo-random translations and rotations on a hypersphere of parameters. Next, scrambled
+parameters are encoded to a pseudo-speech signal adapted to transmission over digital voice channels equipped
+with voice activity detection. Upon reception of this pseudo-speech signal, the legitimate receiver restores
+distorted copies of the initial vocal parameters. Despite some deciphering errors, an integrated neural-based
+vocoder based on the LPCNet architecture reconstructs an intelligible speech.
+The experimental implementation of this speech encryption scheme has been tested by simulations and sending
+an encrypted signal over FaceTime between two iPhones 6 connected to the same WiFi network. Moreover,
+speech excerpts restored from encrypted signals were evaluated by a speech quality assessment on a group of
+about 40 participants. The experiments demonstrated that the proposed scheme produces intelligible speech
+with a gracefully progressive quality degradation depending on the channel noise. Finally, the preliminary
+computational analysis suggested that the presented setting may operate on high-end portable devices in nearly
+real-time.
+Keywords secure voice communications· distance-preserving encryption· spherical group codes· neural vocoding
+1 I ntroduction
+The mainstreaming of mobile networks opens new possibilities
+for personal communication. However, the rising numbers of
+reported privacy violations and cyber-espionage undermine con-
+ﬁdence in the communication infrastructure. Another issue is
+the inadequate security of many voice communication systems,
+such as GSM which encrypted voice traﬃc using the insecure
+A5/1 stream cipher with a 64-bit key [ 1]. Low trust results
+in a growing need for alternative methods of securing vocal
+communication.
+This work addresses the issue of secure voice communications
+over untrusted voice channels. The procedure for establishing
+a secure vocal link is illustrated in Fig. 1. In the ﬁrst step, two
+users carrying dedicated devices initiate an insecure call using
+a preferred communication technique, like cellular telephony,
+V oice over Internet Protocol (V oIP), or ﬁxed-line telephone cir-
+cuits. Then, the two devices securely acknowledge their crypto-
+graphic keys by sending binary messages over the voice channel,
+(a) Key exchange and authentication with short authentica-
+tion codes displayed on the devices.
+(b) Encrypted conversation.
+Figure 1: Establishing a secure vocal link over a voice channel.
+the same way as ordinary voice. Once the cryptographic key
+is computed and authenticated, the speakers can start a secure
+conversation. Each device encrypts speech in real-time into an
+incomprehensible noise and sends the encrypted signal over the
+channel. Upon reception, the paired device decrypts the signal
+and restores the initial voice.
+arXiv:2102.09809v1  [cs.CR]  19 Feb 2021
+
+===== PAGE 2 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 2
+The outlined communication scheme for secure voice commu-
+nication revives the idea dating back to the late 30s [ 2]. First
+secure voice systems relied on analog signal scrambling in time,
+frequency and some mixed transform domains [ 3, 4, 5, 6, 7].
+Their role was to obscure a conversation by making the speech
+signal unintelligible for interceptors. The biggest advantage
+of analog scramblers, apart from simplicity, was their excep-
+tional robustness against distortion introduced by telephone lines
+because transmission noise linearly mapped to reconstructed
+speech. However, due to insuﬃcient security level [8, 9], these
+analog and semi-analog scramblers were later superceded by
+fully-digital systems. Probably the ﬁrst fully-digital secret tele-
+phony system was SIGSALY 1 (‘X-System’), constructed in
+1943 during WWII [10]. However, the proliferation of digital
+secure voice systems became possible when communications
+over fading telephone lines was replaced with packet networks
+[11]. This change paved the way to modern secure V oIP, with
+Telegram and Signal being the iconic examples. 2
+Nowadays, sending encrypted audio over voice channels appears
+to be more complicated than exchanging encrypted bits over dig-
+ital packet networks. Modern voice channels aim at preserving
+speech intelligibility at an acceptable speech quality degrada-
+tion. This goal is accomplished by applying perceptual speech
+processing, such as voice compression, voice activity detection,
+and adaptive noise suppression [12, 13]. All these operations
+considerably modify the synthetic signal. As a result, the current
+golden standard for securing voice communication that consists
+of consecutive voice encoding and binary enciphering is consid-
+erably hindered by prohibitive error rates and extremely limited
+bandwidth.
+On the other hand, secure communication over voice channels
+is supposed to be more versatile because the encrypted audio
+signal can be made compatible with arbitrary communication
+infrastructure. Furthermore, the encrypted audio signal is more
+likely to pass through ﬁrewalls without being blocked [14]. Fi-
+nally, the system can protect against spying malware installed on
+the portable device if speech encryption is done by an external
+unit [15]. The mentioned advantages suggest that the proposed
+setting could be especially useful for diplomatic and military
+services, journalists, lawyers, and traders who require secure
+communications in an unreliable environment and without conﬁ-
+dential communication infrastructure. Consequently, the system
+should reﬂect high security requirements by elevating the level
+of secrecy, privacy, and authentication.
+This work presents an experimental joint source-cryptographic
+enciphering scheme for secure voice communications over voice
+channels, which maintains the security level of digital encipher-
+ing, and to some extent enjoys a similar distortion-tolerant prop-
+erty of analog speech scramblers. The lossy enciphering unit
+scrambles perceptual speech parameters (loudness, pitch, tim-
+bre) [16] of a recorded speech signal using distance-preserving
+[17] techniques, and produces a synthetic signal adapted for
+transmission over a voice channel. Upon reception, a recipient
+who owns a valid cryptographic key restores distorted copies
+1https://www.nsa.gov/about/cryptologic-heritage/
+historical-figures-publications/publications/wwii/
+sigsaly-story/
+2https://signal.org, https://core.telegram.org
+of speech parameters and decodes speech with a trained neural
+vocoder.
+The system architecture and its operation is thoroughly detailed,
+emphasizing security aspects, computational complexity, and
+robustness to distortion. The scheme operates on speech frames
+and produces an enciphered signal of equal duration, what can
+be seen as a strong advantage for making the system operation
+real-time. Moreover, it is proved that encrypted speech is com-
+putationally indistinguishable from random when enciphering is
+done using a secure pseudo-random number generator (PRNG)
+with a secret seed of a suﬃcient length.
+Simulations and real-world experiments follow the system de-
+scription. Simulations conﬁrmed the scheme’s capability to
+decode mildly distorted signals. Furthermore, the encrypted
+speech signal was transmitted over FaceTime between two mo-
+bile phones and successfully decrypted. A speech quality assess-
+ment with about 40 listeners showed that the proposed encryp-
+tion scheme produces intelligible speech and is robust against
+Gaussian noise at SNR = 15 dB and voice compression at bi-
+trate 48 kbps with the Opus-Silk speech coder. Finally, the
+preliminary computational analysis suggests that an optimized
+system implementation may run on high-end portable devices.
+The experimental code used in simulations and speech samples
+evaluated in the speech quality assessment are available online.
+This work is organized as follows. Section 2 details the notion
+of distortion-tolerant encryption and introduces a scrambling
+technique of unit vectors on hyperspheres that is robust against
+channel noise. The technique is one of the main building blocks
+of a distortion-tolerant speech encryption scheme described in
+Section 3. The scheme’s properties are discussed in Section 4.
+Section 5 presents experimentation results and ﬁnally, Section 6
+concludes the work.
+2 Distortion-tolerant scrambling of unit vectors
+on N-spheres
+The perceptually-oriented processing of encrypted pseudo-
+speech in voice channels leads to inevitable transmission errors.
+This pessimistic property undermines the usefulness of many
+prominent cryptographic algorithms in the studied speech en-
+cryption system. The reason is their non-compliance to error,
+which is the property that prevents adversarial data manipu-
+lation and guarantees exact message decryption [ 18, 19]. In
+contrast, successful operation of speech coding and compres-
+sion techniques proves that a good enough approximation of
+vocal parameters is suﬃcient to reconstruct intelligible speech
+[12]. Consequently, some imperfect decryption in secure voice
+communication is acceptable if the lower decryption accuracy is
+somehow compensated by a higher robustness against noise.
+Designing a secure cryptographic scheme that operates correctly
+despite encrypted data distortion could be achieved using un-
+conventional enciphering techniques. This work is inspired
+by the notion of distance-preserving [17] encryption stated by
+Deﬁnition 1. Intuitively speaking, an encryption scheme is
+distance-preserving when the distance between any two pieces
+of encrypted data is the same after decryption. This property
+seems to be useful for protecting audio media streams in real-
+time applications. For example, when some small channel noise
+
+===== PAGE 3 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 3
+degrades the enciphered vocal parameters, the original signal
+could still be approximately decrypted without disrupting the
+communication.
+Deﬁnition 1. [17] LetM be a data set,K be a key space, d
+be a distance measure and Enc be an encryption algorithm for
+data items inM. Then, Enc is d-distance preserving if:
+∀m0, m1∈M and∀k∈K :
+d(Enck(m0), Enck(m1)) = d(m1, m2).
+Applying the distance-preserving encryption technique directly
+on speech parameters is far from being straightforward. Naively,
+we could scramble independently three perceptual speech com-
+ponents: pitch, loudness, and speech timbre [ 16]. Pitch and
+loudness are associated with the fundamental frequency and
+signal energy [13], both scalars. However, timbre is a multi-
+dimensional signal loosely related to the spectral envelope
+and with many possible representations. For instance, in the
+speech recognition domain, a spectral envelope is usually en-
+coded by 13-19 Mel-Frequency Cepstral Coeﬃcients (MFCC)
+[20, 12, 13].
+On the other hand, exact distance preservation in perceptually-
+oriented speech data seems to be an overly strict property. It is
+because some small inaccuracies in speech representations are
+usually acceptable or perceptually irrelevant. It is especially true
+in real-time applications that prioritize robustness and eﬃciency
+over the quality of representation. Thus, we propose a consid-
+erable relaxation of distance-preserving encryption that, in our
+opinion, is better suited for protecting real-time voice communi-
+cation. The new notion, coined distortion-tolerant encryption, is
+stated by Deﬁnition 2.
+Deﬁnition 2. Let KeyGen be a key generation algorithm that
+produces a secret key over the keyspaceK, Enc be an encryption
+algorithm and Dec be a decryption algorithm. Moreover, let dM
+and dC denote respectively distance measures over the plaintext
+spaceM and the ciphertext spaceC. We say that the encryption
+scheme Π = (KeyGen, Enc, Dec) is distortion-tolerant with
+respect todM and dC if for every keyk∈K produced byKeyGen,
+any two ciphertexts c1, c2∈C , andδ> 0 not too large, there is
+τ> 0 such that:
+1. dC(c1, c2)<δ =⇒ dM(Deck(c1), Deck(c2))<τδ .
+2. τδ≪ max
+ci,c j∈C
+{dM(Deck(ci), Deck(c j))}.
+Unlike in distance-preserving encryption, we use two diﬀerent
+metrics over the message and the ciphertext spaces. Further-
+more, we allow some distance expansion τ between the de-
+crypted plaintexts Deck(c1) and Deck(c2), which is still small
+compared to the maximum distance between plaintexts. Finally,
+the distortion-tolerant property applies locally in a ciphertext
+neighborhood.
+Every encryption scheme with a distortion-tolerant property is
+malleable by design.3 Without additional data-integrity mech-
+anisms, an active attacker can modify the decrypted plaintext
+3An encryption algorithm is ‘malleable’ if it is possible to trans-
+form a ciphertext into another ciphertext which decrypts to a bona ﬁde
+plaintext.
+by carefully changing the encrypted data. Moreover, given a
+pair (m, Enck(m)), the attacker may easily guess or approximate
+the decryption result of all ciphertexts close to Enck(m). On the
+other hand, the malleability does not necessarily compromise
+the secrecy of encryptions if the enciphering algorithm uses a
+fresh cryptographic key k∈K for every encryption.
+In this section, we describe a distortion-tolerant technique for
+scrambling unit vectors on hyperspheres in even dimensions.
+The technique could be used for enciphering the spectral en-
+velopes of speech signals represented as spherical vectors on the
+hypersphere S n (how it is done will be detailed in Section 3).
+The scrambling procedure relies on a spherical commutative
+(abelian) group code [21] and uses a secure PRNG with a secret
+seed (a cryptographic key). The result of scrambling is a new
+spherical vector on S 2n−1 that may represent another spectral
+envelope. Due to the distortion-tolerant property of the encipher-
+ing technique, this vector can be eﬃciently descrambled despite
+some small noise.
+2.1 Hypersphere mappings
+For n> 1, let ξ = [ξ1,...,ξ n]T be a unit vector such thatξi≥ 0.
+We describe two mappings,γξ : S n→ Rn and Φξ : Rn→ S 2n−1,
+which preserve the Euclidean distance approximately. The com-
+position Φξ◦γξ transforms vectors on S n to vectors on S 2n−1,
+as shown in Fig. 2. In our scheme, enciphering is performed
+over the intermediate domainPξ in Rn.
+Figure 2: Mapping unit vectors on S n to vectors on S 2n−1 using
+two mappingsγξ and Φξ.
+Let x∈ S n. Then, γξ(x) is deﬁned as [ξ1ϕ1,...,ξ nϕn]T , where
+ϕ1,...,ϕ n−1∈ [0,π ) andϕn∈ [0, 2π) are the spherical coordinates
+of x:
+x1 = cos(ϕ1),
+x2 = sin(ϕ1) cos(ϕ2),
+...
+xn = sin(ϕ1)·...· sin(ϕn−1) cos(ϕn),
+xn+1 = sin(ϕ1)·...· sin(ϕn−1) sin(ϕn),
+(1)
+For a vector u∈ Rn, let Φξ(u) be a torus mapping deﬁned as in
+[22]:
+Φξ(u) = [ξ1 cos(u1/ξ1), ξ1 sin(u1/ξ1),...,
+ξn cos(un/ξn), ξn sin(un/ξn)]T. (2)
+The image of the mappingΦξ is a composition of orbits onS 2n−1,
+which can be viewed as a ﬂat torus [ 23]. The whole family
+of ﬂat tori with ‖ξ‖ = 1 and ξi ≥ 0 foliates S 2n−1, meaning
+that every point on the hypersphere belongs to one and only
+one ﬂat torus [ 24, 25]. The pre-image of the mapping Φξ is
+Pξ = Πn
+i=1[0, 2πξi).
+
+===== PAGE 4 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 4
+The mappings preserve the Euclidean distance between vectors
+approximately. Let u, v∈ Πn−1
+i=1 [0,πξ i)× [0, 2πξn). The distance
+‖γ−1
+ξ (u)−γ−1
+ξ (v)‖ is bounded by:
+0≤‖γ−1
+ξ (u)−γ−1
+ξ (v)‖≤ ‖u− v‖
+ξmin
+, (3)
+where ξmin = min
+1≤i≤n
+ξi , 0. On the other hand, by assuming
+‖u− v‖≤ ξmin, we have [26]:
+2
+π‖u− v‖≤‖ Φξ(u)− Φξ(v)‖≤‖ u− v‖. (4)
+By combining Eq. (3) and Eq. (4) we ﬁnally obtain:
+0≤‖γ−1
+ξ (u)−γ−1
+ξ (v)‖≤ π
+2ξmin
+‖Φξ(u)−Φξ(v)‖. (5)
+From Eq. (5), we may conclude that the composed mapping
+γ−1
+ξ ◦ Φ−1
+ξ is robust against some small channel noise, since
+the error introduced to Φξ(u) will be mapped toγ−1
+ξ (u) with the
+expansion factor up toπ/2ξmin.
+2.2 Spherical group codes from lattices
+The spherical mappings γξ and Φξ provide a framework for a
+distortion-tolerant scrambling of spectral envelopes. Another
+challenge is to ﬁnd a suitable model for enciphering vectors
+overPξ. In this work, we propose a discrete model based on
+a pair of nested lattices in Rn and a spherical commutative
+group code on S 2n−1. Spherical commutative group codes were
+introduced in [21] as a new encoding method for sending non-
+binary information over non-binary Gaussian channel. However,
+the useful literature on using these codes for enciphering remains
+scarce.
+Deﬁnition 3. [21] A spherical commutative group code C of
+order M is a set of M unit vectors C ={Gσ : G∈G} , where σ
+lies on the unit hypersphere S n−1⊂ Rn andG is a ﬁnite group
+of order M of n× n orthogonal matrices.
+Commutative spherical group codes are geometrically uniform,
+i.e., for any two elements p, q∈ C , there exists an isometry fp,q
+such that fp,q(p) = q and fp,q(C ) = C [27]. Moreover, they have
+congruent V oronoi regions [28], the same detection probabil-
+ity in the presence of transmission noise, and a distribution of
+codewords invariant to multiplication by matrices fromG. Al-
+though spherical commutative group codes do not oﬀer packing
+densities as high as general spherical codes, this shortcoming
+is compensated by their simple structure and the easiness of
+encoding and decoding [29].
+Every element inG can be uniquely represented as a product of
+powers of generator matrices{G1,..., Gk}, such that Gi∈G for
+i = 1,..., k, and Gi generateG:
+G ={Gw1
+1 · Gw2
+2 ·...· Gwk
+k : 0≤ wi < di, i = 1,..., k}. (6)
+Furthermore,G is isomorphic to Zd1⊕ ...⊕ Zdk where d1·
+d2·...· dk = M and di|di+1 for i = 1,..., k− 1 [30]. We can
+thus conveniently index G ∈ G(and Gσ ∈ C ) by a vector
+[w1,..., wk]T∈ Zd1⊕...⊕ Zdk.
+Costa et al. [ 29] proposed a very e ﬃcient method for con-
+structing some spherical group codes in even dimensions using
+lattices. Figure 3 presents a simple example of two nested lat-
+tices in R2 associated with a spherical group code on S 3. The
+red dots on the left side of the picture belong to an orthogonal
+lattice Λ(β) = 2πξ1Z× 2πξ2Z, where (ξ1,ξ 2) = (0.8, 0.6). Since
+ξ = [ξ1,ξ 2]T is nonnegative with a unit norm, the points of
+Λ(β) can be viewed as vertices of frames that are the pre-images
+of Φξ.
+Besides, the red and black dots combined form another lattice
+Λ(α) such that Λ(β)⊂ Λ(α). It can be noticed that the quotient
+Λ(α)/Λ(β) of order 4 can be mapped by Φξ to some spherical
+code C of order 4 on S 3. Moreover, since Λ(α)/Λ(β) is closed
+under translation by a single basis vector (the blue arrow), the
+code should be closed under an associated rotation on S 3. Con-
+sequently, the code C is a commutative group code of order 4
+with a single generator matrix. A generalized approach for con-
+structing spherical codes from lattices is given by Corollary 1.
+Figure 3: Example of a construction of a spherical code on S 3
+from nested lattices in R2. The ﬂat torus on the right side lies
+on the hypersphere in R4.
+Corollary 1. [29] Let Λ(β)⊂ Λ(α) be a pair of full rank lattices
+with respective generator matrices Aα and Aβ = [β1,..., βn],
+where{β1,..., βn} is an orthogonal basis of Λ(β). There exists an
+integer matrix H such that Aβ = AαH. Matrix H has a Smith
+normal form H = PDQ where P and Q are integer matrices
+with determinant -1 or 1, and D is a diagonal matrix with
+diag(D) = [d1,..., dn]T , di∈ N and di|di+1 for i = 1,..., n− 1.
+Let us deﬁne bi = ‖βi‖, b =
+√∑n
+j=1‖β j‖2, ξi = bi/b,
+ξ = [ξ1,...,ξ n]T and the torus mapping Φξ. Then, the quo-
+tient of the lattices (2πb−1Λ(α))/(2πb−1Λ(β)) is associated with
+a spherical code C ⊂ S 2n−1 with the initial vector σ =
+[ξ1, 0,ξ 2, 0,...,ξ n, 0]T , and a generator group of matrices de-
+termined by the Smith normal decomposition of H.
+Corollary 1 states that for a given pair of nested lattices
+Λ(β)⊂ Λ(α), Λ(β) being orthogonal, and an integer matrix H such
+that Aβ = AαH, with Smith normal form H = PDQ, one can eas-
+ily get generator matrices ofG. The task is to correctly associate
+basis vectors of the group Λ(α)/Λ(β) with appropriate rotations
+on the hypersphere. Firstly, from diag(D) we may conclude that
+Λ(α)/Λ(β) (and henceG) is isomorphic to Zdm⊕...⊕ Zdn, where
+dm is the ﬁrst element of Diag(D) larger than 1. In consequence,
+we get thatG is of order M = dm·...·dn and has k = n−m+1 gen-
+erator matrices. We may express the 2n× 2n generator matrices
+{G1, G2,..., Gk} in block-diagonal form:
+Gi+1 =
+
+rot(2πri+m,1) 0 ... 0
+0 rot(2 πri+m,2) ... 0
+... ... ... ...
+0 0 ... rot(2πri+m,n)
+
+
+===== PAGE 5 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 5
+where i = 0,..., k− 1, ri+m, j are elements of the matrix R =
+A−1
+β AαP and rot(x) are 2× 2 rotation matrices:
+rot(x) =
+[
+cos(x) − sin(x)
+sin(x) cos( x)
+]
+.
+For a relevant discussion, the reader is referred to [29].
+It can be noticed that performing basic rotations on the code-
+words of C is equivalent to translating points in the pre-image
+of the ﬂat torus. Thus, we can impose some design rules that
+improve the properties of the constructed spherical code.
+Firstly, from the bounds in Eq. (4) we obtain that for any
+vectors u, v∈ (2πb−1Λ(α))/(2πb−1Λ(β)) the Euclidean distance
+‖Φξ(u)− Φξ(v)‖ is larger than 2/π‖u− v‖. Consequently, the
+maximization of the minimum distance between vectors of
+(2πb−1Λ(α)) would improve the distance distribution between
+codewords on the hypersphere S 2n−1. In particular, selecting
+dense lattices like the cubic lattice Zn, the checkerboard lattice
+Dn or the Gosset lattice Γ8 [31] in the construction will lead to
+a larger minimum distance between codewords in C . Another
+advantage of these mentioned lattices is the existence of very
+eﬃcient algorithms [32] for solving the closest vector problem
+(CVP) [33].
+The distribution of codewords on S 2n−1 can be further improved
+by selecting a proper vector ξ = [ξ1,...,ξ n]T . From Eq. (5),
+we should maximize the minimum component ξmin. This is
+achieved by takingξ1 =... =ξn.
+2.3 Scrambling
+Finally, we describe the scrambling algorithm of vectors on S n.
+The procedure is presented in Algorithm 1. The parameters of
+the scrambling model is a nonnegative vector ξ = [ξ1,...,ξ n] and
+a quotient group Λ(α)/Λ(β) of order M, where Λ(β) = ∏n
+i=1 2πξiZ
+and Λ(α) has an eﬃcient algorithm for solving the CVP. In ad-
+dition, the scrambler uses a secure PRNG with a secret, binary
+random seed s of lengthλ≥ 128. The role of the PRNG (here,
+the subroutine ‘SelectRandom’) is to output pseudo-randomly
+vectors from Λ(α)/Λ(β) with a distribution computationally indis-
+tinguishable from the uniform distribution by any probabilistic
+polynomial-time (PPT) [19] algorithm up to the security level
+given byλ.
+The algorithm starts by mapping a single vector x∈ S n toγξ(x)
+inPξ and searching the closest vector χ in Λ(α)/Λ(β) in terms of
+the Euclidean distance. This process may be viewed as quanti-
+zation. The resulting quantization error could be mitigated by
+increasing the resolution of Λ(α). In the next step, the PRNG
+selects an element ν from Λ(α)/Λ(β). Finally, the scrambler
+outputs a codeword Φξ(χ + ν) that belongs to a spherical com-
+mutative group code C associated with Λ(α)/Λ(β) through the
+mapping Φξ.
+If a sequence of plaintext vectors on S n is given, the scrambler
+processes them sequentially, each time using a freshly generated
+vector produced by ‘SelectRandom’ with the same seeds.
+The security of the scrambling algorithm depends on the PRNG
+and the quality of entropy used to produce the seed s. It
+can be noticed that for the scrambling vector ν ∈ Λ(α)/Λ(β)
+taken perfectly at random (i.e., a ‘one-time-pad’ scenario),
+(χ + v)∈ Λ(α)/Λ(β) follows a uniform distribution overΛ(α)/Λ(β)
+Algorithm 1:
+Data: initial vector x∈ S n, security parameterλ≥ 128,
+random seed s∈{ 0, 1}λ;
+Result: scrambled codeword p∈ C⊂ S 2n−1;
+// find the closest vector in Λ(α)/Λ(β)
+χ←− FindClosestVector(γξ(x); Λ(α)/Λ(β));
+// select a random element from Λ(α)/Λ(β)
+ν←− SelectRandom(Λ(α)/Λ(β); s);
+// encipher and map on the flat torus
+p←−Φξ(χ + ν);
+for any distribution of χ. Thus, Φξ(χ + ν) can be any code-
+word of C with equal probability. Furthermore, the same re-
+sult can be extended to a sequence of vectors (ν1,..., νN) se-
+lected independently and uniformly at random over Λ(α)/Λ(β).
+In such a case, the scrambling procedure would give a sequence
+(Φξ(χ1 + ν1),..., Φξ(χN + νN)) of statistically independent code-
+words with the uniform distribution over C . Consequently, the
+adversary trying to extract any relevant information from the
+ciphertext could not perform better than by randomly guessing.
+From the construction of the scrambling algorithm, the existence
+of any PPT adversary who breaks the secrecy of ciphertexts (with
+non-negligible probability) implies the existence of e ﬃcient
+attacks on the PRNG used in scrambling. In eﬀect, the selection
+of a proper sequence generator is the crucial factor from the
+security standpoint. Some propositions of suitable PRNGs are
+discussed in Section 4.
+2.4 Transmission and descrambling
+Spherical group codes discussed here can be viewed as equal-
+energy block codes adapted for transmission over noisy channels
+[21]. Nonetheless, in contrast to classic digital communications,
+our scheme tolerates some detection error that is supposed to
+be proportionally mapped to the plaintext as some deciphering
+error. Optimally, a growing noise level should gradually in-
+crease detection error and hence deciphering error. However, a
+signiﬁcant channel noise may break this desired continuity be-
+tween transmission and deciphering errors, severely disrupting
+the communication.
+Let p∈ C be an encrypted codeword sent over the Gaussian
+channel. Upon reception, the recipient observes ˆq = p+n, where
+n represents channel noise sampled from Gaussian distribution
+with zero mean. Provided that the enciphered vector p can
+be any codeword of C with equal probability, the maximum
+likelihood detector selects the closest codeword in C in terms of
+the Euclidean metric. Moreover, due to the uniform geometrical
+distribution of codewords on the hypersphere S 2n−1, the error
+probability of the optimal detector is the same for every sent
+codeword. This property turns out to be very useful in the
+context of this work because the deciphering error caused by
+Gaussian noise is statistically independent of the ciphertext.
+Before decryption, the received vector ˆq = [ˆq1,..., ˆq2n] should
+be projected to q = Gσ on the ﬂat torus associated with Φξ. The
+rotation matrix G is of the form:
+
+===== PAGE 6 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 6
+G =
+
+rot(ϕ1) 0 ... 0
+0 rot( ϕ2) ... 0
+... ... ... ...
+0 0 ... rot(ϕn)
+
+2n×2n
+whereϕ1,ϕ 2,...,ϕ n are some unknown rotation angles. Assum-
+ing Gaussian noise, the vector q = [q1,..., q2n]T can be found
+by projecting the coordinates of ˆq onto the respective circles of
+radiusξi:
+[q2i−1, q2i] =ξi
+[ˆq2i−1, ˆq2i]
+‖[ˆq2i−1, ˆq2i]‖, i = 1,..., n. (7)
+The projection of ˆq onto q is an additional source of error that is
+diﬃcult to tackle. When the noise level is small, however, the
+overall distortion caused by the operation is limited. Another
+situation may occur, when the distance‖ˆq− p‖ overreachesξmin.
+In such a case, q may be projected on the opposite side of the
+torus and cause a large error as illustrated in Fig. 4.
+Figure 4: Projection of vectors to the ﬂat torus in presence of
+excessive noise. The initial vector p∈ C on the orbit of radius
+ξmin is transmitted over a transmission channel and received as
+ˆq = p + n. The vector ˆq is projected to the vector q on the
+opposite side of the orbit, far from p. A possible solution to this
+problem is to increase the energy of the transmitted vectors.
+Algorithm 2 details the descrambling procedure which essen-
+tially reverses scrambling operations in Algorithm 1. It is as-
+sumed that both participants securely shared the random seed s.
+The subroutine ‘Project’ transforms the received vectorˆq accord-
+ing to Eq. (7). However, the projected vector q is not quantized
+by Λ(α)/Λ(β). Additionally, if a descrambled vector ˆχ exceeds
+Πn−1
+i=1 [0,πξ i)× [0, 2πξn), respective coordinates of ˆχ are reﬂected
+aroundπξi. Finally, it is essential to maintain synchronization
+of the PRNGs on both communication sides.
+From Algorithm 2 and Eq. (4), we may conclude that‖χ− ˆχ‖≤
+‖p− q‖. By inserting this inequality to Eq. (5) we obtain:
+0≤‖ y− x‖≤ π
+2ξmin
+‖p− q‖. (8)
+In accordance with Deﬁnition 2, the scrambling scheme is
+distortion-tolerant with the expansion factorτ =π/2ξmin when
+the transmission error is no larger thanξmin. On the other hand,
+the distance‖y− x‖ goes down to 0 when approaching the poles
+of the hypersphere S n. Consequently, we may notice that the
+vectors near the poles of S n should be relatively less distorted
+by channel noise than the vectors close to the equator.
+3 S peech encryption scheme
+Figure 5 illustrates a simpliﬁed model of a distortion-tolerant
+speech encryption scheme, consisting of a speech enciphering
+Algorithm 2:
+Data: received ˆq∈ S 2n−1, seed s∈{ 0, 1}λ;
+Result: descrambled vector y∈ S n;
+// project to the flat torus
+q←− Project(ˆq; ξ);
+// select a random element from Λ(α)/Λ(β)
+ν←− SelectRandom(Λ(α)/Λ(β); s);
+// decipher
+ˆχ←−Φ−1
+ξ (q)− ν mod Λ(α)/Λ(β);
+// correct ˆχ
+for i← 1 to n− 1 do
+if ˆχi≥πξi then
+ˆχi← 2πξi− ˆχi;
+end
+end
+y←−γ−1
+ξ ( ˆχ); // map to S n
+unit and a complementary deciphering unit. The enciphering
+unit takes as an input a binary key-stream produced by a PRNG
+with a secret seed s of length at least 128 bits, and samples of a
+narrowband speech signal. In the ﬁrst processing step, the speech
+encoder maps 20 ms speech frames indexed by 𝓁 = 0, 1, 2,...
+into a sequence of vocal parameters (ε(init),𝓁, p(init),𝓁, D(init),𝓁),
+whereε(init),𝓁 corresponds to the frame’s energy,p(init),𝓁 is a pitch
+period, and D(init),𝓁 is a vector representing the shape of a spectral
+envelope.
+The encoding process is followed by enciphering using ran-
+domness produced by the PRNG. V ocal parameters of every
+frame are independently scrambled into a new set of parame-
+ters (˜ε(enc),𝓁, ˜p(enc),𝓁, ˜D(enc),𝓁) deﬁned over a new space of pseudo-
+speech parameters (tagged by a tilde). Finally, the scram-
+bled sequence is forwarded to the pseudo-speech synthesizer,
+which produces a harmonic, wideband signal resembling pseudo-
+speech. The synthetic signal is a concatenation of 25 ms frames
+with a 5 ms overlap, where every frame carries one set of enci-
+phered parameters. Consequently, the encrypted signal duration
+is the same as the duration of the initial speech, which is an
+essential requirement in real-time operation.
+Due to the speech-like properties of the synthetic signal, it can
+be transmitted over a wideband digital voice channel without
+much risk of suppression by a V oice Activity Detector (V AD).
+Upon reception of the signal samples, the paired deciphering
+unit extracts distorted copies of the sent parameters (˜ε(rec),𝓁,
+˜p(rec),𝓁, ˜D(rec),𝓁) and performs descrambling using the same bi-
+nary key-stream produced by its PRNG. In the last step, restored
+parameters (ε(dec),𝓁, p(dec),𝓁, D(dec),𝓁) are decoded into narrowband
+speech, perceptually similar to the input speech signal.
+The crucial property of the presented speech encryption
+system is its ability to descramble enciphered parameters
+(˜ε(rec),𝓁, ˜p(rec),𝓁, ˜D(rec),𝓁) distorted by channel noise. As the
+amount of channel distortion goes up, so does the distortion
+of the resynthesized speech. As a result, we obtain a progres-
+sive and controlled speech quality degradation without signiﬁ-
+cant loss of intelligibility. Preservation of intelligibility comes
+from the remarkable human tolerance to understanding distorted
+speech signals.
+
+===== PAGE 7 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 7
+Figure 5: Simpliﬁed diagram of the distortion-tolerant speech encryption scheme.
+3.1 Speech encoding
+The speech encoder in the presented encryption scheme is es-
+sentially a harmonic speech encoder that models speech signals
+as a combination of amplitude-modulated harmonics [34]. The
+perceived fundamental frequency of a harmonic speech signal
+is usually referred to as pitch, signal energy is perceived as
+loudness, whereas the spectral envelope is related to speech
+timbre.
+The encoder operates sequentially on 20 ms speech frames of
+160 samples with a 10 ms look-ahead. Every frame is processed
+in the same manner, so we skip the frame indexation 𝓁 for
+simplicity. A speech frame is ﬁrstly pre-emphasized with a ﬁrst-
+order ﬁlter I(z) = 1− 0.85z−1 to boost high-frequency signal
+components, and encoded into a set of 10 basic parameters:
+its pitch period and an approximation of the spectral envelope
+expressed by 9 coeﬃcients. The pitch period expressed in signal
+samples per cycle is deﬁned as:
+p(init) B fs
+f0
+, (9)
+where f0 is the estimated fundamental frequency of the harmonic
+structure of the speech signal and fs = 8000 is the sampling
+frequency. The spectral envelope is obtained from the Power
+Spectral Density (PSD) on a moving window of 40 ms speech
+signal with 20-ms oﬀset and 50% overlap. The PSD is windowed
+using 9 mel-scaled triangular ﬁlters shown in Fig. 6, resulting in
+9 band-limited energies E1, ..., E9 such that their sum is close
+enough to the frame energy:
+ε(init) B
+9∑
+i=1
+Ei. (10)
+It may be noticed that the vector of square roots of energy
+coeﬃcients [√E1, ...,√E9]T is identiﬁed as a point on the non-
+negative part of the 9-dimensional hypersphere centered at 0.
+The radius√ε(init) of the 8-sphere is related to the frame energy,
+whereas the normalized vector:
+D(init) B
+[√
+E1/ε(init),...,
+√
+E9/ε(init)
+]T
+(11)
+corresponds to the shape of the spectral envelope, i.e. speech
+timbre. Since a typical spectral envelope consists of about 4
+formants [13], it is a reasonable assumption that D(init) should
+capture the most relevant features in the speech spectrum.
+The enciphering procedure requires the encoded pitch period and
+the signal energy to be bounded by some predeﬁned intervals
+[pmin, pmax] and [εmin, εmax]. Thus, if p(init) orε(init) exceed these
+intervals, they are thresholded to the closest bound. A selection
+of bounds is a compromise between the dynamic range required
+for proper speech representation and its sensitivity to distortion.
+Moreover, the lower energy boundεmin is slightly larger than 0,
+meaning that the scheme could be unable to register some very
+low-amplitude sounds.
+0 1 2 3 4
+frequency (kHz)
+Figure 6: Nine mel-scaled triangular spectral windows used in
+speech encoding. The amplitude of two side ﬁlters is doubled to
+compensate their missing halves.
+3.2 Enciphering
+A blockwise scrambling is applied on the input parameters
+(p(init),ε (init), D(init)) deﬁned over the space of speech parame-
+ters into a new set ( ˜p(enc), ˜ε(enc), ˜D(enc)) deﬁned over the space of
+pseudo-speech parameters. Each of these parameters is crucial
+for maintaining speech intelligibility [16], and hence contains in-
+formation that could be exploited by a cryptanalyst to reconstruct
+the vocal message. For this reason, we consider them as equally
+salient. Consequently, (p(init),ε (init), D(init)) are enciphered using
+a single, shared PRNG.
+The enciphering of each frame requires a vector of 10 freshly-
+generated random integers ν = [ν1, ...ν10], whereν3 belongs to
+the additive ring Z215 with 215 elements,ν10 belongs to Z217, and
+the remaining coeﬃcients belong to Z216. These non-uniform
+ranges of values determine the quantization resolution of the
+
+===== PAGE 8 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 8
+input parameters: p(init) andε(init) are quantized using 216 levels,
+and the vector D(init) is encoded by one of the 2128 possible val-
+ues. Consequently, we obtain a 16-bit quantization per encoded
+coeﬃcient, which is a reasonable resolution for encoding vocal
+parameters. The vector ν can be eﬃciently computed from a
+sequence of 160 bits produced by the PRNG. Given the random
+bits, the scrambling block splits the binary sequence into chunks
+of length 15, 16 and 17 bits, and reads them as unsigned integers.
+Enciphering of pitch and energy is illustrated in Fig. 7. The input
+pitch period p(init) is linearly scaled into an interval [κlow,κ high]
+such that 0<κ low <κ high < 216− 1, and rounded to the closest
+integerκ(init)∈ Z216. Similarly, the frame energy in logarithmic
+scale log10(ε(init)) is transformed to ϱ(init)∈ [ϱlow,ϱ high]. Then,
+the obtained integersκ(init) andϱ(init) are translated respectively
+byν1 andν2 over the additive ring Z216:
+κ(enc) = (κ(init) +ν1) mod 2 16 (12)
+ϱ(enc) = (ϱ(init) +ν2) mod 2 16. (13)
+Finally, the enciphered integers κ(enc) and ϱ(enc) are scaled to
+˜p(enc)∈ [ ˜pmin, ˜pmax] and ˜ε(enc)∈ [˜εmin, ˜εmax].
+Figure 7: Enciphering of the frame pitch period p(init) (top) and
+the frame energyε(init) (bottom). Step 1: p(init) and log10(ε(init))
+are linearly scaled and rounded toκ(init) andϱ(init) in Z216. Step 2:
+κ(init) andϱ(init) are translated by randomν1 andν2 over Z216 to
+κ(enc) andϱ(enc). Step 3: κ(enc) andϱ(enc) are linearly scaled to
+˜p(enc) and ˜ε(enc) deﬁned over the space of pseudo-speech param-
+eters.
+The unit vector D(init)∈ S 8 is scrambled using a technique de-
+scribed in Section 2. Let ξ = 1/
+√
+8[1,..., 1]T ∈ R8. It may
+be noticed that the vector 2γξ(D(init)) (note the factor of 2) lies
+inside the hyperbox Pξ = ∏8
+i=1[0, 2π/
+√
+8), and thus can be
+mapped to a ﬂat torus associated with the mappingΦξ. Addition-
+ally, the scrambling model relies on a spherical code C =Gσ,
+σ = [ξ1, 0,...,ξ n, 0]T , associated with the quotient Λ(α)/Λ(β),
+where Λ(β) = (2πZ8/
+√
+8) is an orthogonal lattice and Λ(α) is the
+scaled Gosset lattice:
+Λ(α) = 2π
+216√
+8
+Γ8. (14)
+From its design,G is isomorphic to Z215⊕ Z6
+216⊕ Z217.
+Figure 8 illustrates an enciphering of 2γξ(D(init)) over the pre-
+imagePξ. Let χ(init) ∈ Λ(α) be the closest lattice vector to
+2γξ(D(init)). The vector χ(init) is ﬁrstly translated by a random
+vector:
+χ(enc) = χ(init) +ν3α1 +... +ν10α8 mod Λ(α)/Λ(β), (15)
+where α1, ..., α8 are the basis vectors of the lattice Λ(α):
+α1 = 2π/215[ 1 , 0, 0, 0, 0, 0, 0, 0]T,
+α2 = 2π/216[−1, 1, 0, 0, 0, 0, 0, 0]T,
+α3 = 2π/216[ 0 ,−1, 1, 0, 0, 0, 0, 0]T,
+α4 = 2π/216[ 0 , 0,−1, 1, 0, 0, 0, 0]T,
+α5 = 2π/216[ 0 , 0, 0,−1, 1, 0, 0, 0]T,
+α6 = 2π/216[ 0 , 0, 0, 0,−1, 1, 0, 0]T,
+α7 = 2π/216[ 0 , 0, 0, 0, 0,−1, 1, 0]T,
+α8 = 2π/217[ 1 , 1, 1, 1, 1, 1, 1, 1]T.
+Provided that the PRNG produces bits with a distribution in-
+distinguishable from the uniformly random distribution and
+ν3,...,ν 10 are obtained by reading respective bitstrings as un-
+signed integers, then ν3α1 +... +ν10α8 can be any vector of
+Λ(α)/Λ(β) with distribution indistinguishable from the uniform
+distribution over Λ(α)/Λ(β). This operation is thus equivalent to
+the subroutine ‘SelectRandom’ in Algorithm 1 in Section 2.
+Finally, the enciphered vector is mapped to the ﬂat torus ˜D(enc) =
+Φξ(χ(enc))∈ S 15.
+Figure 8: Enciphering of D(init). The scaled spherical coordinates
+2γξ(D(init)) are quantized by searching the closest lattice vector
+from Λ(α). The obtained χ(init)∈ Λ(α) is randomly translated to a
+new lattice vector and projected to ˜D(enc) = Φξ(χ(enc)) on the ﬂat
+torus in R16.
+3.3 Pseudo-speech synthesis
+The last stage of speech encryption involves the synthesis
+of an analog audio signal. The role of audio synthesis is
+to enable an e ﬃcient transmission of the enciphered values
+( ˜p(enc), ˜ε(enc), ˜D(enc)) over a digital voice channel, and to prevent
+signal blockage by a V AD. Robust operation requires ﬁnding
+a trade-oﬀ between producing a signal suﬃciently speech-like
+yet simple to encode and decode. Furthermore, the encoding
+procedure should comply with a typical signal distortion char-
+acteristic introduced by a particular channel to beneﬁt from
+distortion-tolerant enciphering.
+Since ˜p(enc), ˜ε(enc) and ˜D(enc) represent the enciphered pitch pe-
+riod, the energy and the spectral envelope of a speech frame, the
+natural approach is to relate these values with some homologous
+
+===== PAGE 9 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 9
+parameters of an encrypted signal. Then, a perceptual distortion
+of the signal would be proportionally mapped to the deciphered
+speech, to some extent reﬂecting the quality of the voice channel
+used for transmission.
+0.00 0.01 0.02 0.03 0.04 0.05 0.06
+time (seconds)
+Figure 9: Three 25 ms frames of a pseudo-speech harmonic sig-
+nal. Every colored portion of the waveform encodes a diﬀerent
+set of enciphered parameters ˜p(enc), ˜ε(enc) and ˜D(enc). The frames
+are windowed using a trapezoidal window and overlapped, form-
+ing 5 ms guard periods.
+Every 25 ms frame of a pseudo-speech signal consists of three
+segments. The ﬁrst and the last 5 ms of a frame play the role
+of guard periods. The remaining 15 ms is where the enciphered
+parameters are encoded. Once a frame is synthesized, it is
+windowed by a trapezoidal window and concatenated in an
+overlap-then-add manner, as illustrated in Fig. 9.
+A 25 ms signal frame yt sampled at fs = 16 kHz contains the
+samples of a harmonic waveform:
+y[n] =
+K(ω0)∑
+k=1
+ηAk cos(kω0/ fs· n +φk− kω0/ fs· 80), (16)
+where n = 0, 1,..., 399, ω0 is the fundamental frequency, Ak
+are the amplitudes of harmonics,η is the energy scaling factor,
+(φk− kω0/ fs· 80) are the initial phases and K(ω0) is the number
+of harmonics depending onω0. Given the harmonicity of yt, the
+encoding of ˜p(enc), ˜ε(enc) and ˜D(enc) essentially reduces to a care-
+ful manipulation ofω0, Ak andφk. In addition, only the middle
+samples y[80],..., y[319] are involved in the encoding process.
+Once the harmonic parameters of the frame are determined, the
+remaining part of yt is reproduced.
+The encoding of enciphered parameters into yt is performed se-
+quentially, starting from the pitch, then the envelope shape, and
+ﬁnally the energy. The most natural approach for encoding the
+pitch is to assign ω0 B 2π fs/ ˜p(enc). Spectral shaping involves
+ﬁnding a proper relation between the amplitudes Ak and the
+initial phasesφk. Finally, the spectrally shaped frame is scaled
+in order to match the desired frame energy ˜ε(enc) = ∑319
+n=80 y2[n].
+Compared to encoding the pitch and the energy, mapping the
+vector ˜D(enc) of length 16 into the spectrum of yt appears to be
+less straightforward. The encoding process relies on a bank of 16
+adjacent spectral windows, illustrated in Fig. 10. The main idea
+of using these spectral windows is to encode each coordinate of
+˜D(enc) into a frequency band associated to its respective spectral
+window. Unlike in speech encoding, the windows are square-
+shaped, and linearly distributed between the 300-6700 Hz range.
+The proposed selection of spectral windows aims to improve
+transmission robustness over a voice channel rather than to
+capture the perceptually relevant spectral features. As a result,
+the proposed framework is similar to using Frequency Division
+Multiplexing (FDM) [35] for mitigating frequency fading.
+Another diﬀerence is related to how the spectral windows are
+applied. Instead of windowing the signal PSD as is the case
+in speech analysis, the windows are directly applied on the
+Discrete Fourier Transform (DFT) of sampled yt. As will be
+explained later in the section, this change signiﬁcantly simpliﬁes
+the encoding process. Besides, it seems better suited for data
+transmission over channels with an additive, independent noise
+such as AWGN.
+0 1 2 3 4 5 6 7 8
+frequency (kHz)
+Figure 10: Sixteen square-shaped spectral windows distributed
+uniformly over 300-6700 Hz.
+Shaping the spectrum of the harmonic frame yt can be achieved
+by a simultaneous manipulation of the amplitudes and the initial
+phases of the harmonics. Thus, it is advantageous to consider
+a complex-domain rewriting of yt, in which the amplitude Ak
+and the initial phaseφk are merged into a single complex term
+ˇAk = Ak exp( jφk):
+z[n] =
+K(ω0)∑
+k=1
+ˇAk exp( jkω0/ fs· n), n = 0, 1,..., 239. (17)
+The complex samples z[0],..., z[239] correspond to respective
+samples y[80],..., y[319] that encode the enciphered parameters.
+Let Z be the column vector representing the DFT of samples
+z[0],..., z[239]. The vector Z is a sum of harmonic components:
+Z =
+K(ω0)∑
+k=1
+ˇAkBT
+(ω0),k, (18)
+where B(ω0),k is a row vector representing the DFT of complex
+sinusoidal samples exp( j2πω0/ fsn) for n = 0, 1,..., 239. The
+goal of the encoding process is to ﬁnd Z = [Z1,..., Z240]T such
+that:
+˜D(enc),k· e j 2π
+16 k =
+240∑
+n=1
+ZnHk,n, k = 1,..., 16, (19)
+where Hk = [Hk,1,..., Hk,240] is a row vector representing the
+k-th spectral window in Fig. 10 sampled at frequencies n
+240· fs
+for n = 0, 1,..., 239. As a result, each element of ˜D(enc) is
+represented by a complex sum of windowed DFT samples. The
+predeﬁned component exp( j2kπ/16) is inserted to prevent the
+result of summation from being purely real and improve the
+time-domain waveform shape of the synthesized pseudo-speech
+frame.
+
+===== PAGE 10 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 10
+The summations in Eq. (18) and Eq. (19) can be expressed
+conveniently in a matrix form:
+˜D(enc)⊙ W16 = HZ and Z = B(ω0) ˇA, (20)
+where W16 = [e j 2π
+16 1, e j 2π
+16 2,..., e j 2π
+16 16]T is the vector of the 16
+roots of the unity,H is a 16×240 matrix representing 16 spectral
+windows sampled over the frequency domain of Z, B(ω0) is a
+240× K(ω0) matrix with columns B(ω0),k, ˇA is the column vector
+of K(ω0) complex amplitudes ˇAk as deﬁned by Eq. (17), and⊙
+denotes the Hadamard product. As a result, we obtain a simple,
+linear relation between ˜D(enc) and the amplitudes of harmonics:
+˜D(enc)⊙ W16 = HB(ω0) ˇA (21)
+The problem of ﬁnding ˇA such that Eq. (21) holds is under-
+determined, because K(ω0) is larger than 16 by design. Instead,
+we can compute the least-square solution using the Moore-
+Penrose pseudo-inverse:
+˘A = (HBω0)†( ˜D(enc)⊙ W16) (22)
+where (•)† denotes the pseudo-inverse operation. In order to
+improve computational e ﬃciency, the pseudo-inverse matrix
+(HBω0)† can be precomputed and kept in memory.
+The least-square solutions obtained by the Moore-Penrose
+pseudo-inverse imply that the computed magnitudes | ˘Ak| are
+small. It has a positive impact on the time-domain waveform
+shape, minimizing the risk of producing high-amplitude peaks
+that are likely to be clipped during transmission. Another advan-
+tage of the pseudo-inverse is its fast computation, suitable for
+real-time processing.
+Finally, we assign Ak B| ˘Ak| and φk B Arg( ˘Ak), and set the
+scaling factorη in Eq. (16) to match the energy ˜ε(enc).
+The remaining issue is extracting ˜D(enc) from yt. The previ-
+ously described encoding process involved complex samples
+z[0],..., z[239], where y[80 + n] = ηℜ(z[n]). Let Y be a col-
+umn vector of length 240 representing the DFT of samples
+y[80],..., y[319]. From the general properties of Discrete Fourier
+Transform we have:
+Yn = η
+2(Zn + ¯Z241−n), n = 1,..., 240, (23)
+where ¯Z241−n denotes the complex conjugate ofZ241−n. Provided
+that Z is a sum of complex sinusoids of frequency no larger than
+6700 Hz, the values Zn for n> 120 are close to zero. As a result,
+we can approximate the vector Y as:
+Y≈
+{η
+2· Zn, for n = 1,..., 120,
+η
+2· ¯Z241−n, for n = 121,..., 240. (24)
+Finally, the enciphered vector can be approximately retrieved by
+taking:
+˜D(enc)⊙ W16≈ 2
+ηHY. (25)
+We estimated the root mean squared error (RMSE) of
+˜D(enc)⊙ W16 approximations by simulating a sequence of L =
+10000 pseudo-speech frames from parameters ( ˜p(enc), ˜ε(enc),
+˜D(enc)) selected randomly in every frame. We used the following
+formula:
+RMSE ˜D =
+vu√
+1
+L
+L∑
+𝓁=1
+‖ ˜D(enc),𝓁⊙ W16− 2η−1
+𝓁 HY𝓁‖2,
+where ˜D(enc),𝓁 is the 𝓁-th encoded vector, Y𝓁 is a vector repre-
+senting the DFT of the𝓁-th produced pseudo-speech frame, and
+η𝓁 is the respective scaling factor. The obtained error was 0.011,
+far lower than an anticipated distortion introduced by the voice
+channel.
+3.4 Signal transmission and analysis
+Successful decoding of a synthetic signal produced by the
+pseudo-speech synthesizer requires a high-precision, nearly
+sample-wise synchronization. Consequently, the presented
+speech encryption scheme is foremost suited for digital data
+storage and transmission over fully digital voice communication
+systems like V oIP, in which a high level of synchronization can
+be maintained. Upon reception, the signal analyzer processes
+sequentially the received signal frames and retrieves enciphered
+parameters.
+Let ˆy[0],..., ˆy[399] be the samples of some received pseudo-
+speech frame ˆyt and let ˆY be a column vector of length 240 with
+DFT of the sequence ˆy[80],..., ˆy[319]. The received parameters
+˜p(rec) and ˜ε(rec) are deﬁned as:
+˜p(rec) B 2π fs
+ˆω0
+, (26)
+˜ε(rec) B
+319∑
+n=80
+ˆy2[n], (27)
+where ˆω0 is the estimated fundamental frequency of the signal
+frame and fs = 16000 Hz is the sampling frequency. If any of
+the values ˜p(rec) and ˜ε(rec) exceed the intervals [ ˜pmin, ˜pmax] and
+[˜εmin, ˜εmax], they are tresholded to the closest bound.
+The vector ˜D(rec) is retrieved from ˆY in two steps. Firstly, we
+compute the normalized real-valued sum of the windowed DFT:
+ˆD(rec) B
+ℜ
+(
+2H ˆY⊙ ¯W16
+)
+‖‖‖‖ℜ
+(
+2H ˆY⊙ ¯W16
+)‖‖‖‖
+, (28)
+where ¯W16 = [e− j 2π
+16 1, e− j 2π
+16 2,..., e− j 2π
+16 16]T andℜ(2H ˆY⊙ ¯W16)
+is the real component of 2H ˆY⊙ ¯W16. Then, the vector ˆD(rec)
+is projected to ˜D(rec) on the ﬂat torus associated with Φξ using
+Eq. (7) in Section 3.4.
+3.5 Deciphering
+Given the set of received parameters ( ˜p(rec), ˜ε(rec), ˜D(rec)), the
+descrambling algorithm reverses enciphering operations using
+the same vectorν = [ν1,...,ν 10]T of random integers produced by
+the PRNG. The values ˜p(rec) and log10(˜ε(rec)) are ﬁrstly linearly
+scaled toκ(rec) andϱ(rec) over the interval [0, 216− 1]. Unlike in
+the enciphering stage, these values are not quantized. In the next
+step, κ(rec) andϱ(rec) are deciphered by respective translations
+−ν1 and−ν2 modulo 216:
+κ(dec) = (κ(rec)−ν1) mod 2 16 (29)
+ϱ(dec) = (ϱ(rec)−ν2) mod 2 16, (30)
+
+===== PAGE 11 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 11
+Figure 11: Overview of the narrowband LPCNet architecture.
+where ν1,ν 2 ∈ Z216 are obtained from the PRNG. If the val-
+uesκ(dec) andϱ(dec) exceed the respective intervals [κlow,κ high]
+and [ϱlow,ϱ high], they are tresholded to the closest bound. In
+the last step, the values are transformed back into the intervals
+[pmin, pmax] and [log10(εmin), log10(εmax)] representing the do-
+main of speech parameters.
+The deciphering of the unit vector ˜D(rec) is done by translating
+χ(rec) = Φ−1
+ξ ( ˜D(rec)):
+χ(dec) = χ(rec)−ν3α1−...−ν10α8 mod Λ(α)/Λ(β). (31)
+The coordinates of χ(dec) are corrected to ﬁt the image of γ−1
+ξ
+as in Algorithm 2. The deciphered spectral envelope vector is
+D(dec) =γ−1
+ξ (χ(dec)/2).
+3.6 Speech resynthesis
+The output of the descrambling process is a sequence
+(p(dec),𝓁,ε (dec),𝓁, D(dec),𝓁) representing harmonic parameters of 20
+ms speech frames. The ﬁnal speech resynthesis is possible with
+any adapted speech synthesizer supporting harmonic speech
+parametrization. An example of a suitable narrowband harmonic
+speech synthesizer is Codec2.4
+Unfortunately, although parametric sinusoidal speech co-ders
+succeed in producing intelligible speech, they often struggle to
+maintain satisfactory speech quality. In this work, we avoid har-
+monic speech synthesis by using a narrowband modiﬁcation of
+the LPCNet, a Machine Learning (ML) based synthesizer intro-
+duced by Jean-Marc Valin (Mozilla) and Jan Skoglund (Google
+LLC) [36]. The narrowband LPCNet recreates the samples of a
+speech signal s[n] from a sum of the linear prediction ˜s[n] and
+the excitation e[n]:
+s[n] = ˜s[n] + e[n] (32)
+˜s[n] =
+16∑
+k=1
+αks[n− k], (33)
+whereα1, ...,α12 are the 12-th order linear prediction coeﬃcients
+(LPC) for the current frame. The excitation samples e[n] are
+produced by two concatenated neural networks that model an
+excitation signal from the input vocal parameters.
+4https://rowetel.com
+Figure 11 depicts a simpliﬁed diagram of the modiﬁed narrow-
+band LPCNet algorithm. The speech synthesizer combines two
+recurrent neural networks: a frame-rate network processing 20
+ms speech frames (160 samples) and a sample-rate network
+operating at 8 kHz. Network architectures, shown in Fig. 12,
+are the same as in [ 36]. The frame-rate network takes as in-
+put the sequence of feature vectors computed from (p(dec),𝓁,
+ε(dec),𝓁, D(dec),𝓁) and produces a sequence of frame-rate condi-
+tioning vectors f𝓁 of length 128. Vectors f𝓁 are sequentially for-
+warded to the sample-rate network and padded with last value
+to get a frame with 160 samples.
+Figure 12: Architectures of the frame-rate (left) and the sample-
+rate (right) networks. The frame network consists of two con-
+volutional layers with a ﬁlter of size 3, followed by two fully-
+connected layers. The output of the convolutional layers is
+added to an input connection. The sample-rate network ﬁrstly
+concatenates four inputs and passes the resulted combination to
+two gated recurrent units (GRUA of size 384 and GRUB of size
+16), followed by a dual fully connected layer [36]. The output
+of the last layer is used with a soft-max activation.
+The role of the sample-rate network is to predict the multino-
+mial probability distribution of the current excitation sample
+Pr(e[n]), given the current conditioning vector f𝓁, the previous
+signal sample s[n− 1], the previous excitation sample e[n− 1]
+and the current prediction ˜s[n]. The current excitation sample
+e[n] is obtained by randomly generating a single sample from
+Pr(e[n]). The synthesis output of the narrowband LPCNet are
+
+===== PAGE 12 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 12
+pre-emphasized speech samples s[n] = ˜s[n] + e[n], ﬁltered with
+a de-emphasis ﬁlter J(z) = 1
+1−0.85z−1 . The operation of the nar-
+rowband LPCNet algorithm stops when the last feature vector
+is processed, and the sample-rate network synthesizes the last
+speech frame.
+Computing a feature vector from a set of vocal pa-
+rameters (p(dec),𝓁,ε (dec),𝓁, D(dec),𝓁) requires few steps. Let
+E𝓁 =ε(dec),𝓁· D(dec),𝓁⊙ D(dec),𝓁 be a vector representing 9 band-
+limited energies of the 𝓁-th encoded speech frame. Then, the
+𝓁-th feature vector has the form [C𝓁,0, C𝓁,1,..., C𝓁,8,ρ𝓁]T , where
+C𝓁,0, C𝓁,1, ..., C𝓁,8 is the discrete cosine transform (DCT-II)
+of the sequence log10(E𝓁,1), ..., log10(E𝓁,9), and where ρ𝓁 =
+(p(dec),𝓁− 100)/50 is the scaled pitch period. Taking into con-
+sideration the mel-scaled distribution of spectral windows used
+in the speech encoder, the coeﬃcients C𝓁,0, C𝓁,1, ..., C𝓁,8 can be
+viewed as 9-band Mel-Frequency Cepstral Coeﬃcients (MFCC).
+The prediction samples ˜s[n] are computed from the predictor
+coeﬃcients ˜α1, ..., ˜α12 obtained from E𝓁 and updated for every
+frame. The mel-scaled windowed energies in E𝓁 are ﬁrstly
+interpolated into a linear-frequency PSD and then converted to
+an autocorrelation using an inverse FFT. The LPC coeﬃcients
+are obtained from the autocorrelation using the Levinson-Durbin
+algorithm [37].
+Obtaining ˜αk from the low-resolution bands is di ﬀerent than
+in the classical approach, in which the autocorrelation and the
+predictorαk are computed directly from speech samples [ 13].
+As pointed out in [36], the sample-rate network in the LPCNet
+learns to compensate for this diﬀerence.
+4 D iscussion
+This section discusses several aspects associated with system
+security, tolerance to channel distortion, selection of system
+parameters, and the training the neural networks in the speech
+synthesizer.
+4.1 Security considerations
+The security of the proposed speech encryption scheme cannot
+be rigorously proved without an in-depth speciﬁcation, which
+may signiﬁcantly diﬀer in particular implementations. Instead,
+we provide an informal justiﬁcation for the asymptotic indistin-
+guishability of encryptions in an experiment comparable with the
+classical adversarial indistinguishability challenge [38, 18, 19].
+By doing this, we want to emphasize that the security of our
+encryption scheme depends primarily on the characteristics of a
+real-world PRNG used and the entropy of the secret seed rather
+than on signal processing and scrambling operations.
+In the following analysis, we will assume that the encryption
+scheme uses an asymptotically secure pseudo-random generator
+[19] with a fresh and perfectly random seed s. A generator is
+asymptotically secure when no PPT algorithm (distinguisher)D
+can distinguish the generator’s output from a perfectly uniform
+bitstring with a non-negligible probability. A deﬁnition of a
+negligible function is detailed by Deﬁnition 4.
+Deﬁnition 4. [19] A function f : N→ R+∪{ 0} is negligible if
+for every positive polynomial p there is an integer N such that
+for all integers n> N it holds that f(n)< 1
+p(n).
+Letλ be an integer-valued security parameter, L be a polyno-
+mial s.t. L(λ) > λ, xt be an arbitrary speech signal of ﬁnite
+duration t∈ [0, 320L(λ)), RandGen be an asymptotically secure
+binary PRNG and s∈{ 0, 1}λ be a random seed. In addition, let
+Π = (RandGen, Enc, Dec) be the speech encryption scheme de-
+scribed in Section 3, where Enc and Dec are respectively the en-
+cryption and decryption algorithms. The algorithm Enc takes as
+an input the speech signal xt and a vector r← RandGen(s) such
+that r∈{ 0, 1}160L(λ), and outputs a synthetic signal yt = Encr(xt)
+of the same duration as xt. Furthermore, let us deﬁne an adver-
+sarial indistinguishability challenge PrivKeav
+A,Π(λ):
+Deﬁnition 5. The adversarial indistinguishability challenge
+PrivKeav
+A,Π(λ) is deﬁned as:
+1. The adversaryA is given input 1λ, and he chooses
+a pair of distinct signals x0,t, x1,t of ﬁnite duration
+t∈ [0, 320L(λ)).
+2. A random seed s is chosen and a sequence r is gen-
+erated by running RandGen(s). The challenge yt =
+Encr(xb,t) is given to A, where b∈ {0, 1} is chosen
+uniformly at random.
+3. A outputs bit b′.
+4. The output of the challenge is 1 if b = b′ and 0 other-
+wise.
+Below we present a proposition for the indistinguishability of
+encryptions in the presence of an eavesdropper and provide the
+sketch of the proof.
+Proposition 1. Let Π = (RandGen, Enc, Dec) be the speech
+encryption scheme described in Section 3. Then, Π gives indis-
+tinguishable encryptions in the presence of the eavesdropper,
+meaning that there is a negligible function negl such that for
+any PPT adversaryA it holds:
+⏐⏐⏐Pr(PrivKeav
+A,Π(λ) = 1)− 0.5
+⏐⏐⏐≤ negl(λ).
+Sketch of Proof.
+Firstly, we can observe that the security of the speech en-
+cryption scheme does depend neither on the speech analysis
+nor the pseudo-speech synthesis algorithms. Indeed, the sin-
+gle output of the speech encoder is a sequence of parame-
+ters{(ε(init),𝓁, p(init),𝓁, D(init),𝓁)}L(λ)
+𝓁=1 , which is forwarded to the
+scrambling block. The result of enciphering is a new se-
+quence{(˜ε(enc),𝓁, ˜p(enc),𝓁, ˜D(enc),𝓁)}L(λ)
+𝓁=1 , being the single input of
+the pseudo-speech synthesizer. In consequence, the indistin-
+guishability of the synthetic pseudo-speech signal yt reduces
+to the indistinguishability of the enciphered sequence from any
+sequence taken uniformly at random.
+The enciphering of the initial speech parameters is done
+using a sequence of scrambling vectors {ν𝓁}L(λ)
+𝓁=1 , where
+ν𝓁∈ Z2
+16⊕ Z15⊕ Z6
+16⊕ Z17 and{ν𝓁}L(λ)
+𝓁=1 produced from r by se-
+quentially reading short bitstrings as unsigned integers. We
+can easily show that if the binary pseudo-random generator
+RandGen is secure, then the resulting sequence{ν𝓁}L(λ)
+𝓁=1 is indis-
+tinguishable from any sequence{ν∗
+𝓁}L(λ)
+𝓁=1 produced from a random
+binary sequence r∗∈{ 0, 1}160L(λ) output by the true entropy col-
+lector TrueRandGen.
+
+===== PAGE 13 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 13
+The rest of the proof essentially repeats the reasoning from the
+proofs of Theorem 2.9 and Theorem 3.18 in [19].
+Let ˜Π = (TrueRandGen, Enc, Dec) be a new encryption
+scheme where RandGen is replaced by TrueRandGen. In
+the ﬁrst step, we may prove that the result of enciphering
+{(˜ε∗
+(enc),𝓁, ˜p∗
+(enc),𝓁, ˜D∗
+(enc),𝓁)}L(λ)
+𝓁=1 with a random sequence {ν∗
+𝓁}L(λ)
+𝓁=1
+obtained from TrueRandGen is perfectly secure, i.e., the en-
+ciphered values {˜ε∗
+(enc),1, ˜p∗
+(enc),1, ˜D∗
+(enc),1, ˜ε∗
+(enc),2, ..., ˜D∗
+(enc),L(λ)}
+are statistically independent and have uniform distributions
+over their respective discrete domains. Consequently, we get
+Pr(PrivKeav
+A, ˜Π(λ) = 1) = 0.5.
+Then, we can show the indistinguishability of the sequence
+{(˜ε(enc),𝓁, ˜p(enc),𝓁, ˜D(enc),𝓁)}L(λ)
+𝓁=1 by contradiction: the existence of a
+PPT adversaryA who distinguishes the sequence from purely
+random with a non-negligible advantage implies the existence
+of a PPT distinguisher D breaking the security of RandGen.
+From this, we conclude that there is a negligible function negl
+such that the advantage of any PPT adversaryA participating in
+the experiment PrivKeav
+A,Π is at most| Pr(PrivKeav
+A,Π(λ) = 1)− 0.5|
+≤ negl(λ).
+Proposition 1 states that the encryption scheme produces in-
+distinguishable encryptions in the presence of an eavesdrop-
+per, provided that every speech signal is enciphered using a
+secure pseudo-random bit generator with a fresh and uniformly
+distributed random seed. However, selecting a proper binary
+pseudo-random generator is far from being trivial and should
+be done very carefully. In particular, it is not evident if a ‘good’
+bit generator can always be adequately transformed into a non-
+binary generator and vice-versa. For instance, in [39] it is shown
+that a poorly designed non-binary sequence expanded into a
+bitstream could pass a randomness test by some bit-oriented
+distinguishers. Some statistical test suitable for checking the
+randomness of non-binary ciphers can be found in [39, 40]
+The selection of a suitable pseudo-random number generator is
+out of the scope of this work. Nevertheless, some promising
+candidates of binary pseudo-random number generators can be
+found in the NIST Special Publication 800-90A [41]. Crucially,
+the presented generators are evaluated for their potential use as
+non-binary number generators over integer rings Z2n, n∈ N. An
+example of such a generator uses Advanced Encryption Standard
+(AES) in the CTR mode of operation and a secret 256-bit seed.
+The generator is claimed to securely produce up to 248 bitstrings
+of length 219 if the input seed is taken uniformly at random.
+Furthermore, the input seed is updated after every request for
+backtracking resistance. The maximum bitstring length 219 in
+a unique request is suﬃcient to encipher more than one minute
+of one-way voice communication. Finally, a parallelization of
+bitstring generation provided by the CTR mode is an advantage
+in real-time operation.
+An obvious weakness of the presented scheme is the lack of
+mechanisms providing data integrity. Since the enciphered
+speech signal does not include any side information, the re-
+cipient cannot verify the source and received data correctness.
+Moreover, it is not clear whether a reliable data integrity mech-
+anism even exists in this lossy framework, given that the re-
+ceived signal is likely to diﬀer from the initial signal and that
+malleability-by-design is one of the basic features of the pre-
+sented speech encryption scheme. Instead, it is important to
+ensure the proper authentication of the users and secure ex-
+change of cryptographic keys (or secret seeds) before the session
+starts [42, 19]. Some solutions include mutual authentication
+using public certiﬁcates, symmetric pre-shared keys or a vocal
+veriﬁcation [43, 44, 45, 15].
+Despite the absence of data integrity in real-time communication,
+an adversarial manipulation on encrypted speech giving a mean-
+ingful deciphered speech is technically challenging. Synthetic
+signal fragility and high synchronization requirements between
+the legitimate users suggest that the attacker is more likely to
+interrupt the communication. However, such an interruption is
+eﬀectively not much diﬀerent from signal blockage by a V AD.
+If the enciphered speech signal is stored, a binary representation
+of the signal in PCM or a compressed form should be accompa-
+nied by a message authentication code (MAC) [19] computed
+with a dedicated authentication key.
+4.2 Tolerance to signal distortion and large deciphering
+errors
+Let yt be an encrypted speech signal sent over a voice chan-
+nel, and ˆyt be the signal received by the recipient. Due
+to channel distortion, parameters (˜ε(rec),𝓁, ˜p(rec),𝓁, ˜D(rec),𝓁) ex-
+tracted from ˆyt usually diverge from the enciphered sequence
+(˜ε(enc),𝓁, ˜p(enc),𝓁, ˜D(enc),𝓁). The transmission error propagates dur-
+ing descrambling, causing a deciphering error between the initial
+(ε(init),𝓁, p(init),𝓁, D(init),𝓁) and deciphered (ε(dec),𝓁, p(dec),𝓁, D(dec),𝓁)
+values.
+When the channel noise is low, transmission and deciphering
+errors are related by inequalities:
+⏐⏐⏐⏐⏐⏐log10
+(ε(init),𝓁
+ε(dec),𝓁
+)⏐⏐⏐⏐⏐⏐≤
+( 216
+ϱhigh−ϱlow
+log10(εmax/εmin)
+log10(˜εmax/˜εmin)
+)
+·
+⏐⏐⏐⏐⏐⏐log10
+( ˜ε(enc),𝓁
+˜ε(rec),𝓁
+)⏐⏐⏐⏐⏐⏐ (34)
+⏐⏐⏐p(init),𝓁− p(dec),𝓁
+⏐⏐⏐≤
+( 216
+κhigh−κlow
+pmax− pmin
+˜pmax− ˜pmin
+)
+·
+⏐⏐⏐ ˜p(enc),𝓁− ˜p(rec),𝓁
+⏐⏐⏐ (35)
+‖‖‖D(init),𝓁− D(dec),𝓁
+‖‖‖≤ π√
+2
+‖‖‖ ˜D(enc),𝓁− ˜D(rec),𝓁
+‖‖‖ (36)
+where|•| is the modulus and‖•‖ denotes the Euclidean norm.
+In consequence, the deciphering procedure is distortion-tolerant
+with respect to parameterslog10(˜ε(enc),𝓁), ˜p(enc),𝓁 and ˜D(enc),𝓁, with
+three independent expansion factors.
+The distortion-tolerant property with respect to pseudo-speech
+parameters holds unless the amount of distortion in the
+received signal ˆyt becomes too large. When the val-
+ues| log10(˜ε(enc),𝓁/˜ε(rec),𝓁)|,| ˜p(enc),𝓁− ˜p(rec),𝓁| and the distance
+‖ ˜D(enc),𝓁− ˜D(rec),𝓁‖ exceed some speciﬁc thresholds, there is a risk
+of a deciphering error much larger than indicated by the bounds.
+These large deciphering errors are perceived by the listener as
+unpleasant ﬂutter degrading the overall perceived speech quality,
+and should be avoided.
+A strong perceptual speech degradation is usually related to large
+deciphering errors of energy or pitch. In the example depicted
+
+===== PAGE 14 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 14
+in Fig. 13, a silent speech frame with the energyε(init) =εmin is
+enciphered to ˜ε(enc) and sent over a noisy channel in a form of
+a pseudo-speech frame. Upon reception, the recipient observes
+˜ε(rec) such that| log10(˜ε(rec)/˜ε(enc))| > ϱlow/216. However, the
+deciphering result is ε(dec) = εmax, the exact opposite of the
+initial value.
+Another factor is pitch detection accuracy in the pseudo-speech
+analyzer. V oice-oriented pitch estimators analyze the signal
+assuming small pitch variation over time [ 46, 13]. However,
+the assumption is not valid in an encrypted signal for which the
+pitch period changes randomly every 20 milliseconds.
+The two most common types of pitch estimation errors in noisy
+signals are transient errors, and octave errors [47]. A transient
+error occurs when an abrupt change of fundamental frequency
+within a speech frame violates the stationarity assumption. An
+octave error describes a situation when the predictor incorrectly
+outputs a multiple kω0 or a fraction 1/kω0 (k∈ N) of the correct
+fundamental frequencyω0. These errors are mitigated by pitch
+tracking [12]. However, since the pitch period in the encrypted
+signal is uncorrelated in time, pitch tracking seems redundant if
+not harmful in our case. Instead, it is essential to maintain frame
+synchronization and ensure that neither the adjacent frames nor
+the guard periods damage the pitch estimation.
+It may be noticed that deciphering error making a silent frame
+maximally loud is more damaging for perceptual quality than
+suppressing a loud frame into silence. A varying perceptual
+impact of deciphering errors is the main justiﬁcation for ﬁne-
+tuning the guard bounds for pitch and energy. Nevertheless,
+in order to maintain a robust operation of the enciphering
+scheme, it is important to ensure experimentally that the values
+| log10(˜ε(rec),𝓁/˜ε(enc),𝓁)| and| ˜p(rec),𝓁− ˜p(enc),𝓁| stay within the guard
+limits with the high probability.
+Figure 13: Large deciphering error of energy due to excessive
+distortion.
+Another kind of a deciphering error occurs while processing
+the spectral shape of a pseudo-speech frame ˜D(enc),𝓁. As already
+mentioned in Section 3.4, channel distortion may cause the
+received ˆD(enc),𝓁∈ S 15 to move away from the ﬂat torus. When
+the distance from the ﬂat torus overreaches
+2 sin
+(
+sin−1 (
+1/
+√
+8
+)
+/2
+)
+, (37)
+the vector ˆD(enc),𝓁 could be projected to ˜D(rec),𝓁 on the opposite
+side of the torus. Figure 14 illustrates a simpliﬁed scenario of
+a wrong projection in R4. The projection of the vector ˜D(enc) to
+˜D(rec) along one dimension of the torus can be viewed as trans-
+lation of the corresponding coordinate of χ(enc) = Φ−1
+ξ ( ˜D(enc))
+overPξ. A wrong projection causes an unpredictable change in
+the spectral envelope shape of the deciphered frame.
+Figure 14: Projection of ˜D(enc) to the opposite side of the ﬂat
+torus along single dimension, seen as translation byπξ2 in the
+pre-image of the torus.
+When the channel distortion is sub-proportional to the logarithm
+of signal energy, the risk of a projection going on the wrong
+side of the torus can be mitigated by increasing the minimum
+pseudo-speech frame energy ˜εmin. It is because the norm in the
+denominator of Eq. (28) goes up when ˜εmin is increased, making
+the error‖ ˜D(enc),𝓁− ˜D(rec),𝓁‖ relatively smaller.
+4.3 The narrowband LPCNet training data
+The quality of synthesized speech strongly depends on the capa-
+bility of the narrowband LPCNet algorithm to operate in more
+imperfect conditions than during the training [36]. As suggested
+in [48], it is possible to improve the robustness of the network
+by adding noise during the training stage.
+In our speech encryption scheme, there exist two independent
+sources of imperfections. The ﬁrst source is the lower quality
+of real-world speech recordings taken for encryption, and the
+second source is channel noise. Motivated by this fact, the
+training process of the narrowband LPCNet was divided into
+two stages. During the two-step training, the ML networks
+consecutively learn to cope with the non-idealities of speech
+signals and the transmission channel. Splitting the training
+overcomes several typical problems with learning convergence
+as when the network cannot e ﬀectively compensate for both
+kinds of distortion at the same time. Moreover, it seems to
+be more practical if one considers re-training the network to
+diﬀerent channel conditions.
+A diagram for producing the training data in two steps is shown
+in Fig. 15. The process uses two noise sources, ‘Noise 1’ (active
+in both training stages) and ‘Noise 2’ (active in the second stage
+only). The ﬁrst training stage is nearly identical to the training
+process described in [ 36]. During the training, the network
+learns to predict the excitation sequence e[n], using as input the
+previous excitation samples e[n−1], the previous signal samples
+s[n− 1], the current prediction samples ˜s[n] and the frame-rate
+speech features (9-band Bark-scale cepstral coeﬃcients, pitch).
+Except for the frame features, the input data isµ-law quantized
+by the Q block [49]. The input noise is injected into the speech
+signal in the µ-law domain to make it proportional to signal
+amplitude. Noise distribution varies across the training data
+from no noise to a uniform distribution in the [-3,3] range. It
+can be noticed that the injected noise propagates to all sample-
+rate input data, eﬀectively imitating speech recorded in noisy
+environments.
+
+===== PAGE 15 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 15
+Figure 15: Computing the training data with noise injection to simulate a noisy channel (Noise 2 at the top) and a noisy speech
+reception (Noise 1 at the bottom). The Q block denotesµ-law quantization and Q−1 denotes conversion fromµ-law to the linear
+domain. The prediction ﬁlter ˜s[n] = ∑12
+k=1 ˜akz−k is applied to the noisy and quantized input. The excitation samples e[n] are the
+diﬀerence between the clear speech samples s[n] and the predicted ones. The second noise simulating a channel noise is injected
+directly into speech parameters. The distribution of noise simulates distortion introduced by a transmission channel and can be
+obtained by simulations or experiments. Triangle blocks are single sample delays.
+After the ﬁrst training stage, the network can produce intelli-
+gible speech signals from noiseless feature vectors. However,
+the output of the speech encryption scheme is likely to be dis-
+torted. The second stage of the training simulates a scenario
+when the frame-rate features are transmitted in encrypted form
+over a noisy channel. Since channel distortion is independent
+of the input signal, and the reception error linearly propagates
+to deciphered values, it is possible to inject noise directly into
+the speech parameters, as in Fig. 15. The distribution of in-
+jected noise simulates channel distortion statistics obtained by
+simulations or measurements.
+The two-stage training of the networks on a GPU card Nvidia
+Quadro RTX 4000 and using one hour of training speech takes
+approximately ﬁve days. Furthermore, we experimented with
+the speech quality produced by the synthesizer trained to English
+or Japanese5 language. The results obtained suggest that the
+synthesizer should be trained to the language used later for
+secure communication.
+5 E v aluation
+This section presents the test results from some experiments
+with our speech enciphering algorithm. The tests verify the
+scheme’s capability to decrypt pseudo-speech signals distorted
+by noise. Furthermore, the section investigates a scenario when
+the receiver is not fully synchronized in time and amplitude
+with the sender. The simulations are validated by real-world
+experiments.
+Based on some measurements of a signal distortion introduced
+by FaceTime and Skype, we estimated the SNR in a typical V oIP-
+based voice channel to be between 10 dB and 15 dB. On the
+other hand, similar experiments with 3G networks revealed that
+signal distortion in cellular networks is much higher, and gives
+SNR values closer to 3-5 dB. Due to excessive noise in cellular
+networks, we decided to evaluate our encryption scheme for its
+compatibility with V oIP-based applications. The robustness of
+deciphering was evaluated by inserting additive white Gaussian
+5Japanese has a very simple phonology, that makes it particularly
+useful for experimenting with ML techniques.
+noise (AWGN) into an encrypted signal or compressing the
+encrypted signal with Opus-Silk 1.3.1 [ 50]. Opus-Silk was
+chosen for experimentation because, unlike AMR [51] or Speex
+[52], its compression rate can be easily adjusted.
+The precomputed encrypted signal was successfully sent over
+FaceTime between two iPhones 6 running iOS 12 connected
+to the same WiFi network and decrypted o ﬄine. The use of
+FaceTime on WiFi is justiﬁed by high connection stability (lim-
+ited drop-outs, constant delay) which greatly simpliﬁes signal
+synchronization at the receiving end. Additionally, the selected
+speech excerpts reconstructed from encrypted signals were eval-
+uated in a speech quality /intelligibility assessment on a large
+group of about 40 participants.
+The section concludes with computational analysis in Sec-
+tion 5.4. The system’s computational complexity was estimated
+by measuring all ﬂoating-point operations performed during
+running our experimental software. The measurements suggest
+that the computationally optimized encryption algorithm may
+operate in real-time on high-end portable devices.
+Selected initial, encrypted, distorted, and decrypted speech sam-
+ples are available online.6
+5.1 Experimental setup
+Table 1 and Table 2 present the encoding parameters of speech
+and pseudo-speech signals. The intervals [εmin, εmax] and
+[pmin, pmax] were obtained from the TSP English speech cor-
+pus.7 The selection of the intervals [˜εmin, ˜εmax], [ ˜pmin, ˜pmax]
+and the bounds [κlow, κhigh], [ϱlow, ϱhigh] was done based on
+simulations.
+The speech encryption and decryption algorithms were imple-
+mented mainly in Python. The speech encoder and the speech
+synthesizer were obtained from the LPCNet repository 8 and
+adapted to the scheme. The pitch prediction with tracking for
+6https://github.com/PiotrKrasnowski/Speech_
+Encryption
+7https://www-mmsp.ece.mcgill.ca/Documents/Data/
+8https://github.com/mozilla/LPCNet/
+
+===== PAGE 16 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 16
+speech was based on open-loop cross-correlation search [ 13],
+whereas prediction for pseudo-speech relies on a more accurate
+maxi-mum-likelihood estimator9 without tracking [53, 54]. In
+the simulations, the enciphering stage takes as input a given
+pseudo-random bitstring produced by a built-in NumPy10 ran-
+dom sequence generator.
+Table 1: Parameters used for speech encoding and synthesis.
+Parameter Value
+frame length 20 ms
+sampling frequency 8 kHz
+sample representation int16
+energy bounds (εmin, εmax) = (10, 108)
+pitch period bounds (pmin, pmax) = (16, 128)
+energy guard bounds (ϱlow, ϱhigh) = (213, 216−213−1)
+pitch guard bounds (κlow, κhigh) = (213, 216−213−1)
+Table 2: Parameters used for pseudo-speech encoding and syn-
+thesis.
+Parameter Value
+frame length 25 ms
+guard period 5 ms
+sampling frequency 16 kHz
+sample representation int16
+energy bounds (˜εmin, ˜εmax) = (109, 1010)
+pitch period bounds ( ˜pmin, ˜pmax) = (80, 160)
+The narrowband LPCNet was trained in two steps on one hour
+of speech from the multi-speaker TSP English corpus (12 male
+and 12 female speakers). In the second step of the training,
+inserted noise simulated channel distortion caused by a Gaus-
+sian noise at SNR = 20 dB. Each network was trained for 100
+epochs per training step, with a batch consisting of 64 speech se-
+quences of 300 ms. The training was performed on a GPU card
+Nvidia Quadro RTX 4000 with Keras11 and Tensorﬂow12 using
+the CuDNN GRU implementation. The selected optimization
+method was AMSGrad [55] with a step size α = α0
+1+δ·b, where
+α0 = 0.001,δ = 5× 10−5 and b is the batch number.
+5.2 Simulations
+The ﬁrst experiment tested the encryption and decryption op-
+erations, assuming noise-less transmission. In the example in
+Fig. 16, the time-domain envelopes of the initial and the re-
+constructed speech sentence are very similar. A high degree
+of similarity can also be observed in the spectrograms. It may
+be noticed that the trained speech synthesizer faithfully recon-
+structs the fundamental frequency and the formants of the initial
+speech. On the other hand, the encrypted signal in the time and
+the frequency domains resembles band-limited noise.
+Adding distortion into the encrypted signal degrades the de-
+crypted speech. The time-domain envelope of the decryp-ted
+speech sentence in Fig. 17 is still similar to the initial speech but
+not identical anymore. It may be observed that pseudo-speech
+9https://github.com/jkjaer/fastF0Nls/
+10https://numpy.org/
+11https://keras.io/
+12https://www.tensorflow.org/
+decryption has a denoising eﬀect on low-amplitude speech and
+silence.
+The reception and deciphering errors of the same speech sen-
+tence are depicted in Fig. 19. As can be seen, the errors on en-
+ergy and timbre are non-negligible. However, in contrast to the
+error|ϱ(init),𝓁−ϱ(dec),𝓁|, the impact of the error‖D(init),𝓁− D(dec),𝓁‖
+on decrypted speech perception is more unpredictable. Unlike
+energy and timbre, pitch is very well preserved.
+The scheme’s robustness has been tested against AWGN at SNR
+between 5-25 dB and Opus-Silk v1.3.1 compression at bitrates
+between 28-64 kbps. In each case, the error of received and
+deciphered parameters were expressed in terms of the RMSE
+deﬁned as:
+RMSE˜ε,(rec) =
+vu√
+1
+L
+L∑
+𝓁=1
+|ϱ(enc),𝓁−ϱ(rec),𝓁|2,
+RMSEε,(dec) =
+vu√
+1
+L
+L∑
+𝓁=1
+|ϱ(init),𝓁−ϱ(dec),𝓁|2,
+RMSE ˜p,(rec) =
+vu√
+1
+L
+L∑
+𝓁=1
+|κ(enc),𝓁−κ(dec),𝓁|2,
+RMSEp,(dec) =
+vu√
+1
+L
+L∑
+𝓁=1
+|κ(init),𝓁−κ(dec),𝓁|2,
+RMSE ˜D,(rec) =
+vu√
+1
+L
+L∑
+𝓁=1
+‖ ˜D(enc),𝓁− ˜D(rec),𝓁‖2,
+RMSED,(dec) =
+vu√
+1
+L
+L∑
+𝓁=1
+‖D(init),𝓁− D(dec),𝓁‖2.
+As shown in Fig. 20, RMSEε,(dec) and RMSED,(dec) gradually
+rise when the signal distortion goes up. However, the nearly per-
+fect alignment of RMSEε,(rec) and RMSEε,(dec) suggests that the
+impact of large deciphering errors on energy is statistically neg-
+ligible. In consequence, the guard bounds (ϱlow, ϱhigh) could be
+relaxed. Additionally, it can be noticed that the errorRMSE ˜D,(rec)
+is smaller than RMSED,(dec). It is because the spherical angles
+D(dec) =γ−1
+ξ (χ(dec)/2) are divided by 2 in the decoding stage.
+The error RMSEp,(dec) remains small for every analyzed distor-
+tion. The rarely occurring errors on pitch are usually signiﬁcant
+and easy to detect. The observation suggests that a simple pitch
+tracker added at the output of the descrambling block would
+overperform guard bounds (κlow, κhigh) as an error correction
+mechanism.
+In a realistic scenario, the receiver is not always perfectly syn-
+chronized in time with the sender. Moreover, some voice chan-
+nels equipped with adaptive gain control (AGC) may modify the
+signal amplitude. As suggested by Fig. 21, the deciphering unit
+is, to some extent, tolerant of energy mismatch in the encrypted
+signal caused by AGC. Provided that the mismatch is no larger
+than the energy guard intervals, a modiﬁed signal is decrypted
+into an energy-scaled speech. On the other hand, the deciphering
+unit is very vulnerable to synchronization error larger than 0.3
+ms, as shown in Fig. 22.
+
+===== PAGE 17 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 17
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+initial speech
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+encrypted speech
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+decrypted speech
+Figure 16: Waveforms at di ﬀerent stages of signal encryption. From top to bottom: initial speech, encrypted signal and
+resynthesized speech. The spectrograms were obtained using a 1024-point Hann window.
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+initial speech
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+encrypted speech
+Gaussian noise
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+decrypted speech
+Figure 17: Waveforms at diﬀerent stages of signal encryption with Gaussian noise at SNR = 15 dB added to encrypted pseudo-
+speech.
+
+===== PAGE 18 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 18
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+initial speech
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+encrypted speech
+FaceTime distortion
+0 0.5 1 1.5 2 2.5 3−215
+0
+215
+time (seconds)
+decrypted speech
+Figure 18: Consecutive stages of signal encryption in com-
+munication over FaceTime between two iPhones 6. The
+recordings are available online at https://github.com/
+PiotrKrasnowski/Speech_Encryption.
+Finally, the scheme’s robustness was checked over FaceTime
+on WiFi between two iPhones 6 running iOS 12. The precom-
+puted pseudo-speech excerpts of total duration 120 seconds and
+enciphered with a predeﬁned pseudo-random sequence were
+uploaded on one of the phones, sent over FaceTime in chunks
+about 10-20 second long, and recorded on the second device.
+Figure 18 illustrates an example of the recorded signal and the
+decrypted speech. Table 3 lists the RMSE of received and de-
+ciphered parameters retrieved from 120 seconds of a recorded
+signal.
+Table 3: RMSE of received and deciphered values in communi-
+cation over FaceTime between two iPhones 6. Results retrieved
+from 120 seconds of a recorded signal.
+RMSEε,(dec) 1493.30 RMSE˜ε,(rec) 1644.73
+RMSEp,(dec) 525.70 RMSE ˜p,(rec) 867.30
+RMSED,(dec) 0.12 RMSE ˜D,(rec) 0.16
+30 60 90 120 1500
+214
+215
+216
+frames
+ϱ(init)
+ϱ(dec)
+30 60 90 120 1500
+214
+215
+216
+frames
+ϱ(enc)
+ϱ(rec)
+30 60 90 120 1500
+214
+215
+216
+frames
+κ(init)
+κ(dec)
+30 60 90 120 1500
+214
+215
+216
+frames
+κ(enc)
+κ(rec)
+30 60 90 120 1500
+0.2
+0.4
+0.6
+0.8
+1
+frames
+‖D(init)− D(dec)‖
+‖ ˜D(enc)− ˜D(rec)‖
+Figure 19: Distortion of received and deciphered parameters
+caused by adding Gaussian noise at SNR = 15 dB to encrypted
+speech.
+
+===== PAGE 19 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 19
+6 8 10 12 14 16 18 20 22 240
+0.2
+0.4
+0.6
+0.8
+1 ·104
+Gaussian noise SNR (dB)
+RMSEε,(dec)
+RMSE˜ε,(rec)
+30 35 40 45 50 55 600
+0.2
+0.4
+0.6
+0.8
+1 ·104
+Silk compression bitrate (kbps)
+RMSEε,(dec)
+RMSE˜ε,(rec)
+6 8 10 12 14 16 18 20 22 240
+0.2
+0.4
+0.6
+0.8
+1 ·104
+Gaussian noise SNR (dB)
+RMSEp,(dec)
+RMSE ˜p,(rec)
+30 35 40 45 50 55 600
+0.2
+0.4
+0.6
+0.8
+1 ·104
+Silk compression bitrate (kbps)
+RMSEp,(dec)
+RMSE ˜p,(rec)
+6 8 10 12 14 16 18 20 22 240
+0.2
+0.4
+0.6
+0.8
+1
+Gaussian noise SNR (dB)
+RMSED,(dec)
+RMSE ˜D,(rec)
+30 35 40 45 50 55 600
+0.2
+0.4
+0.6
+0.8
+1
+Silk compression bitrate (kbps)
+RMSED,(dec)
+RMSE ˜D,(rec)
+Figure 20: Root mean squared error (RMSE) of deciphered speech values and received pseudo-speech values caused by adding
+Gaussian noise to encrypted speech (left column) or by compressing the encrypted speech with Opus-Silk (right column).
+Simulation based on 100000 frames.
+30 60 90 120 1500
+214
+215
+216
+frames
+ϱ(init)
+ϱ(dec)
+Figure 21: Deciphered speech energy from encrypted signal
+scaled by the factor 0.85 and distorted by Gaussian noise at
+SNR = 20 dB.
+-1 -0.5 0 0.5 10
+0.5
+1
+1.5
+2
+sampling delay (ms)
+RMSED,(dec)
+RMSE ˜D,(rec)
+Figure 22: RMSE of received and deciphered vectors represent-
+ing spectral envelope shape; caused by imperfect sampling syn-
+chronization on the receiving side. Simulation based on 100000
+frames.
+
+===== PAGE 20 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 20
+5.3 Speech quality evaluation
+As reported in [56], objective measures of speech quality (i.e.,
+PESQ [57] and POLQA [58]) are suboptimal for evaluating Ma-
+chine Learning based, non-waveform vocoders. Consequently,
+we conducted a subjective listening test on a large number of
+participants. The tests consisted of two parts. The ﬁrst part
+checked the subjective intelligibility of decrypted speech in
+perfect transmission conditions. The second part assessed the
+subjective quality of speech restored from an encrypted signal
+with diﬀerent distortion types. The subset of speech samples
+used in the listening test has been selected from the LibriSpeech
+corpus [59] and is available online.
+The intelligibility experiment was inspired by the speech in-
+telligibility rating (SIR) [60]. During the test, the participants
+listened to 10 English sentences (4 female and 4 male speak-
+ers) of about 10 seconds each. In the ﬁrst round, the speech
+utterances were consecutively encrypted and decrypted, without
+noise insertion. In the second round, listeners were given the
+initial sentences sampled at 8 kHz, which served as the refer-
+ence. After listening to each speech sample, the participants
+were asked to estimate the percentage of recognized words in the
+sentence. The ratings were deﬁned as numbers between 0 and
+100, where 0 denoted no recognized word and 100 denoted that
+all words were recognized (Fig. 23). As opposed to rigorous,
+one-word or vowel/consonant intelligibility tests [61], testing
+the word intelligibility of a sentence allows listeners to take ad-
+vantage of the context. Because the participants were non-native
+English speakers, they were allowed to listen to the sentences
+multiple times.
+Figure 23: Rating scale used in the speech intelligibility test.
+Figure 24: Rating scale used in the speech quality test.
+The quality assessment followed a MUSHRA methodology [62]
+adapted for perceptual evaluation of medium quality speech
+signals. The method is believed to provide more reliable and
+reproducible results than the Mean Opinion Score (MOS) mea-
+sure [63], although it is not immune to biases either [ 64]. In
+the MUSHRA test, a participant is given several test audio
+ﬁles (called excerpts) which represent the same speech utter-
+ance processed by diﬀerent algorithms. To allow the participant
+a thorough and unbiased evaluation, these excerpts are given
+simultaneously and in randomized order. Among these random-
+ized excerpts, some represent the actual speech samples under
+test, whereas the remaining excerpts are a hidden reference, a
+low-quality anchor, and a mid-quality anchor. During the quality
+test, the listeners were asked to rate the subjective speech quality
+(i.e., naturalness, ﬁdelity) against the reference, as a number
+between 0 and 100 (Fig. 24). The value 100 denoted ‘Excellent’
+quality, meaning that the perceived quality of the test excerpt
+was identical to the reference.
+The MUSHRA tests were conducted in two rounds. The ﬁrst
+round aimed at evaluating the quality of sentences that were con-
+secutively encrypted by our algorithm, distorted by AWGN of
+varying intensity, and decrypted. In the second round, encrypted
+signals were compressed by Opus-Silk at varying compression
+rate. In addition, the test excerpts in the second round included
+speech utterances decrypted from the signal sent over FaceTime
+and recorded on iPhone 6. In both rounds, the participants had
+to rate 6 diﬀerent sentences (3 female and 3 male) of about 10
+seconds each. The reference was a wideband signal sampled
+at 16 kHz, the mid-anchor was a narrowband signal sampled
+at 8 kHz, and the low-anchor was a narrowband speech signal
+sampled at 8 kHz and with the MNRU distortion at SNR = 15
+dB [65]. In contrast to the reference signal, the mid-anchor may
+serve as a good benchmark to our tested signals due to the same
+speech bandwidth. The systems tested in the speech quality
+assessment are summarized in Table 4.
+Table 4: Hidden anchors and tested systems in the MUSHRA-
+based speech quality assessment.
+Reference and anchors
+Label Description
+ref wideband speech sampled at 16 kHz
+mid narrowband speech sampled at 8 kHz
+low 8 kHz speech with MNRU at SNR = 15 dB
+Systems under test in the assessment 1
+Label Description
+a-I speech decrypted from undistorted signal
+b-I signal distorted by AWGN at SNR = 20 dB
+c-I signal distorted by AWGN at SNR = 15 dB
+d-I signal distorted by AWGN at SNR = 10 dB
+Systems under test in the assessment 2
+Label Description
+a-II signal compressed by Silk at 64 kbps
+b-II signal compressed by Silk at 48 kbps
+c-II signal sent over FaceTime between iPhones 6
+d-II signal compressed by Silk at 32 kbps
+The assessment was carried out entirely online using web-
+MUSHRA, the framework for Web-based listening tests [66, 67].
+Table 5 lists the number of participants taking part in each test.
+All listeners were non-native English speakers with unreported
+hearing impairments. The participants were asked to wear head-
+phones or earphones and were allowed to adjust the sound vol-
+ume. Few participants were excluded from aggregated responses
+because of rating the hidden reference below 90 more than once
+in a single test (mostly accidentally).
+Table 6 presents sample mean and sample standard deviation of
+the intelligibility test. On average, the participants recognized
+about 12% fewer words in synthesized speech samples than in
+the reference. The average rating of particular sentences varied
+slightly from 82% to 89%. On the other hand, a speaker-level
+average ranged from 58% to 99%. This high variability of
+average ratings explains a considerable standard deviation of
+aggregated responses.
+
+===== PAGE 21 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 21
+Table 5: Number of participants in the listening test.
+Test Participants
+Intelligibility test 44
+Quality test 1 40∗
+Quality test 2 37∗∗
+∗ 18 listeners rated 5 utterances instead of 6
+4 listeners excluded for reference underrating
+∗∗ 3 listeners excluded for reference underrating
+Table 6: Intelligibility test results.
+System Sample mean Sample standard deviation
+Reference 97.5 6.6
+Decrypted 86.0 14.7
+The results of the MUSHRA-based quality assessment are de-
+picted in Figures 25 and 26. In both test rounds, the hidden
+reference was rated correctly as ‘Excellent.’ The average rating
+of the mid-anchors given by the participants was about 75%
+(‘Good’), and the average rating of the low-anchors was about
+30% (‘Poor’).
+The average rating of test excerpts decrypted from undistorted
+signals (a-I) was 64% (‘Good’/‘Fair’). Compared with the av-
+erage rating of mid-anchors, our algorithm reduced the speech
+quality by about 10%. It may be noticed that this di ﬀerence
+in speech quality between the mid-anchors and the excerpts la-
+beled a-I is similar to the intelligibility loss in the SIR-based
+intelligibility assessment.
+The introduction of distortion into encrypted signals resulted in
+degraded speech quality. Gaussian noise at SNR equal to 20
+dB, 15 dB, and 10 dB lowered the average ratings of speech
+quality respectively to 59% (‘Fair’), 46% (‘Fair’), and 19%
+(‘Poor’/‘Bad’). It can be noticed that a small channel distor-
+tion, like the one introduced by AWGN at SNR = 20 dB, has
+a relatively minor impact on perceived speech quality. On the
+contrary, the quality becomes bad when SNR reaches 10 dB.
+A similar observation can be made in the case of signal com-
+pression by Opus-Silk. The compression of encrypted signals at
+64 kbps, 48 kbps, and 32 kbps reduces the rated speech quality
+respectively to 59% (‘Fair’), 52% (‘Fair’), and 28% (‘Poor’).
+The excerpts decrypted from signals sent over FaceTime were
+rated at 49% (‘Fair’).
+The statistical similarity of given ratings was evaluated by the
+non-parametric Kruskall-Wallis test [68], which is more suitable
+for ordinal scales [ 69]. The ratings of speech signals labeled
+a-I come from the same statistical distribution as speech signals
+labeled b-I with the 0.09 conﬁdence. Additionally, the ratings
+of speech labeled b-II are similar to speech labeled c-I with 0.25
+conﬁdence, and the ratings of speech labeled d-II come from
+the same distribution as the low-anchor with 0.59 conﬁdence.
+The ratings of the remaining systems were similar, with the
+conﬁdence much lower than 0.05.
+The obtained results suggest that the speech encryption scheme
+described in this study can produce intelligible speech. More-
+over, the average speech quality of excerpts restored from signals
+sent over FaceTime hints about the possibility of making our
+system compatible with V oIP. However, high variability in lis-
+teners’ responses indicates that the quality of decrypted speech
+is insuﬃcient for having a casual conversation. Thus, some
+progress has to be made to improve the system’s robustness to
+distortion and the quality of speech synthesis.
+ref mid a-I b-I c-I d-I low0
+25
+50
+75
+100
+Figure 25: Results of the MUSHRA-based subjective quality as-
+sessment of speech decrypted from signals with added Gaussian
+noise of diﬀerent intensity. Bars mark standard deviation.
+ref mid a-II b-II c-II d-II low0
+25
+50
+75
+100
+Figure 26: Results of the MUSHRA-based subjective quality
+assessment of speech decrypted from signals compressed by
+Opus-Silk vocoder at diﬀerent compression rates and from sig-
+nals sent over FaceTime between two iPhones 6. Bars mark
+standard deviation.
+5.4 Algorithmic latency and computational complexity
+The minimum algorithmic latency in our encryption scheme is
+the sum of delays introduced respectively by the enciphering
+and deciphering algorithms. The speech encoder introduces
+30 ms of delay (20 ms frame and 10 ms look-ahead), and the
+pseudo-speech analyzer introduces an additional 20 ms delay.
+Finally, two 1x3 convolutional layers in the speech synthesizer
+use a 40 ms look-ahead (2 frames). The combined 90 ms of
+the minimum algorithmic latency is signiﬁcant and may reduce
+the perceived quality of conversation. A possible solution is
+to reduce the analysis look-ahead to 5 ms, and the synthesis
+look-ahead to 20 ms, like in the wideband LPCNet [70].
+The speech encoder implemented in the encryption scheme is
+reported to have a complexity of 16 MFLOPS, where about
+8 MFLOPS are used for pitch prediction [ 70]. Moreover, the
+authors hint at the possibility of signiﬁcant optimizations. These
+given values relate to the scenario when a speech signal is sam-
+pled at 16 kHz. Thus, we roughly estimate our 8 kHz speech
+
+===== PAGE 22 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 22
+encoder’s complexity to about 8 MFLOPS, including spherical
+mapping transformations.
+Enciphering (and deciphering) is relatively lightweight, as it
+requires only ten additions modulo per 20 ms frame. However,
+a higher computational load is associated with producing secure
+bitstrings by the pseudo-random generator at a rate 8 kbps. For
+this reason, it is especially important to select a PRNG based on
+well-established ciphers adapted for real-time applications, such
+as AES-CTR [71, 72].
+Pseudo-speech synthesis consists of two steps: computing the
+harmonic parameters of a frame and producing the signal sam-
+ples. The complexity of the ﬁrst step is dominated by deriv-
+ing the complex amplitudes of harmonics ˇA of length K using
+Eq. (22), where K is the number of harmonics in a particular
+frame. Provided that all complex matrices (H ˜Bω0)† are precom-
+puted and stored in the memory, the vector ˇA can be obtained
+by searching the appropriate matrix from the look-up table, by
+element-wise complex vector multiplication, and ﬁnally by one
+complex matrix 16× K multiplication. On the other hand, frame
+synthesis requiresO(400K) ﬂoating-point operations, where 400
+is the number of samples within a frame with two guard periods.
+The pseudo-speech analyzer is mostly occupied by estimat-
+ing the received fundamental frequency. The maximum-
+likelihood estimator implemented in the scheme has complexity
+O(N log N) +O(NK ), where N = 216 is the number of possible
+pitch values [53]. Consequently, lowering the resolution of es-
+timations or replacing the pitch predictor with a more eﬃcient
+version will give considerable computational gains.
+The most computationally involving element in the encryption
+scheme is the ﬁnal speech reconstruction. The LPCNet model
+implemented in the scheme has complexity:
+C = (3dN 2
+A + 3NB(NA + NB) + 2NBQ)· 2 fs, (38)
+where NA = 384, NB = 16, d = 10%, Q = 256 is the number
+ofµ-law levels, and fs is the sampling frequency. For fs = 16
+kHz, the estimated complexity of the synthesizer is 3 GFLOPS
+[70]. Additionally, it is reported that a C implementation of
+the synthesizer requires 20 % computing power of a 2.4 GHz
+Intel Broadwell core, 68% of a one 2.5 GHz Snapdragon 845
+core (Google Pixel 3), and 31% of a one 2.84 GHz Snapdragon
+855 core. From this, we estimate that the complexity of the
+lightweight, narrowband implementation of LPCNet is about
+2 GFLOPS, and it could operate in real-time on portable devices.
+Table 7 lists the computational complexity of various parts of our
+algorithm estimated using PyPaPi13 library [73] when process-
+ing 60 minutes of a recorded speech in Python. The measure-
+ments were done under Ubuntu kernel 5.8.0-25 and using Intel
+Core i7 2.9 GHz without multi-threading. The pseudo-random
+bitstring used for enciphering and deciphering was precomputed
+and stored in the memory.
+The listed results suggest that every tested part has a complexity
+low enough to be carried by a portable device, especially if one
+considers migrating the experimental Python code to a compiled
+code. Moreover, a replacement of the pitch predictor in the
+pseudo-speech analyzer would lead to signiﬁcant optimization
+gains. On the other hand, the computational analysis does not
+13https://flozz.github.io/pypapi/
+include other essential elements of the system, such as keeping
+signal synchronization or adaptive energy equalization.
+Table 7: Estimated complexity using PyPaPi library.
+Process MFLOPS
+speech encoding 8 [70]
+enciphering 2
+pseudo-speech synthesis 1032
+pseudo-speech analysis 2756
+• pitch prediction 2123
+• remaining 634
+deciphering 2
+speech synthesis 2000 [70]
+6 C onclusions
+In this work, we proposed a new speech encryption scheme for
+secure voice communications over voice channels. The lossy
+speech encoding technique implemented in the system preserves
+and protects only basic vocal parameters: fundamental frequency
+(pitch), energy (loudness), and spectral envelope (timbre). The
+vocal parameters are enciphered and then encoded to a synthetic
+audio signal adapted for transmission over wideband voice chan-
+nels. Speech is reconstructed by the narrowband vocoder based
+on the LPCNet architecture.
+Enciphering of vocal parameters is done using norm-preserving
+techniques: pitch and fundamental frequency are enciphered by
+translations, whereas spectral envelope by rotations on the hy-
+persphere in 16 dimensions. These techniques enable successful
+decryption of signals distorted by moderate transmission noise,
+like AWGN, or processed by some wideband V oIP applications
+such as FaceTime. However, the enciphering mechanism does
+not provide any data integrity. Instead, it is crucial to ensure
+strong identity authentication in the initial cryptographic key
+exchange.
+The robustness of the speech encryption scheme a-gainst chan-
+nel noise was veriﬁed experimentally. Simulations showed that
+the system could correctly decrypt pseudo-speech with additive
+Gaussian noise at SNR = 15 dB or compressed by the Opus-Silk
+codec at the 48 kbps rate. On the other hand, an encrypted signal
+is sensitive to synchronization error larger than 0.3 millisec-
+onds. Furthermore, the results of the speech quality assessment
+indicated that the proposed encryption scheme could produce
+intelligible speech with the quality depending on channel distor-
+tion.
+The preliminary complexity evaluation and the successful trans-
+mission of encrypted signals between two mobile phones hint
+that the proposed encryption scheme may work in real-time on
+high-end portable devices. However, secure communication
+is susceptible to short signal dropouts or de-synchronization.
+Consequently, robust communication is possible only over a
+stable vocal link between the users. Additionally, adaptive
+voice-enhancing algorithms implemented in commercial mo-
+bile phones (such as voice detection and noise suppression)
+usually lead to considerable degradation of the speech quality.
+This problem can be tackled using dedicated CryptoPhones or
+stand-alone devices connected with mobile phones in tandem.
+
+===== PAGE 23 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 23
+Speech quality could be improved by replacing our narrowband
+speech synthesizer exploiting the 4 kHz bandwidth with a wide-
+band synthesizer with the 8 kHz signal bandwidth. The biggest
+challenge is to ﬁnd a new representation for the spectral enve-
+lope that is compatible with the enciphering technique. The
+presented algorithm uses 9 mel-scaled frequency windows that
+are insuﬃcient for encoding the wideband spectrum. A possi-
+ble solution is to increase the number of mel-scaled windows
+to 18 and apply a dimensionality reduction technique, such as
+Principal Component Analysis (PCA) [74] or autoencoding [75].
+Dimensionality reduction may increase encoding eﬃciency be-
+cause the coeﬃcients within a single speech frame tend to be
+highly correlated.
+Other improvements can be obtained in the pseudo-speech syn-
+thesis. The proposed synthesis technique, while computationally
+eﬃcient, is very phase-sensitive and not enough speech-like. In-
+stead of encoding the enciphered vector ˜D(enc) into the real part
+of the complex frame spectrum, it would be advantageous to
+encode ˜D(enc) into the power spectral density (PSD). The main
+limitation is that the vector ˜D(enc) contains both positive and
+negative values, whereas PSD is always non-negative. For this
+reason, envelope encoding could be performed in the cepstral
+domain.
+Furthermore, it may be worth adding a correction unit at the
+deciphering output for detecting and smoothing deciphering
+errors. Since the vocal parameters in natural speech do not
+change quickly over time, the detection of large errors should
+be relatively straightforward. For example, the correction unit
+could use machine learning techniques to correct errors on a
+particular channel. A clear separation between the correction
+unit and the speech synthesizer could improve the quality of
+synthesized speech and simplify the two-step network training.
+Communication performance strongly depends on the stability
+of a vocal link. The problem with fading channels could be
+mitigated by combining distortion-tolerant speech encryption
+and multiple description coding (MDC) [76, 77, 78]. Multiple
+description coding is a technique that fragments one media
+stream into several substreams. Each substream is decodable
+into the initial stream, and decoding more substreams improves
+the quality. The MDC could be used to split encrypted speech
+into multiple audio streams and thus to increase communication
+reliability.
+Acknowledgements
+This document is the results of the research project funded by
+the AID program No SED0456JE75.
+References
+[1] Eli Biham and Orr Dunkelman. Cryptanalysis of the
+A5/1 GSM stream cipher. In International Conference
+on Cryptology in India , pages 43–51. Springer, 2000.
+doi:https://doi.org/10.1007/3-540-44495-5_5.
+[2] David Kahn. The Codebreakers: The comprehensive his-
+tory of secret communication from ancient times to the
+internet. The Macmillan Company, New York, NY , 1996.
+[3] Subhash C. Kak. Overview of analogue signal en-
+cryption. IEE Proceedings F - Communications,
+Radar and Signal Processing , 130(5):399–404, 1983.
+doi:https://doi.org/10.1049/ip-f-1.1983.0066.
+[4] N.R.F. MacKinnon. The development of speech encipher-
+ment. Radio and Electronic Engineer , 50:147–155(8),
+1980. doi:https://doi.org/10.1049/ree.1980.0022.
+[5] Aaron Wyner. An analog scrambling scheme which
+does not expand bandwidth, Part I: Discrete time. IEEE
+Transactions on Information Theory, 25(3):261–274, 1979.
+doi:https://doi.org/10.1109/TIT.1979.1056050.
+[6] Lin-Shan Lee, Ger-Chih Chou, and Ching-Sung Chang.
+A New Frequency Domain Speech Scrambling System
+Which Does Not Require Frame Synchronization. IEEE
+Transactions on Communications, 32(4):444–456, 1984.
+doi:https://doi.org/10.1109/TCOM.1984.1096078.
+[7] Bruce Goldburg, Sridha Sridharan, and Ed Daw-
+son. Design and cryptanalysis of transform-based
+analog speech scramblers. IEEE Journal on Se-
+lected Areas in Communications , 11(5):735–744, 1993.
+doi:https://doi.org/10.1109/49.223875.
+[8] Bruce Goldburg, Sridha Sridharan, and Ed Dawson. Crypt-
+analysis of frequency domain analogue speech scramblers.
+IEE Proceedings I (Communications, Speech and Vision),
+140(4):235–239, 1993. doi:https: //doi.org/10.1049/ip-i-
+2.1993.0035.
+[9] Yu-Xiang Zhao, Mu-Chun Su, Zhong-Lie Chou, and
+Jonathan Lee. A Puzzle Solver and Its Application in
+Speech Descrambling. In WSEAS International Confer-
+ence on Computer Engineering and Applications , pages
+171–176. World Scientiﬁc and Engineering Academy and
+Society (WSEAS), 2007. ISBN 9789608457584.
+[10] William Bennett. Secret Telephony as a Historical
+Example of Spread-Spectrum Communication. IEEE
+Transactions on Communications , 31(1):98–104, 1983.
+doi:https://doi.org/10.1109/TCOM.1983.1095724.
+[11] James W. Forgie. Speech transmission in packet-switched
+store-and-forward networks. In Proceedings of the May
+19-22, 1975, national computer conference and exposition,
+pages 137–142. Association for Computing Machinery,
+1975. doi:https://doi.org/10.1145/1499949.1499978.
+[12] Jacob Benesty, Man Mohan Sondhi, and Yiteng Huang.
+Handbook of Speech Processing. Springer, Berlin Heidel-
+berg, Germany, 2008.
+[13] Lawrence R. Rabiner and Ronald W. Schafer. Theory and
+applications of digital speech processing. Pearson, Upper
+Saddle River, NJ, 2011.
+[14] Seungjoon Lee, Youngmok Ha, Sungjun Yoon, Hyunju
+Jo, Soohee Jang, Jiyeon Lee, Youngan Kim, and
+Ji Yoon. The Vulnerability Exploitation Convey-
+ing Digital Data Over Mobile Voice Call Channels.
+Wireless Personal Communications , 96:1–28, 2017.
+doi:https://doi.org/10.1007/s11277-017-4229-9.
+[15] Piotr Krasnowski, Jerome Lebrun, and Bruno Mar-
+tin. Introducing a Veriﬁed Authenticated Key Ex-
+change Protocol over Voice Channels for Secure
+
+===== PAGE 24 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 24
+Voice Communication. In 6th International Con-
+ference on Information Systems Security and Pri-
+vacy, pages 683–690. Scitepress Digital Library, 2020.
+doi:https://doi.org/10.5220/0009156506830690.
+[16] Xuedong Huang, Alex Acero, Hsiao-Wuen Hon, and Raj
+Reddy. Spoken language processing: A guide to Theory,
+Algorithm, and System Development. Prentice Hall PTR,
+Upper Saddle River, NJ, 2001.
+[17] Christine Tex, Martin Schäler, and Klemens Böhm. To-
+wards meaningful distance-preserving encryption. In
+Proceedings of the 30th International Conference on
+Scientiﬁc and Statistical Database Management , pages
+1–12. Association for Computing Machinery, 2018.
+doi:https://doi.org/10.1145/3221269.3223029.
+[18] Mihir Bellare, Anand Desai, David Pointcheval, and
+Phillip Rogaway. Relations among notions of se-
+curity for public-key encryption schemes. In Hugo
+Krawczyk, editor, Advances in Cryptology — CRYPTO
+’98, pages 26–45. Springer Berlin Heidelberg, 1998.
+doi:https://doi.org/10.1007/BFb0055718.
+[19] Jonathan Katz and Yehuda Lindell.Introduction to modern
+cryptography. CRC press, Boca raton, FL, 2015.
+[20] Steven Davis and Paul Mermelstein. Comparison of para-
+metric representations for monosyllabic word recognition
+in continuously spoken sentences. IEEE transactions on
+acoustics, speech, and signal processing, 28(4):357–366,
+1980. doi:https://doi.org/10.1109/TASSP.1980.1163420.
+[21] David Slepian. Group codes for the Gaussian chan-
+nel. Bell System Technical Journal, 47(4):575–602, 1968.
+doi:https://doi.org/10.1002/j.1538-7305.1968.tb02486.x.
+[22] Rogério M. Siqueira and Sueli I.R. Costa. Flat tori,
+lattices and bounds for commutative group codes. De-
+signs, Codes and Cryptography, 49(1-3):307–321, 2008.
+doi:https://doi.org/10.1007/s10623-008-9183-9.
+[23] Carlile Lavor and Francisco A.M. Gomes. Advances in
+Mathematics and Applications: Celebrating 50 Years of the
+Institute of Mathematics, Statistics and Scientiﬁc Comput-
+ing, University of Campinas. Springer, Cham, Switzerland,
+2018.
+[24] H. Blaine Lawson Jr. Foliations. Bulletin of the
+American Mathematical Society , 80(3):369–418, 1974.
+doi:https://doi.org/10.1090/S0002-9904-1974-13432-4.
+[25] Alberto Candel and Lawrence Conlon. Foliations. I, vol-
+ume 23 of Graduate Studies in Mathematics. American
+Mathematical Society, Providence, RI, 5, 2000.
+[26] Cristiano Torezzan, João E. Strapasson, Sueli I.R. Costa,
+and Rogerio M. Siqueira. Optimum commutative group
+codes. Designs, Codes and Cryptography, 74(2):379–394,
+2015. doi:https://doi.org/10.1007/s10623-013-9867-7.
+[27] G. David Forney. Geometrically uniform codes. IEEE
+Transactions on Information Theory , 37(5):1241–1260,
+1991. doi:https://doi.org/10.1109/18.133243.
+[28] Atsuyuki Okabe, Barry Boots, Kokichi Sugihara, and Sung
+Nok Chiu. Spatial Tessellations: Concepts and Applica-
+tions of Voronoi Diagrams. Wiley, Hoboken, NJ, 2000.
+ISBN 978-0-471-98635-5.
+[29] Sueli I.R. Costa, Frédérique Oggier, Antonio Campello,
+Jean-Claude Belﬁore, and Emanuele Viterbo. Lattices Ap-
+plied to Coding for Reliable and Secure Communications.
+Springer Nature, Cham, Switzerland, 2017.
+[30] Henri Cohen. A course in computational algebraic number
+theory. Springer-Verlag, Berlin, Heidelberg, Germany,
+1993.
+[31] John Horton Conway and Neil James Alexander Sloane.
+Sphere packings, lattices and groups - 3rd Edition .
+Springer Science & Business Media, New York, NY , 1999.
+[32] John H. Conway and Neil J.A. Sloane. Fast quantizing and
+decoding and algorithms for lattice quantizers and codes.
+IEEE Transactions on Information Theory, 28(2):227–232,
+1982. doi:https://doi.org/10.1109/TIT.1982.1056484.
+[33] Daniele Micciancio and Shaﬁ Goldwasser. Complexity of
+lattice problems: a cryptographic perspective, volume 671.
+Springer Science & Business Media, Ney York, NY , 2012.
+[34] Robert McAulay and Thomas Quatieri. Speech
+analysis/synthesis based on a sinusoidal represen-
+tation. IEEE Transactions on Acoustics, Speech,
+and Signal Processing , 34(4):744–754, 1986.
+doi:https://doi.org/10.1109/TASSP.1986.1164910.
+[35] Stephen Weinstein and Paul Ebert. Data transmis-
+sion by frequency-division multiplexing using the
+discrete fourier transform. IEEE Transactions on
+Communication Technology , 19(5):628–634, 1971.
+doi:https://doi.org/10.1109/TCOM.1971.1090705.
+[36] Jean-Marc Valin and Jan Skoglund. LPCNET: Im-
+proving Neural Speech Synthesis through Linear Pre-
+diction. In ICASSP 2019 - 2019 IEEE Interna-
+tional Conference on Acoustics, Speech and Signal
+Processing (ICASSP) , pages 5891–5895. IEEE, 2019.
+doi:https://doi.org/10.1109/ICASSP.2019.8682804.
+[37] John Makhoul. Linear prediction: A tutorial re-
+view. Proceedings of the IEEE , 63(4):561–580, 1975.
+doi:https://doi.org/10.1109/PROC.1975.9792.
+[38] Shaﬁ Goldwasser and Silvio Micali. Probabilistic en-
+cryption. Journal of Computer and System Sciences, 28
+(2):270 – 299, 1984. doi:https: //doi.org/10.1016/0022-
+0000(84)90070-9.
+[39] Thomas Baigneres, Jacques Stern, and Serge Vaudenay.
+Linear cryptanalysis of non binary ciphers. InInternational
+Workshop on Selected Areas in Cryptography, pages 184–
+211. Springer, 2007. doi:https: //doi.org/10.1007/978-3-
+540-77360-3_13.
+[40] Anna Epishkina. A technique to test non-
+binary random number generator. Proce-
+dia computer science , 145:193–198, 2018.
+doi:https://doi.org/10.1016/j.procs.2018.11.039.
+[41] Elaine Barker, Larry Feldman, and Gregory Witte. Rec-
+ommendation for Random Number Generation Using
+Deterministic Random Bit Generators. Technical re-
+port, National Institute of Standards and Technology,
+2015. URL https://nvlpubs.nist.gov/nistpubs/
+SpecialPublications/NIST.SP.800-90Ar1.pdf.
+[42] Ran Canetti and Hugo Krawczyk. Analysis of Key-
+Exchange Protocols and Their Use for Building Secure
+
+===== PAGE 25 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 25
+Channels. In International Conference on the Theory and
+Applications of Cryptographic Techniques, pages 453–474.
+Springer, 2001. doi:https://doi.org/10.1007/3-540-44987-
+6_28.
+[43] Eric Rescorla. The Transport Layer Security (TLS) Pro-
+tocol Version 1.3. Technical report, IETF, 2018. URL
+https://tools.ietf.org/html/rfc8446.
+[44] Elaine Barker. Recommendation for Key Management:
+Part 1 - General. Technical report, National Institute of
+Standards and Technology, 2020.
+[45] Sylvain Pasini and Serge Vaudenay. SAS-Based Au-
+thenticated Key Agreement. In Public Key Cryptog-
+raphy - PKC 2006 , pages 395–409. Springer, 2006.
+doi:https://doi.org/10.1007/11745853_26.
+[46] Marek Szczerba and Andrzej Czyzewski. Pitch detec-
+tion enhancement employing music prediction. Journal of
+Intelligent Information Systems, 24(2-3):223–251, 2005.
+doi:https://doi.org/10.1007/s10844-005-0324-6.
+[47] James W. Beauchamp, Robert C. Maher, and Rebekah
+Brown. Detection of Musical Pitch from Recorded Solo
+Performances. In Audio Engineering Society Convention
+94. Audio Engineering Society, Mar 1993. URL http:
+//www.aes.org/e-lib/browse.cfm?elib=6616.
+[48] Aaron van den Oord, Sander Dieleman, Heiga Zen, Karen
+Simonyan, Oriol Vinyals, Alex Graves, Nal Kalchbren-
+ner, Andrew Senior, and Koray Kavukcuoglu. Wavenet:
+A generative model for raw audio. arXiv preprint
+arXiv:1609.03499, 2016. URL https://arxiv.org/
+abs/1609.03499.
+[49] ITU-T. Pulse Code Modulation (PCM) of V oice Frequen-
+cies. Technical Report Recommendation G.711, Interna-
+tional Telecommunication Union, Geneva, Switzerland,
+1988.
+[50] Jean-Marc Valin, Koen V os, and Timothy Terriberry. Def-
+inition of the Opus Audio Codec. Technical Speciﬁca-
+tion RFC 6176, IETF, 2012. URL https://tools.ietf.
+org/html/rfc6716.
+[51] 3GPP. Adaptive Multi-Rate (AMR) speech
+codec; Transcoding functions. Technical Re-
+port TS 26.090, Release 15, 3GPP, 2018. URL
+http://www.3gpp.org/ftp//Specs/archive/26_
+series/26.090/26090-f00.zip.
+[52] Greg Herlein, Jean-Marc Valin, Alfred Heggestad, and
+Aymeric Moizard. RTP Payload Format for the Speex
+Codec. Technical Speciﬁcation RFC 5574, IETF, 2009.
+URL https://tools.ietf.org/html/rfc5574.
+[53] Jesper Kjær Nielsen, Tobias Lindstrøm Jensen, Jes-
+per Rindom Jensen, Mads Græsbøll Christensen,
+and Søren Holdt Jensen. Fast fundamental fre-
+quency estimation: Making a statistically e ﬃcient
+estimator computationally e ﬃcient. Signal Process-
+ing, 135:188 – 197, 2017. ISSN 0165-1684.
+doi:https://doi.org/10.1016/j.sigpro.2017.01.011.
+[54] Jesper K. Nielsen, Mads G. Christensen, Ali T. Cemgil, and
+Soren H. Jensen. Bayesian Model Comparison With the g-
+Prior. IEEE Transactions on Signal Processing, 62(1):225–
+238, 2014. doi:https://doi.org/10.1109/TSP.2013.2286776.
+[55] Sashank J. Reddi, Satyen Kale, and Sanjiv Kumar. On
+the Convergence of Adam and Beyond. In Interna-
+tional Conference on Learning Representations . Open-
+Review.net, 2018. URL https://openreview.net/
+forum?id=ryQu7f-RZ.
+[56] W. Bastiaan Kleijn, Felicia S.C. Lim, Alejandro Luebs, Jan
+Skoglund, Florian Stimberg, Quan Wang, and Thomas C.
+Walters. Wavenet Based Low Rate Speech Coding. In
+2018 IEEE International Conference on Acoustics, Speech
+and Signal Processing (ICASSP), pages 676–680, 2018.
+doi:https://doi.org/10.1109/ICASSP.2018.8462529.
+[57] ITU-T. Perceptual evaluation of speech quality (PESQ):
+An objective method for end-to-end speech quality as-
+sessment of narrow-band telephone networks and speech
+codecs. Technical Report Recommendation P.862, Interna-
+tional Telecommunication Union, Geneva, Switzerland,
+2001. URL https://www.itu.int/rec/T-REC-P.
+862.
+[58] ITU-T. Perceptual objective listening quality prediction.
+Technical Report Recommendation P.863, International
+Telecommunication Union, Geneva, Switzerland, 2018.
+URL https://www.itu.int/rec/T-REC-P.863 .
+[59] Vassil Panayotov, Guoguo Chen, Daniel Povey, and San-
+jeev Khudanpur. Librispeech: An ASR corpus based
+on public domain audio books. In 2015 IEEE Inter-
+national Conference on Acoustics, Speech and Signal
+Processing (ICASSP) , pages 5206–5210. IEEE, 2015.
+doi:https://doi.org/10.1109/ICASSP.2015.7178964.
+[60] Robyn M. Cox and D. Michael McDaniel. Devel-
+opment of the Speech Intelligibility Rating (SIR) test
+for hearing aid comparisons. Journal of Speech, Lan-
+guage, and Hearing Research , 32(2):347–352, 1989.
+doi:https://doi.org/10.1044/jshr.3202.347.
+[61] ITU-T. Subjective test methodology for assessing
+speech intelligibility. Technical Report Recommendation
+P.807, International Telecommunication Union, Geneva,
+Switzerland, 2016. URL https://www.itu.int/rec/
+T-REC-P.807/en.
+[62] ITU-R. Method for the subjective assessment of inter-
+mediate quality level of audio systems. Technical Re-
+port Recommendation BS.1534-3, International Telecom-
+munication Union, Geneva, Switzerland, 2015. URL
+https://www.itu.int/rec/R-REC-BS.1534 .
+[63] ITU-T. Mean opinion score (MOS) terminology. Techni-
+cal Report Recommendation P.801, International Telecom-
+munication Union, Geneva, Switzerland, 2016. URL
+https://www.itu.int/rec/T-REC-P.800.1 .
+[64] Slawomir Zielinski, Philip Hardisty, Christopher Hummer-
+sone, and Francis Rumsey. Potential Biases in MUSHRA
+Listening Tests. In Audio Engineering Society Convention
+123. Audio Engineering Society, Oct 2007. URL http:
+//www.aes.org/e-lib/browse.cfm?elib=14237.
+[65] ITU-T. Modulated Noise Reference Unit (MNRU). Techni-
+cal Report Recommendation P.810, International Telecom-
+munication Union, Geneva, Switzerland, 1996. URL
+https://www.itu.int/rec/T-REC-P.810/en .
+
+===== PAGE 26 =====
+A Preprint – Introducing an experimental distortion-tolerant speech encryption scheme for secure voice communication 26
+[66] Michael Schoeﬄer, Fabian-Robert Stöter, Bernd Edler,
+and Jürgen Herre. Towards the next generation of web-
+based experiments: A case study assessing basic audio
+quality following the ITU-R recommendation BS. 1534
+(MUSHRA). In 1st Web Audio Conference , pages 1–
+6, 2015. URL https://wac.ircam.fr/pdf/wac15_
+submission_8.pdf.
+[67] Michael Schoe ﬄer, Sarah Bartoschek, Fabian-Robert
+Stöter, Marlene Roess, Susanne Westphal, Bernd
+Edler, and Jürgen Herre. webMUSHRA—A com-
+prehensive framework for web-based listening tests.
+Journal of Open Research Software , 6(1), 2018.
+doi:https://doi.org/10.5334/jors.187.
+[68] William H. Kruskal and W. Allen Wallis. Use of Ranks
+in One-Criterion Variance Analysis. Journal of the
+American Statistical Association, 47(260):583–621, 1952.
+doi:https://doi.org/10.1080/01621459.1952.10483441.
+[69] Catarina Mendonça and Symeon Delikaris-Manias. Sta-
+tistical Tests with MUSHRA Data. In Audio Engineer-
+ing Society Convention 144 . Audio Engineering Soci-
+ety, May 2018. URL http://www.aes.org/e-lib/
+browse.cfm?elib=19402.
+[70] Jean-Marc Valin and Jan Skoglund. A Real-Time Wide-
+band Neural V ocoder at 1.6kb/s Using LPCNet. In Pro-
+ceedings of INTERSPEECH , pages 3406–3410. Inter-
+national Speech Communication Association, 09 2019.
+doi:https://doi.org/10.21437/Interspeech.2019-1255.
+[71] Emilia Käsper and Peter Schwabe. Faster and timing-
+attack resistant AES-GCM. In International Workshop on
+Cryptographic Hardware and Embedded Systems, pages
+1–17. Springer, 2009. doi:https: //doi.org/10.1007/978-3-
+642-04138-9_1.
+[72] Jin Hyung Park and Dong Hoon Lee. FACE: fast AES
+CTR mode encryption techniques based on the reuse of
+repetitive data. IACR Transactions on Cryptographic
+Hardware and Embedded Systems, pages 469–499, 2018.
+doi:https://doi.org/10.13154/tches.v2018.i3.469-499.
+[73] Dan Terpstra, Heike Jagode, Haihang You, and Jack
+Dongarra. Collecting Performance Data with PAPI-
+C. In Matthias S. Müller, Michael M. Resch, Alexan-
+der Schulz, and Wolfgang E. Nagel, editors, Tools for
+High Performance Computing 2009 , pages 157–173,
+Berlin, Heidelberg, 2010. Springer Berlin Heidelberg.
+doi:https://doi.org/10.1007/978-3-642-11261-4_11.
+[74] Svante Wold, Kim Esbensen, and Paul Geladi. Principal
+component analysis. Chemometrics and Intelligent Lab-
+oratory Systems, 2(1):37 – 52, 1987. ISSN 0169-7439.
+doi:https://doi.org/10.1016/0169-7439(87)80084-9. Pro-
+ceedings of the Multivariate Statistical Workshop for Ge-
+ologists and Geochemists.
+[75] Mark A. Kramer. Nonlinear principal compo-
+nent analysis using autoassociative neural net-
+works. AIChE journal , 37(2):233–243, 1991.
+doi:https://doi.org/10.1002/aic.690370209.
+[76] Vivek K. Goyal. Multiple description coding: Compres-
+sion meets the network. IEEE Signal processing magazine,
+18(5):74–93, 2001. doi:https://doi.org/10.1109/79.952806.
+[77] Raman Venkataramani, Gerhard Kramer, and Vivek K.
+Goyal. Multiple description coding with many channels.
+IEEE Transactions on Information Theory , 49(9):2106–
+2114, 2003. doi:https://doi.org/10.1109/TIT.2003.815767.
+[78] Benjamin W. Wah and Dong Lin. LSP-based multiple-
+description coding for real-time low bit-rate voice over IP.
+IEEE Transactions on Multimedia, 7(1):167–178, 2005.
+doi:https://doi.org/10.1109/TMM.2004.840593.

@@ -1,0 +1,1818 @@
+
+
+===== PAGE 1 =====
+Academic Editor: Marek T.
+Malinowski
+Received: 9 January 2025
+Revised: 23 February 2025
+Accepted: 25 February 2025
+Published: 27 February 2025
+Citation: Radomirovi´ c, J.;
+Milosavljevi´ c, M.;ˇCubrilovi´ c, S.;
+Kuzmanovi´ c, Z.; Peri´ c, M.; Banjac, Z.;
+Peri´ c, D. A Class of Perfectly Secret
+Autonomous Low-Bit-Rate Voice
+Communication Systems. Symmetry
+2025, 17, 365. https://doi.org/
+10.3390/sym17030365
+Copyright: © 2025 by the authors.
+Licensee MDPI, Basel, Switzerland.
+This article is an open access article
+distributed under the terms and
+conditions of the Creative Commons
+Attribution (CC BY) license
+(https://creativecommons.org/
+licenses/by/4.0/).
+Article
+A Class of Perfectly Secret Autonomous Low-Bit-Rate Voice
+Communication Systems
+Jelica Radomirovi´ c1,2, *
+ , Milan Milosavljevi´ c1
+ , Sara ˇCubrilovi´ c1,2
+ , Zvezdana Kuzmanovi´ c1,2
+ ,
+Miroslav Peri´ c1
+ , Zoran Banjac 1
+ and Dragana Peri´ c1
+1 Vlatacom Institute of High Technology, Milutina Milankovica 5, 11070 Belgrade, Serbia;
+milan.milosavljevic@vlatacom.com (M.M.); sara.cubrilovic@vlatacom.com (S. ˇC.);
+zvezdana.kuzmanovic@vlatacom.com (Z.K.); miroslav.peric@vlatacom.com (M.P .);
+zoran.banjac@vlatacom.com (Z.B.); dragana.peric@vlatacom.com (D.P .)
+2 School of Electrical Engineering, Belgrade University, Bulevar kralja Aleksandra 73, 11120 Belgrade, Serbia
+* Correspondence: jelica.radomirovic@vlatacom.com
+Abstract: This paper presents an autonomous perfectly secure low-bit-rate voice commu-
+nication system (APS-VCS) based on the mixed-excitation linear prediction voice coder
+(MELPe), Vernam cipher, and sequential key distillation (SKD) protocol by public dis-
+cussion. An authenticated public channel can be selected in a wide range, from internet
+connections to specially leased radio channels. We found the source of common random-
+ness between the locally synthesized speech signal at the transmitter and the reconstructed
+speech signal at the receiver side. To avoid information leakage about open input speech,
+the SKD protocol is not executed on the actual transmitted speech signal but on artificially
+synthesized speech obtained by random selection of the linear spectral pairs (LSP) param-
+eters of the speech production model. Experimental verification of the proposed system
+was performed on the Vlatacom Personal Crypto Platform for Voice encryption (vPCP-V).
+Empirical measurements show that with an adequate selection of system parameters for
+voice transmission of 1.2 kb/s, a secret key rate (KR) of up to 8.8 kb/s can be achieved,
+with a negligible leakage rate (LR) and bit error rate (BER) of order 10−3 for various com-
+munications channels, including GSM 3G and GSM VoLTE networks. At the same time,
+by ensuring perfect secrecy within symmetric encryption systems, it further highlights
+the importance of the symmetry principle in the field of information-theoretic security.
+To our knowledge, this is the first autonomous, perfectly secret system for low-bit-rate
+voice communication that does not require explicit prior generation and distribution of
+secret keys.
+Keywords: speech security; perfect secrecy; vernam cypher; MELPe voicecoder; common
+randomnes; sequencial key distillaton; linear spectral pairs; linear pediction
+1. Introduction
+In this paper, we asked the following question: Is it possible to design an autonomous,
+perfectly secret speech communication system whose integral part is the subsystem for the
+generation and distribution of the required amount of secret keys in real time?
+As is known [1], the Vernam cipher [2] or One-Time-Pad (OTP) [3] satisfies the con-
+dition of perfect secrecy, and the price to be paid is that the secret key rate is equal to the
+message rate. The need for secret keys decreases proportionally with the message rate,
+justifying the use of low-bit-rate voice coders in practical implementations [4–6]. However,
+Symmetry 2025, 17, 365 https://doi.org/10.3390/sym17030365
+
+===== PAGE 2 =====
+Symmetry 2025, 17, 365 2 of 30
+the problem of efficient generation and distribution of secret keys in the case of the Vernam
+cipher is still open.
+While physical key distribution remains the simplest but impractical option over
+long distances, more modern approaches, such as quantum key distribution and the use
+of physical entropy sources, provide promising methods for future systems. Quantum
+key distribution stands out for its provably secure nature, though it requires significant
+infrastructure [7].
+In the group of methods that use physical entropy sources, a special place is occupied
+by the methods of generating and distributing secret keys using sequential key distillation
+(SKD) protocols by public discussion [8–10]. Their application requires two prerequisites:
+• Sources of common randomness with sufficient capacity shared by communication
+parties (Alice, Bob)
+• An additional authenticated communication channel of appropriate capacity, which
+may be public, and which is assumed to be wiretapped by an attacker (Eve).
+By far, most solutions in this category take the wireless channel itself as a physical
+source of common randomness [11–13]. However, we exclude this approach due to our
+requirement for system autonomy, which implies independence from the used communi-
+cation channel. A small number of remaining papers are dominantly related to various
+biometric signals as sources of common randomness [ 14–16]. However, there are no so-
+lutions that would be based on common randomness sources independent of the used
+telecommunication channels while guaranteeing the secret key generation speed equal to
+low-bit-rate vocoder speeds of 1.2 kb/s or 2.4 kb/s.
+While most existing works investigate key generation protocols in a particular en-
+vironment, very few of them focus on the joint design of key generation and OTP . A
+straightforward way is cascading or parallel key generation and OTP , but more complex
+constructions appear in the literature. For example, in [ 17], it was proved that using a
+non-reconciled key for OTP outperforms classical identical key OTP .
+In the first step of the proposed system’s design, we select a standard low-bit-rate
+vocoder MELPe with a speed of 1.2 kb/s [5,18] and an appropriate authenticated public
+channel, which must be available during system operation.
+In the second step, based on extensive tests of this vocoder in real working conditions
+within the vPCP-V system [19], we identify a source of common randomness suitable for
+generating and distributing secret keys at speeds far higher than 1.2 kb/s. This source
+consists of a locally synthesized speech signal on the transmitting side (Alice) and a
+corresponding synthesized signal on the receiving side (Bob). The differences between
+these signals come from different local sources of randomness, which are used to form the
+complex excitation of the MELP vocoder synthesizer. This source of shared randomness
+can be used in the open speech mode, which, as a rule, precedes the phase of secure voice
+communication. All information about input voice that flows through the public channel
+to Eve during the execution of the SKD protocol is of no importance since communication
+is also open through the main channel. However, in the phase of protected communication
+on the main channel, this information will significantly reduce the uncertainty of the input
+voice. Therefore, we introduce a new synthesizer on the Alice and Bob side for this phase,
+whose synthesis filters are set based on secret randomly chosen LSP parameters [ 18,20].
+These values are available to both Alice and Bob since they are formed from previously
+distilled secret keys.
+In this way, we obtain all the necessary conditions for the design of a perfectly secret
+autonomous low-bit-rate voice communication system.
+
+===== PAGE 3 =====
+Symmetry 2025, 17, 365 3 of 30
+1.1. Related Works
+To focus on relevant research, it is essential to recall the fundamental requirements
+that a highly secure voice protection system must meet [21].
+Security Requirements:
+• Strong end-to-end encryption—only legitimate parties should be able to encrypt and
+decrypt the communication.
+• Key management procedures must be designed in a way that does not compromise
+the declared security level of the system.
+• A secure key agreement must be ensured.
+• The choice of encryption algorithm and secret key length must support the proclaimed
+security level.
+Functionality Requirements:
+• The system must be resistant to distortions introduced by GSM codecs, which are
+designed for speech transmission over mobile networks rather than encrypted speech,
+which is inherently a data stream.
+• Minimization of transmission error rates—this requirement is crucial for low-bit-rate
+vocoders. The analytical–synthetic approach of vocoders inherently reduces the quality
+of synthesized speech on the receiving side, meaning that additional transmission
+errors must be minimized.
+According to the classification provided in [22], most research falls into two distinct
+categories:
+• Secure voice communication using modem-based cryptographic techniques
+• Secure voice communication based on chaotic cryptographic techniques
+Due to the generic structure of modem-based cryptographic techniques, the vPCP-V
+system belongs to this category [22,23]. Therefore, our primary focus will be on this class
+of systems. Table 2 in ref. [22] summarizes the performance of 22 systems published up
+to 2022. Without exception, all solutions are based on standard cryptographic algorithms
+with finite secret keys (AES, RC4, TEA) and rely on conventional public key infrastructure
+(PKI) for key generation and distribution.
+As a result, these systems do not ensure autonomy, as they depend on a Trusted Third
+Party (TTP), nor do they achieve perfect secrecy, since their secret key rates are far below
+the speech data rate they encrypt.
+In [24], a practical implementation of a lightweight AES algorithm (128-bit key) in
+FPGA technology for peer-to-peer voice encryption was analyzed. It is evident that this
+work falls within the same category of non-autonomous and non-perfectly secret systems.
+Similarly, ref. [25] proposes a new VoIPChain system for authentication in Voice over IP us-
+ing Ethereum Blockchain technology [26]. While this decentralized system overcomes many
+security issues associated with traditional single-server PKI infrastructures, it still requires
+a security infrastructure, including maintaining a shared ledger. Consequently, this system
+also falls under the category of non-autonomous, non-perfectly secret voice transmission
+systems. Furthermore, ref. [ 27] presents various security concepts and communication
+systems proposed by NATO Research Task Group IST-174, titled “Secure Underwater Com-
+munications for Heterogeneous Network-enabled Operations”. These efforts contribute to
+standardization in the field. Recognizing that key allocation and management remain major
+challenges in symmetric cryptographic systems, the study identifies SKD protocols over
+appropriate sources of common randomness as one of the most promising technologies,
+which is fully aligned with our findings. However, it is important to note that this work
+
+===== PAGE 4 =====
+Symmetry 2025, 17, 365 4 of 30
+does not discuss the use of SKD for real-time perfectly secret systems, but only in the
+context of traditional non-perfect cryptographic systems.
+In the category of secure voice communication based on chaotic cryptographic tech-
+niques, seven solutions published up to 2019 were analyzed in [ 22]. Additionally, we
+incorporated the latest studies [28–30] into this review.
+Secure voice communication systems based on chaotic cryptographic techniques lever-
+age chaotic algorithms due to their sensitivity to initial conditions and their ability to
+generate pseudo-randomness, both of which are essential for secure encryption. However,
+from the perspective of information-theoretic security, any chaotic algorithm can be con-
+sidered a deterministic dynamic system fully defined by its initial states. Consequently,
+the equivocation of secret keys in such systems cannot exceed the length of their binary
+representation. Therefore, similar to classical cryptographic algorithms with finite secret
+keys, this class of algorithms cannot provide perfect secrecy.
+Notably, no prior work has proposed a perfectly secret autonomous system where
+secret key generation is derived from a synthesized speech signal, independent of the
+telecommunication channel and without external key distribution infrastructure.
+1.2. Innovation and Engineering Value
+Our novel approach for autonomous, perfectly secret low-bit-rate voice communica-
+tion is based on the following key innovations:
+1. Artificially Synthesized Speech as a Common Randomness Source
+• Unlike natural speech, synthesized speech allows precise control over its ran-
+domness properties.
+• The proposed system uses LSP parameters of a MELPe-like synthesizer to gener-
+ate shared randomness between Alice and Bob.
+• This approach eliminates the need for external entropy sources such as radio
+channels or biometrics.
+2. Independent True Randomness for Enhanced Security
+• The LSP parameters are randomly selected, ensuring unpredictability.
+• An independent source of true randomness (e.g., from a cryptographic random
+number generator) ensures entropy is sufficient for perfect secrecy.
+3. SKD Over a Public Authenticated Channel
+• A real-time SKD protocol is executed over an authenticated but public channel,
+allowing Alice and Bob to extract a mutually secret key from their synthesized
+speech signals.
+• The key rate achieved significantly exceeds the 1.2 kb/s or 2.4 kb/s needed for
+MELPe encryption, ensuring continuous perfect secrecy.
+4. No Prior Key Distribution or TTP
+• The system operates autonomously without requiring prior key exchange.
+• Unlike Quantum Key Distribution (QKD) or traditional key management systems,
+no external infrastructure is needed.
+5. Real-Time Suitability for Low-Bit-Rate Voice Encryption
+• The key generation rate is synchronized with the encryption rate of MELPe
+vocoders, allowing seamless one-time-pad encryption.
+• vPCP-V was used for empirical verification, demonstrating an achievable secret
+key rate of up to 8.8 kb/s and a BER of order 10−3 for various communications
+channels, including GSM 3G and GSM VoLTE networks.
+
+===== PAGE 5 =====
+Symmetry 2025, 17, 365 5 of 30
+Considering all of this, the proposed system meets all the fundamental security and
+functional requirements that a protected system must meet.
+1.3. Contributions of This Work
+1. A novel autonomous key generation method based on synthesized speech.
+2. A low-bit-rate perfectly secret communication system combining MELPe, Vernam
+cipher, and real-time SKD.
+3. Experimental validation of the proposed system, demonstrating its feasibility
+and security.
+4. A discussion on the implementation challenges and scalability of the system in real-
+world applications.
+1.4. Paper Organization
+The paper is organized as follows. Section 2 presents the architecture of the proposed
+system. Section 3 presents an analysis of identified sources of common randomness.
+Section 4 describes the LSP-based linear prediction (LP) synthesizer. In Section 5, an
+information-theoretic analysis of the source of common randomness based on randomly
+selected LSP parameters is provided. Section 6 presents the new privacy amplification
+strategy based on the so-called Huffman–Renyi difference, which is suitable for application
+in APS-VCS. The experimental evaluation of the proposed system executed on the Vlatacom
+Personal Crypto Platform for Voice encryption is provided in Section 7, while Section 8
+provides the conclusion.
+2. System Architecture
+A generic secret low-bit-rate speech communication system is shown in Figure 1. Ac-
+cording to the classification provided in [22], it belongs to the category of secure voice com-
+munication using modem-based cryptographic techniques. A key aspect of the information-
+theoretic approach to verifying the security level of a system is the amount of information
+an eavesdropper can obtain about the messages based on ciphertext observations. It is well
+known [1] that if CK is generated using any cryptographic algorithm with a finite secret key
+K, its equivocation from the attacker’s perspective, H(K|Y), rapidly converges to zero after
+a sufficiently long ciphertext observation. Practically, this means that such a system is not
+information-theoretically secure, and its security depends on the computational power of
+the adversary. Once the amount of observed ciphertext satisfies the condition H(K|Y) = 0,
+the key K has a unique solution, meaning that, in cryptanalytic terms, the system is broken.
+However, if CK is a purely random sequence independent of the messages X, it can be
+shown that the mutual information I(Y; X) = 0. This implies that the attacker cannot
+retrieve the messages regardless of their computational resources, making the system
+perfectly secret.
+We selected a standard low-bit-rate vocoder MELPe with a speed of 1.2 kb/s [5,18].
+Note that the MELPe vocoder can be replaced by any other standard vocoder with similar
+performance. The input speech signal S is sampled at 8 kHz, discretized with 16 bits per
+sample, and divided into frames lasting 67.5 ms (540 samples). In the MELPe analyzer,
+81 bits are generated for each input frame, of which 80 bits code 10 LSP parameters of the
+LP speech production model, while the 81st bit is the synchronization bit. This bit stream is
+encrypted by adding modulo 2 with the binary pseudorandom sequence CK generated by
+key stream generator KSG(K) with secret key K, which must be shared between legitimate
+parties before the start of communication. The ciphertext Y is transmitted over the main
+channel after appropriate modulation. On the receiving side, after demodulation, decryp-
+tion is performed. Decryption is done by adding modulo 2 with a synchronously generated
+
+===== PAGE 6 =====
+Symmetry 2025, 17, 365 6 of 30
+binary sequence CK on the receiving side. As a result, identical LSP parameters are obtained,
+which produce the reconstructed speech signal ˆS in the MELPe synthesizer block. With
+CR(S, ˆS), we denoted our first candidate for the source of common randomness, formed
+from the input speech signal S on the transmitter side and the speech signal ˆS synthesized
+on the receiver side; see Figure 1.
+Symmetry 2025, 17, 365 6 of 29 
+ 
+ 
+randomness, formed from the input speech signal 𝑆  on the transmi Ĵer side and the 
+speech signal 𝑆መ synthesized on the receiver side; see Figure 1.  
+ 
+Figure 1. Generic scheme of low-bit-rate secure communications using MELPe voice coder. The 
+cryptographic part of the system consists of the KSG(K) generator of the binary pseudorandom se-
+quence 𝐶௄ , which is added modulo 2 with the binary sequence that comes from the analyzer. 
+𝐶𝑅(𝑆, 𝑆መ) is denoted as the source of common randomness, formed from the input speech signal 𝑆 
+on the transmiĴer side and the speech signal 𝑆መ synthesized on the receiver side.  
+Figure 2 shows an extension of the generic scheme from Figure 1 with local MELPe 
+synthesis on the transmi Ĵer side. 𝐶𝑅(𝑆መ௟, 𝑆መ) is denoted as our second candidate for the 
+source of common randomness, formed from the locally synthesized speech signal 𝑆መ௟ on 
+the transmiĴer side and the speech signal 𝑆መ synthesized on the receiver side. If there are 
+no transmission errors, the synthesis ﬁlters on the receiving and transmi Ĵing sides are 
+equal, and the diﬀerences in the synthesized signals come from diﬀerent local sources of 
+randomness, which are used to form the complex excitation of the MELPe vocoder syn-
+thesizer. 
+ 
+Figure 2. Extension of the generic scheme shown in Figure 1 with local MELPe synthesis on the 
+transmiĴer side. 𝐶𝑅(𝑆መ௟, 𝑆መ) is denoted as the source of common randomness, formed from the locally 
+synthesized speech signal 𝑆መ௟ on the transmi Ĵer side and the speech signal 𝑆መ synthesized on the 
+receiver side. 
+As is known [9], during the execution of the SKD protocol, in the advantage distilla-
+tion (AD) and information reconciliation (IR) phases, the information exchanged between 
+Alice and Bob over the public channel is available to Eve. For example, if the bit parity 
+(BP) protocol [31] is used in the AD phase, the number of parity bits of Alice’s sequence 
+that are available to Eve is provided by following Lemma. 
+Lemma 1. Let the initial strings 𝑋 and 𝑌, owned by Alice and Bob at the beginning of the SKD 
+protocol, be binary iid random sequences of length 𝑁 at Hamming distance 𝜀, 𝜀 ∈ [0,0.5]. Then, 
+the expected number of parity bits that Alice exchanges with Bob over the public channel is provided 
+by 
+Figure 1. Generic scheme of low-bit-rate secure communications using MELPe voice coder. The
+cryptographic part of the system consists of the KSG(K) generator of the binary pseudorandom
+sequence CK, which is added modulo 2 with the binary sequence that comes from the analyzer.
+CR
+
+S, ˆS
+
+is denoted as the source of common randomness, formed from the input speech signal S
+on the transmitter side and the speech signal ˆS synthesized on the receiver side.
+Figure 2 shows an extension of the generic scheme from Figure 1 with local MELPe
+synthesis on the transmitter side. CR
+ ˆSl, ˆS
+
+is denoted as our second candidate for the
+source of common randomness, formed from the locally synthesized speech signal ˆSl on
+the transmitter side and the speech signal ˆS synthesized on the receiver side. If there are no
+transmission errors, the synthesis filters on the receiving and transmitting sides are equal,
+and the differences in the synthesized signals come from different local sources of random-
+ness, which are used to form the complex excitation of the MELPe vocoder synthesizer.
+Symmetry 2025, 17, 365 6 of 29 
+ 
+ 
+randomness, formed from the input speech signal 𝑆  on the transmi Ĵer side and the 
+speech signal 𝑆መ synthesized on the receiver side; see Figure 1.  
+ 
+Figure 1. Generic scheme of low-bit-rate secure communications using MELPe voice coder. The 
+cryptographic part of the system consists of the KSG(K) generator of the binary pseudorandom se-
+quence 𝐶௄ , which is added modulo 2 with the binary sequence that comes from the analyzer. 
+𝐶𝑅(𝑆, 𝑆መ) is denoted as the source of common randomness, formed from the input speech signal 𝑆 
+on the transmiĴer side and the speech signal 𝑆መ synthesized on the receiver side.  
+Figure 2 shows an extension of the generic scheme from Figure 1 with local MELPe 
+synthesis on the transmi Ĵer side. 𝐶𝑅(𝑆መ௟, 𝑆መ) is denoted as our second candidate for the 
+source of common randomness, formed from the locally synthesized speech signal 𝑆መ௟ on 
+the transmiĴer side and the speech signal 𝑆መ synthesized on the receiver side. If there are 
+no transmission errors, the synthesis ﬁlters on the receiving and transmi Ĵing sides are 
+equal, and the diﬀerences in the synthesized signals come from diﬀerent local sources of 
+randomness, which are used to form the complex excitation of the MELPe vocoder syn-
+thesizer. 
+ 
+Figure 2. Extension of the generic scheme shown in Figure 1 with local MELPe synthesis on the 
+transmiĴer side. 𝐶𝑅(𝑆መ௟, 𝑆መ) is denoted as the source of common randomness, formed from the locally 
+synthesized speech signal 𝑆መ௟ on the transmi Ĵer side and the speech signal 𝑆መ synthesized on the 
+receiver side. 
+As is known [9], during the execution of the SKD protocol, in the advantage distilla-
+tion (AD) and information reconciliation (IR) phases, the information exchanged between 
+Alice and Bob over the public channel is available to Eve. For example, if the bit parity 
+(BP) protocol [31] is used in the AD phase, the number of parity bits of Alice’s sequence 
+that are available to Eve is provided by following Lemma. 
+Lemma 1. Let the initial strings 𝑋 and 𝑌, owned by Alice and Bob at the beginning of the SKD 
+protocol, be binary iid random sequences of length 𝑁 at Hamming distance 𝜀, 𝜀 ∈ [0,0.5]. Then, 
+the expected number of parity bits that Alice exchanges with Bob over the public channel is provided 
+by 
+Figure 2. Extension of the generic scheme shown in Figure 1 with local MELPe synthesis on the
+transmitter side. CR
+ ˆSl, ˆS
+
+is denoted as the source of common randomness, formed from the locally
+synthesized speech signal ˆSl on the transmitter side and the speech signal ˆS synthesized on the
+receiver side.
+As is known [9], during the execution of the SKD protocol, in the advantage distillation
+(AD) and information reconciliation (IR) phases, the information exchanged between Alice
+and Bob over the public channel is available to Eve. For example, if the bit parity (BP)
+protocol [31] is used in the AD phase, the number of parity bits of Alice’s sequence that are
+available to Eve is provided by following Lemma.
+
+===== PAGE 7 =====
+Symmetry 2025, 17, 365 7 of 30
+Lemma 1. Let the initial strings X and Y, owned by Alice and Bob at the beginning of the SKD
+protocol, be binary iid random sequences of length N at Hamming distance ε, ε∈ [0, 0.5 ]. Then, the
+expected number of parity bits that Alice exchanges with Bob over the public channel is provided by
+NADparity =
+ N
+2
+
++ ∑
+s−1
+i=1
+
+N
+2i+1· ε2i
++ (1− ε)2i
+i−1
+∏
+j=0
+
+ε2j
++ (1− ε)2j
+, (1)
+where s is the number of iterations of the BP algorithm.
+Proof. The proof follows directly from the fact that the total amount of parity bits ex-
+changed in the BP algorithm is equal to the sum of exchanges for each iteration. On the
+other hand, for each iteration, this value is equal to half the length of the sequences at the
+beginning of the iteration. This length is also equal to the length of the sequences at the end
+of the previous iteration. In [32], Theorem 2.2.3, p. 17, an expression for the compression
+rate of the BP algorithm in each iteration is provided. Based on this formula, we obtain
+the length of the sequences after i iterations i.e., N
+2i+1· ε2i
++(1−ε)2i
+i−1
+∏
+j=0
+
+ε2j +(1−ε)2j
+ . Summarizing these
+values over all iterations, we obtain statement (1). Note that the smallest integer operator
+⌊·⌋ is applied due to the very nature of parity checking of 2-bit blocks. This completes the
+proof of the Lemma. □
+The number of bits of significance for an eavesdropper may be slightly less than
+NADparity since some parity equations may be linearly dependent. However, as the
+j
+N
+2
+k
+parity bit in the first iteration of the BP algorithm is mutually linearly independent, it
+always holds
+NADparity ≥
+ N
+2
+
+. (2)
+This means that the uncertainty of the speech signal at the input to the system is
+at least halved, as viewed from the eavesdropper’s side. In Figure 3, an example of the
+dependence of NADparity as a function of ε is shown for N = 8640 and s = 1, 2, 3, 4, 5.
+Symmetry 2025, 17, 365 7 of 29 
+ 
+ 
+𝑁஺஽௣௔௥௜௧௬ = ቔ
+ே
+ଶቕ + ∑ ቞
+ே
+ଶ೔శభ ∙
+ఌమ೔ା(ଵିఌ)మ೔
+∏ ቀఌమೕା(ଵିఌ)మೕቁ೔షభ
+ೕసబ
+቟௦ିଵ
+௜ୀଵ , (1) 
+where 𝑠 is the number of iterations of the BP algorithm.  
+Proof. The proof follows directly from the fact that the total amount of parity bits ex-
+changed in the BP algorithm is equal to the sum of exchanges for each iteration. On the 
+other hand, for each iteration, this value is equal to half the length of the sequences at the 
+beginning of the iteration. This length is also equal to the length of the sequences at the 
+end of the previous iteration. In [32], Theorem 2.2.3, p. 17, an expression for the compres-
+sion rate of the BP algorithm in each iteration is provided. Based on this formula, we ob-
+tain the length of the sequences after 𝑖 iterations i.e., 
+ே
+ଶ೔శభ ∙
+ఌమ೔ା(ଵିఌ)మ೔
+∏ ቀఌమೕା(ଵିఌ)మೕቁ೔షభ
+ೕసబ
+. Summarizing 
+these values over all iterations, we obtain statement (1). Note that the smallest integer 
+operator ⌊∙⌋ is applied due to the very nature of parity checking of 2-bit blocks. This com-
+pletes the proof of the Lemma. □ 
+The number of bits of signiﬁcance for an eavesdropper may be slightly less than 
+𝑁஺஽௣௔௥௜௧௬ since some parity equations may be linearly dependent. However, as the ቔ
+ே
+ଶቕ 
+parity bit in the ﬁrst iteration of the BP algorithm is mutually linearly independent, it al-
+ways holds 
+𝑁஺஽௣௔௥௜௧௬ ≥ ඌ𝑁
+2ඐ. (2) 
+This means that the uncertainty of the speech signal at the input to the system is at 
+least halved, as viewed from the eavesdropper’s side. In Figure 3, an example of the de-
+pendence of 𝑁஺஽௣௔௥௜௧௬ as a function of 𝜀 is shown for 𝑁 = 8640 and 𝑠 = 1,2,3,4,5. 
+ 
+Figure 3. An example of the dependence of the number of parity bits exchanged over the public 
+channel in AD phase, as a function of the initial Hamming distance of Alice and Bob’s sequence. 
+SKD algorithm parameters: initial sequence length 𝑁 = 8640, number of iterations of the BP algo-
+rithm 𝑠 =  1,2,3,4,5 . 
+Remark 1. Since our goal is a perfectly secret system, we can conclude that the ﬁrst two candidate 
+sources of common randomness cannot be used during protected communication, but only in the 
+open operating mode, which, as a rule, precedes the protected one. Namely, in the typical use of 
+such systems, legitimate parties establish a communication link through usual open 
+Figure 3. An example of the dependence of the number of parity bits exchanged over the public
+channel in AD phase, as a function of the initial Hamming distance of Alice and Bob’s sequence. SKD
+algorithm parameters: initial sequence length N = 8640, number of iterations of the BP algorithm
+s = 1, 2, 3, 4, 5.
+
+===== PAGE 8 =====
+Symmetry 2025, 17, 365 8 of 30
+Remark 1. Since our goal is a perfectly secret system, we can conclude that the first two candidate
+sources of common randomness cannot be used during protected communication, but only in the
+open operating mode, which, as a rule, precedes the protected one. Namely, in the typical use of
+such systems, legitimate parties establish a communication link through usual open communication.
+After checking the connection quality and mutual consent of the parties, the switch is made to
+encrypted communication. Practice shows that this part of open communication lasts 2 to 10 s. As
+the communication is open, the leakage of information about open speech S to the eavesdropper does
+not play any role; that is, previously identified sources of common randomness can be used for the
+safe distillation of secret keys.
+Following the previous logic, a good source of common randomness could be
+CR
+ ˆSlA , ˆSlB
+
+. Signals ˆSlA and ˆSlB were obtained using local LP syntheses with the same
+LSP parameters about which Eve has no information. Let us imagine two First In First Out
+(FIFO) buffers of identical secret random content on Alice’s and Bob’s side; see Figure 3.
+If we interpret this content as a set of randomly selected LSP parameters about which
+Eve has no information, by synchronized reading, both sides can synthesize the required
+signals ˆSlA and ˆSlB. In that case, Alice and Bob can use the SKD protocol over the source
+CR
+ ˆSlA , ˆSlB
+
+to distill secret keys without Eve receiving a single bit of information from
+the public channel about the input speech signal S. Namely,
+I
+
+S, ˆSlA
+
+= 0,I
+
+S, ˆSlB
+
+= 0, (3)
+having in mind the way the ˆSlA and ˆSlB signals were generated. The FIFO buffer is
+continuously replenished with just-distilled secret keys, while the secret key sequence C
+is synchronously read on the receiving and transmitting side. By summarizing modulo 2
+with the output sequence of the MELPe analyzer X,
+Y = X⊕ C, (4)
+we form a perfectly secret Vernam cipher. A necessary condition for maintaining the
+system in continuous perfect secrecy is that the filling speed of the FIFO memories on the
+transmitting and receiving side must not be less than the reading speed, i.e.,
+RK≥ RC + RE. (5)
+In (5), RK is the secret key distillation rate, RC is the Vernam cipher secret key con-
+sumption rate, and RE is the consumption rate of the LP synthesizer. Note that RC must be
+equal to the output sequence rate of the MELPe vocoder in the main channel
+RC = RMELPe . (6)
+Figure 4 shows the generic scheme of this APS-VCS concept.
+
+===== PAGE 9 =====
+Symmetry 2025, 17, 365 9 of 30
+Symmetry 2025, 17, 365 8 of 29 
+ 
+ 
+communication. After checking the connection quality and mutual consent of the parties, the switch 
+is made to encrypted communication. Practice shows that this part of open communication lasts 2 
+to 10 s. As the communication is open, the leakage of information about open speech 𝑆 to the 
+eavesdropper does not play any role; that is, previously identiﬁed sources of common randomness 
+can be used for the safe distillation of secret keys. 
+Following the previous logic, a good source of common randomness could be 
+𝐶𝑅(𝑆መ௟஺, 𝑆መ௟஻). Signals 𝑆መ௟஺ and 𝑆መ௟஻ were obtained using local LP syntheses with the same 
+LSP parameters about which Eve has no information. Let us imagine two First In First Out 
+(FIFO) buﬀers of identical secret random content on Alice’s and Bob’s side; see Figure 3. 
+If we interpret this content as a set of randomly selected LSP parameters about which Eve 
+has no information, by synchronized reading, both sides can synthesize the required sig-
+nals 𝑆መ௟஺ and 𝑆መ௟஻. In that case, Alice and Bob can use the SKD protocol over the source 
+𝐶𝑅(𝑆መ௟஺, 𝑆መ௟஻) to distill secret keys without Eve receiving a single bit of information from 
+the public channel about the input speech signal S. Namely, 
+𝐼൫𝑆, 𝑆መ௟஺൯ = 0, 𝐼൫𝑆, 𝑆መ௟஻൯ = 0, (3) 
+having in mind the way the 𝑆መ௟஺ and 𝑆መ௟஻ signals were generated. The FIFO buﬀer is con-
+tinuously replenished with just-distilled secret keys, while the secret key sequence 𝐶 is 
+synchronously read on the receiving and transmi Ĵing side. By summarizing modulo 2 
+with the output sequence of the MELPe analyzer 𝑋, 
+𝑌 = 𝑋 ⊕ 𝐶, (4)  
+we form a perfectly secret Vernam cipher. A necessary condition for maintaining the sys-
+tem in continuous perfect secrecy is that the ﬁlling speed of the FIFO memories on the 
+transmiĴing and receiving side must not be less than the reading speed, i.e.,  
+𝑅௄ ≥ 𝑅஼ + 𝑅ா. (5)  
+In (5), 𝑅௄ is the secret key distillation rate, 𝑅஼ is the Vernam cipher secret key con-
+sumption rate, and 𝑅ா is the consumption rate of the LP synthesizer. Note that 𝑅஼ must 
+be equal to the output sequence rate of the MELPe vocoder in the main channel  
+𝑅஼ = 𝑅ொ௅௉௘. (6)  
+Figure 4 shows the generic scheme of this APS-VCS concept.  
+ 
+Figure 4. Generic scheme of the proposed APS-VCS. The pseudo-random string 𝐶 is the one-time 
+secret key of the Vernam cipher, which is read from the Secret Key FIFO buﬀer synchronously on 
+Alice’s and Bob’s sides. The contents of the FIFO buﬀer are ﬁlled with distilled secret keys received 
+by applying the SKD protocol to the common randomness source 𝐶𝑅(𝑆መ௟஺,𝑆መ௟஻). Signals 𝑆መ௟஺ and 𝑆መ௟஻ 
+Figure 4. Generic scheme of the proposed APS-VCS. The pseudo-random string C is the one-time
+secret key of the Vernam cipher, which is read from the Secret Key FIFO buffer synchronously on
+Alice’s and Bob’s sides. The contents of the FIFO buffer are filled with distilled secret keys received
+by applying the SKD protocol to the common randomness source CR
+ ˆSlA , ˆSlB). Signals ˆSlA and ˆSlB
+were obtained by local LP syntheses over the same LSP parameters synchronously read from the
+FIFO buffer.
+3. Identification and Analysis of Possible Sources of
+Common Randomness
+The previous analysis shows that in the open speech phase, two sources of common
+randomness, CR
+
+S, ˆS
+
+and CR
+ ˆSl, ˆS
+
+, are available. In order to evaluate which of these
+sources is more suitable, we conducted an experimental evaluation in real conditions
+of communication with the vPCP-V system (see Figure 5) and Vlatacom True Random
+Number Generator (vTRNG) [19,33]; see Figure 6.
+Symmetry 2025, 17, 365 9 of 29 
+ 
+ 
+were obtained by local LP syntheses over the same LSP parameters synchronously read from the 
+FIFO buﬀer. 
+3. Identiﬁcation and Analysis of Possible Sources of  
+Common Randomness 
+The previous analysis shows that in the open speech phase, two sources of common 
+randomness, 𝐶𝑅(𝑆, 𝑆መ)  and 𝐶𝑅(𝑆መ௟, 𝑆መ) , are available. In order to evaluate which of these 
+sources is more suitable, we conducted an experimental evaluation in real conditions of 
+communication with the vPCP-V system (see Figure 5) and Vlatacom True Random Num-
+ber Generator (vTRNG) [19,33]; see Figure 6. 
+ 
+Figure 5. Vlatacom Personal Crypto Platform for voice encryption designed for use in any available 
+communication system (Voice over Internet Protocol (VoIP), public, landline, mobile, or satellite). 
+For experimental evaluation, we formed a test set consisting of 24 speech signals with 
+speakers reading the provided text. In 14 cases, the text was unique, while in the remain-
+ing 10 cases, the speakers recorded the repeated text. The signals have durations between 
+32 s and 59 s, are sampled at a frequency of 8 kHz, and are discretized with 16 bits per 
+sample. 
+ 
+Figure 6. Vlatacom True Random Number Generator based on a natural process entropy source 
+with built-in randomness checking system. 
+Figure 7 shows the cross-correlation function between the original input speech sig-
+nal S and the synthesized received signal 𝑆መ for sample No. 1 from the test set. Figure 8 
+shows the corresponding cross-correlation function between the locally synthesized 
+Figure 5. Vlatacom Personal Crypto Platform for voice encryption designed for use in any available
+communication system (Voice over Internet Protocol (VoIP), public, landline, mobile, or satellite).
+For experimental evaluation, we formed a test set consisting of 24 speech signals with
+speakers reading the provided text. In 14 cases, the text was unique, while in the remaining
+10 cases, the speakers recorded the repeated text. The signals have durations between 32 s
+and 59 s, are sampled at a frequency of 8 kHz, and are discretized with 16 bits per sample.
+Figure 7 shows the cross-correlation function between the original input speech signal
+S and the synthesized received signal ˆS for sample No. 1 from the test set. Figure 8 shows
+
+===== PAGE 10 =====
+Symmetry 2025, 17, 365 10 of 30
+the corresponding cross-correlation function between the locally synthesized speech signal
+ˆSl and the synthesized received signal ˆS for the same speech sample. From the examples
+shown, it is clear that the correlation of the common randomness source CR
+ ˆSl, ˆS
+
+is, by
+an order of magnitude, higher than the CR
+
+S, ˆS
+
+source.
+Symmetry 2025, 17, 365 9 of 29 
+ 
+ 
+were obtained by local LP syntheses over the same LSP parameters synchronously read from the 
+FIFO buﬀer. 
+3. Identiﬁcation and Analysis of Possible Sources of  
+Common Randomness 
+The previous analysis shows that in the open speech phase, two sources of common 
+randomness, 𝐶𝑅(𝑆, 𝑆መ)  and 𝐶𝑅(𝑆መ௟, 𝑆መ) , are available. In order to evaluate which of these 
+sources is more suitable, we conducted an experimental evaluation in real conditions of 
+communication with the vPCP-V system (see Figure 5) and Vlatacom True Random Num-
+ber Generator (vTRNG) [19,33]; see Figure 6. 
+ 
+Figure 5. Vlatacom Personal Crypto Platform for voice encryption designed for use in any available 
+communication system (Voice over Internet Protocol (VoIP), public, landline, mobile, or satellite). 
+For experimental evaluation, we formed a test set consisting of 24 speech signals with 
+speakers reading the provided text. In 14 cases, the text was unique, while in the remain-
+ing 10 cases, the speakers recorded the repeated text. The signals have durations between 
+32 s and 59 s, are sampled at a frequency of 8 kHz, and are discretized with 16 bits per 
+sample. 
+ 
+Figure 6. Vlatacom True Random Number Generator based on a natural process entropy source 
+with built-in randomness checking system. 
+Figure 7 shows the cross-correlation function between the original input speech sig-
+nal S and the synthesized received signal 𝑆መ for sample No. 1 from the test set. Figure 8 
+shows the corresponding cross-correlation function between the locally synthesized 
+Figure 6. Vlatacom True Random Number Generator based on a natural process entropy source with
+built-in randomness checking system.
+Symmetry 2025, 17, 365 10 of 29 
+ 
+ 
+speech signal 𝑆መ௟ and the synthesized received signal 𝑆መ for the same speech sample. From 
+the examples shown, it is clear that the correlation of the common randomness source 
+𝐶𝑅(𝑆መ௟, 𝑆መ) is, by an order of magnitude, higher than the 𝐶𝑅(𝑆, 𝑆መ) source. 
+ 
+Figure 7. Cross-correlation between the original input speech signal 𝑆 and the synthesized received 
+signal 𝑆መ for speaker No. 1 from the test set. 
+ 
+Figure 8. Cross-correlation between the locally synthesized speech signal 𝑆መ௟ on the transmiĴer side 
+and the synthesized signal on the receiver side 𝑆መ for speaker No. 1 from the test set. 
+This fact was conﬁrmed across the entire test sample. Figure 9 shows the logarithm 
+ratio 
+஼௥௢௦௦஼௢௥௥(ௌመ೗,ௌመ)
+஼௥௢௦௦஼௢௥௥(ௌ,ௌመ)  for all 24 test samples of speech signals. Only in the case of test sample 
+No. 3 is this ratio less than 1. This indicates that the cross-correlation 𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆መ௟, 𝑆መ൯ is 
+almost always signiﬁcantly higher than the cross-correlation 𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆, 𝑆መ൯. Therefore, 
+we have decided to use the source 𝐶𝑅(𝑆መ௟, 𝑆መ) for the execution of the SKD protocol in the 
+open phase of communication of the APS-VCS system. 
+Figure 7. Cross-correlation between the original input speech signal S and the synthesized received
+signal ˆS for speaker No. 1 from the test set.
+Symmetry 2025, 17, 365 10 of 29 
+ 
+ 
+speech signal 𝑆መ௟ and the synthesized received signal 𝑆መ for the same speech sample. From 
+the examples shown, it is clear that the correlation of the common randomness source 
+𝐶𝑅(𝑆መ௟, 𝑆መ) is, by an order of magnitude, higher than the 𝐶𝑅(𝑆, 𝑆መ) source. 
+ 
+Figure 7. Cross-correlation between the original input speech signal 𝑆 and the synthesized received 
+signal 𝑆መ for speaker No. 1 from the test set. 
+ 
+Figure 8. Cross-correlation between the locally synthesized speech signal 𝑆መ௟ on the transmiĴer side 
+and the synthesized signal on the receiver side 𝑆መ for speaker No. 1 from the test set. 
+This fact was conﬁrmed across the entire test sample. Figure 9 shows the logarithm 
+ratio 
+஼௥௢௦௦஼௢௥௥(ௌመ೗,ௌመ)
+஼௥௢௦௦஼௢௥௥(ௌ,ௌመ)  for all 24 test samples of speech signals. Only in the case of test sample 
+No. 3 is this ratio less than 1. This indicates that the cross-correlation 𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆መ௟, 𝑆መ൯ is 
+almost always signiﬁcantly higher than the cross-correlation 𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆, 𝑆መ൯. Therefore, 
+we have decided to use the source 𝐶𝑅(𝑆መ௟, 𝑆መ) for the execution of the SKD protocol in the 
+open phase of communication of the APS-VCS system. 
+Figure 8. Cross-correlation between the locally synthesized speech signal ˆSl on the transmitter side
+and the synthesized signal on the receiver side ˆS for speaker No. 1 from the test set.
+
+===== PAGE 11 =====
+Symmetry 2025, 17, 365 11 of 30
+This fact was confirmed across the entire test sample. Figure 9 shows the logarithm
+ratio
+CrossCorr ( ˆSl, ˆS)
+CrossCorr (S, ˆS) for all 24 test samples of speech signals. Only in the case of test sample
+No. 3 is this ratio less than 1. This indicates that the cross-correlation CrossCorr
+ ˆSl, ˆS
+
+is
+almost always significantly higher than the cross-correlation CrossCorr
+
+S, ˆS
+
+. Therefore,
+we have decided to use the source CR
+ ˆSl, ˆS
+
+for the execution of the SKD protocol in the
+open phase of communication of the APS-VCS system.
+Symmetry 2025, 17, 365 11 of 29 
+ 
+ 
+ 
+Figure 9. Logarithm ratio of 
+஼௥௢௦௦஼௢௥௥(ௌመ೗,ௌመ)
+஼௥௢௦௦஼௢௥௥(ௌ,ௌመ) for all 24 test samples of the speech signals. Only in the 
+case of test sample No. 3 is this ratio less than 1, which means that the cross-correlation 
+𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆መ௟, 𝑆መ൯ is almost always higher than the cross-correlation 𝐶𝑟𝑜𝑠𝑠𝐶𝑜𝑟𝑟൫𝑆, 𝑆መ൯. 
+4. LSP-Based LP Synthesizer 
+In the open communication phase, the analyzer and synthesizer of the built-in 
+MELPe vocoder are used to form the 𝐶𝑅(𝑆መ௟, 𝑆መ) source and distill the secret keys used to 
+initially ﬁll the FIFO memories. For the purposes of protected communication, it is neces-
+sary to form a 𝐶𝑅(𝑆መ௟஺, 𝑆መ௟஻) source based on the LP synthesizer, which can be much sim-
+pler than the MELPe synthesizer. Namely, the complexity of the MELPe synthesizer orig-
+inates from the complex process of forming the excitation signal in order to meet the de-
+manding criteria of intelligibility and naturalness of the synthesized speech. This require-
+ment has no signiﬁcance in the formation of synthesized signals 𝑆መ௟஺ and 𝑆መ௟஻. Therefore, 
+the excitation is greatly simpliﬁed and consists of a periodic train of unit pulses, with pos-
+sibly controlled ji Ĵering and the addition of locally generated purely random noise. For 
+this purpose, in the system experimental evaluation, we used vTRNG based on a natural 
+process entropy source with a built-in randomness checking system; see Figure 6. Figure 
+10 and Figure 11 show a generic scheme generator of locally synthesized signals based on 
+random LSP parameters, periodic pulse input, and additive noise at the input and the 
+output to the LP synthesizer ﬁlter, respectively. 
+Figure 9. Logarithm ratio of
+CrossCorr ( ˆSl, ˆS)
+CrossCorr (S, ˆS) for all 24 test samples of the speech signals. Only
+in the case of test sample No. 3 is this ratio less than 1, which means that the cross-correlation
+CrossCorr
+ ˆSl, ˆS
+
+is almost always higher than the cross-correlation CrossCorr
+
+S, ˆS
+
+.
+4. LSP-Based LP Synthesizer
+In the open communication phase, the analyzer and synthesizer of the built-in MELPe
+vocoder are used to form the CR
+ ˆSl, ˆS
+
+source and distill the secret keys used to initially
+fill the FIFO memories. For the purposes of protected communication, it is necessary
+to form a CR
+ ˆSlA , ˆSlB
+
+source based on the LP synthesizer, which can be much simpler
+than the MELPe synthesizer. Namely, the complexity of the MELPe synthesizer originates
+from the complex process of forming the excitation signal in order to meet the demanding
+criteria of intelligibility and naturalness of the synthesized speech. This requirement has no
+significance in the formation of synthesized signals ˆSlA and ˆSlB. Therefore, the excitation is
+greatly simplified and consists of a periodic train of unit pulses, with possibly controlled
+jittering and the addition of locally generated purely random noise. For this purpose, in
+the system experimental evaluation, we used vTRNG based on a natural process entropy
+source with a built-in randomness checking system; see Figure 6. Figures 10 and 11 show a
+generic scheme generator of locally synthesized signals based on random LSP parameters,
+periodic pulse input, and additive noise at the input and the output to the LP synthesizer
+filter, respectively.
+The LP synthesis filter is provided by the transfer function
+H(z) = 1
+A(z) = 1
+1− ∑
+p
+i=1 aiz−i , (7)
+where p is the order of the LP filter
+A(z) = 1−
+p
+∑
+i=1
+aiz−i. (8)
+
+===== PAGE 12 =====
+Symmetry 2025, 17, 365 12 of 30
+If the LP filter is of the minimum phase, i.e., if all its zeros are inside the unit circle in
+the Z plane, the LP synthesis filter H(z) is stable.
+The coefficients of the LP filter {ai} are obtained based on the loaded set of LSP
+parameters from the FIFO memory
+n
+φ1, θ1, φ2, θ2, . . . ,φ p
+2
+, θ p
+2
+o
+(9)
+subject to restriction
+0 < φ1 < θ1 < φ2, < θ2, . . . ,φ p
+2
+< θ p
+2
+< π. (10)
+As is known [20], the LP filter A(z) can be decomposed in the form
+A(z) = 1
+2 [P(z) + Q(z)] (11)
+where P(z) and Q(z) are the so-called even and odd polynomials defined by LS frequen-
+cies (10)
+P(z) = ( 1 + z−1)
+p
+2
+∏
+i=1
+(1− e−jφiz−1)(1− ejφiz−1) (12)
+Q(z) = ( 1− z−1)
+p
+2
+∏
+i=1
+(1− e−jθiz−1)(1− ejθiz−1). (13)
+If we know the LSP parameters (from (9)) by replacing (12) and (13) in (11), and then
+in (7), we obtain the LP synthesis filter H(z). This allows for the synthesis of the signals
+ˆSlA and ˆSlB, used in the SKD protocol in the protected phase of system operation.
+Symmetry 2025, 17, 365 12 of 29 
+ 
+ 
+ 
+Figure 10. Generator of locally synthesized signals 𝑆መ௟஺ based on random LSP parameters, periodic 
+pulse input 𝛿, and additive noise 𝜉 at the input to the LP synthesizer ﬁlter.  
+ 
+Figure 11. Generator of locally synthesized signals 𝑆መ௟஺ based on random LSP parameters, periodic 
+pulse input 𝛿, and additive noise 𝜉 at the output of the LP synthesizer ﬁlter.  
+The LP synthesis ﬁlter is provided by the transfer function 
+𝐻(𝑧) = 1
+𝐴(𝑧) = 1
+1 − ∑ 𝑎௜𝑧ି௜௣
+௜ୀଵ
+, (7) 
+where 𝑝 is the order of the LP ﬁlter  
+𝐴(𝑧) = 1 − ෍ 𝑎௜𝑧ି௜
+௣
+௜ୀଵ
+. (8) 
+If the LP ﬁlter is of the minimum phase, i.e., if all its zeros are inside the unit circle in 
+the Z plane, the LP synthesis ﬁlter 𝐻(𝑧) is stable.  
+Figure 10. Generator of locally synthesized signals ˆSlA based on random LSP parameters, periodic
+pulse input δ, and additive noise ξ at the input to the LP synthesizer filter.
+
+===== PAGE 13 =====
+Symmetry 2025, 17, 365 13 of 30
+Symmetry 2025, 17, 365 12 of 29 
+ 
+ 
+ 
+Figure 10. Generator of locally synthesized signals 𝑆መ௟஺ based on random LSP parameters, periodic 
+pulse input 𝛿, and additive noise 𝜉 at the input to the LP synthesizer ﬁlter.  
+ 
+Figure 11. Generator of locally synthesized signals 𝑆መ௟஺ based on random LSP parameters, periodic 
+pulse input 𝛿, and additive noise 𝜉 at the output of the LP synthesizer ﬁlter.  
+The LP synthesis ﬁlter is provided by the transfer function 
+𝐻(𝑧) = 1
+𝐴(𝑧) = 1
+1 − ∑ 𝑎௜𝑧ି௜௣
+௜ୀଵ
+, (7) 
+where 𝑝 is the order of the LP ﬁlter  
+𝐴(𝑧) = 1 − ෍ 𝑎௜𝑧ି௜
+௣
+௜ୀଵ
+. (8) 
+If the LP ﬁlter is of the minimum phase, i.e., if all its zeros are inside the unit circle in 
+the Z plane, the LP synthesis ﬁlter 𝐻(𝑧) is stable.  
+Figure 11. Generator of locally synthesized signals ˆSlA based on random LSP parameters, periodic
+pulse input δ, and additive noise ξ at the output of the LP synthesizer filter.
+Remark 2. If and only if the condition (10) is strictly satisfied, i.e., if all zeros of the polyno-
+mials P(z) and Q(z) alternate in the range (0, π), it can be shown that the LP filter A(z) gen-
+erated in this way is of minimum phase [ 34,35]. Therefore, if we randomly select p LSPs from
+the range(0, π) and sort them in ascending order, then conduct the above procedure to form the
+polynomials P(z), Q(z), and A(z), the resulting LP synthesis filter H(z) will be stable.
+5. Information-Theoretic Analysis of the Source of Common
+Randomness Based on Randomly Selected LSP Parameters
+If the proposed system provides negligible leakage of distilled secret keys to Eve (see
+Figures 4 and 12), then there is simultaneously negligible leakage of Vernam cipher secret
+keys in the main channel, i.e., the system is able to maintain perfect secrecy.
+Symmetry 2025, 17, 365 13 of 29 
+ 
+ 
+The coeﬃcients of the LP ﬁlter {𝑎௜} are obtained based on the loaded set of LSP pa-
+rameters from the FIFO memory 
+൜𝜑ଵ, 𝜃ଵ, 𝜑ଶ, 𝜃ଶ, … , 𝜑௣
+ଶ
+, 𝜃௣
+ଶ
+ ൠ (9) 
+subject to restriction 
+0 < 𝜑ଵ <  𝜃ଵ < 𝜑ଶ, < 𝜃ଶ, … , 𝜑೛
+మ
+<  𝜃೛
+మ
+< π. (10)
+As is known [20], the LP ﬁlter 𝐴(𝑧) can be decomposed in the form  
+𝐴(𝑧) = 1
+2 [𝑃(𝑧) + 𝑄(𝑧)] (11)
+where 𝑃(𝑧)  and 𝑄(𝑧)  are the so-called even and odd polynomials deﬁned by LS fre-
+quencies (10) 
+𝑃(𝑧) = (1 + 𝑧ିଵ) ෑ(1 − 𝑒ି௝ఝ೔𝑧ିଵ)
+௣
+ଶ
+௜ୀଵ
+(1 − 𝑒௝ఝ೔𝑧ିଵ) (12)
+𝑄(𝑧) = (1 − 𝑧ିଵ) ෑ൫1 − 𝑒ି௝ఏ೔𝑧ିଵ൯
+௣
+ଶ
+௜ୀଵ
+൫1 − 𝑒௝ఏ೔𝑧ିଵ൯. (13)
+If we know the LSP parameters (from (9)) by replacing (12) and (13) in (11), and then 
+in (7), we obtain the LP synthesis ﬁlter 𝐻(𝑧). This allows for the synthesis of the signals 
+𝑆መ௟஺ and 𝑆መ௟஻, used in the SKD protocol in the protected phase of system operation.  
+Remark 2. If and only if the condition (10) is strictly satisﬁed, i.e., if all zeros of the polynomials 
+𝑃(𝑧) and 𝑄(𝑧) alternate in the range (0, 𝜋), it can be shown that the LP ﬁlter 𝐴(𝑧) generated in 
+this way is of minimum phase [34,35]. Therefore, if we randomly select p LSPs from the 
+range(0, 𝜋) and sort them in ascending order, then conduct the above procedure to form the poly-
+nomials 𝑃(𝑧), 𝑄(𝑧), and 𝐴(𝑧), the resulting LP synthesis ﬁlter 𝐻(𝑧) will be stable.  
+5. Information-Theoretic Analysis of the Source of Common Random-
+ness Based on Randomly Selected LSP Parameters 
+If the proposed system provides negligible leakage of distilled secret keys to Eve (see 
+Figures 4 and 12), then there is simultaneously negligible leakage of Vernam cipher secret 
+keys in the main channel, i.e., the system is able to maintain perfect secrecy.  
+ 
+Figure 12. Information flows of importance for the analysis of distilled secret keys in the system. The
+SKD protocol consists of the BP algorithm for the AD phase, the Winnow algorithm for the IR phase,
+and an optimal Huffman encoder. The PA phase is based on universal hash functions.
+
+===== PAGE 14 =====
+Symmetry 2025, 17, 365 14 of 30
+To justify this claim, an appropriate information-theoretic analysis should answer the
+following two questions:
+• What is the entropy of the signal ˆSlA and ˆSlB at the output of the LP synthesizer, and
+what is its structure?
+Namely, the uncertainty of these signals originates from the uncertainty of the applied
+LSP coefficients, as well as additive purely random locally generated noise, regardless of
+whether it is located at the input or output of the synthesizer. Due to the closed loop that
+includes the LP synthesizer, SKD block, secret key FIFO buffer, and the LP synthesizer, if
+the local source of pure randomness had a negligible contribution to the entropy of the
+LP synthesizer output, the effective Key rate of generated secret keys for Vernam cipher
+would, over time, trend toward zero. Formally, it is valid
+ˆSlA = hLSP∗ δ + ξ, (14)
+where hLSP is the impulse response of the LP synthesis filter H(z), δ is periodic pulse input,
+ξ is additive pure random noise, and∗ is the convolutional operator. Based on classical
+results [36,37], since
+limz→∞H(z) = 1, (15)
+it follows that the synthesis filter H(z) preserves the input entropy, i.e., that it holds
+H
+ ˆSlA
+
+= H(hLSP, δ) + H(ξ), (16)
+regardless of whether there is additive noise at the input or output of the filterH(z). Further,
+H
+ ˆSlA
+
+= H(hLSP, δ) + H(ξ) = H(LSP) + H(ξ) (17)
+since there is a 1–1 correspondence between the LSP and the{ai} parameters of the filter
+H(z) [34].
+Remark 3. Considering (17), it is clear that H(ξ) must be significantly dominant with respect to
+H(LSP) for ˆSlA to maintain a sufficient level of “innovation” entropy necessary for the distillation
+of perfectly secret keys for the Vernam cipher in the main channel.
+The total entropy of synthesized signals (17) can be expressed as a function of Signal-
+to-Noise Ratio (SNR).
+Lemma 2. Let Signal-to-Noise Ratio (SNR) be provided in dB. Then, the noise entropy H(ξ) per
+one sample of the signal is equal to
+H(ξ) = log( 2·Aξ
+
++ [log(Aξ·2n+1)] (18)
+Aξ =
+
+3·∥hLSP∥2·10− SNR
+10
+ 1
+2
+(19)
+where n is the number of bits used to encode signal samples,ξ is the noise in the interval
+
+−Aξ, Aξ
+
+,
+hLSP is the impulse response of the LP synthesis filter, and∥·∥ has the meaning of the Euclidean
+norm operator.
+Proof. Based on Theorem 8.3.1 [ 38], the entropy of a continuous Riemann integrable
+random variable X, of probability density f (x), quantized with n bits is
+H(X) =−
+Z
+f (x)·log x dx + n. (20)
+
+===== PAGE 15 =====
+Symmetry 2025, 17, 365 15 of 30
+Let us first prove (18). Let the noise ξ be uniformly distributed in the interval
+−Aξ, Aξ
+
+. Then the first term in (20) is equal to
+−
+Z Aξ
+−Aξ
+1
+2Aξ
+· log 1
+2Aξ
+dx = log 2Aξ (21)
+while the second term is equal to the number of bits encoding the noise signal in the range
+−Aξ, Aξ
+
+. Since it is equal to the number of occupied quantization levels, we obtain
+
+log 2Aξ
+2−n
+
+=
+j
+log(Aξ·2n+1)
+k
+. (22)
+We have thus proved the correctness of statement (18). To prove statement (19), it is
+sufficient to directly follow the definition of SNR [dB], namely
+SNR = 10·log10
+EhSLP
+Eξ
+= 10·log10
+3·∥hLSP∥2
+Aξ 2 (23)
+since
+Eξ = Var(ξ) = Aξ 2
+3 . (24)
+From (23), solving for Aξ, we obtain (19), which completes the proof. □
+The log notation specifically refers to log2, unless explicitly stated otherwise.
+Remark 4. Based on Lemma 2, it follows that with the appropriate choice of SNR, we can control the
+size of the innovative entropy H(ξ) and its dominance in relation to H(LSP). Note that H(LSP) is
+a fixed quantity equal to the number of bits used to encode the LSP parameters. In the case of the
+MELPe vocoder, its corresponding rate RMELPe (6) is equal to 1.2 kb/s.
+• Is there an Eve strategy that provides her additional information about the generated
+keys compared to the classical sources of common randomness (CR)?
+In systems with the application of the SKD protocol over classic CR sources, the basic
+quality criterion of the system is the amount of information I(Ki, ei) that Eve can obtain
+about the generated secret keys following the communication over the public channel.
+Formally,
+I(Ki, ei), ei = ˆwi, Ki = G(wi) (25)
+where wi is a random n-bit string with uniform distribution over{0, 1}n at the output of
+the optimal Huffman encoder [39], ei is a particular value of optimal Eve’s estimate of wi,
+while Ki = G(wi) is a distilled secret key. The G is chosen at random from a universal
+class of hash functions from {0, 1}n to{0, 1}|Ki| [40]. According to well-known results
+from [41], specifically Corollary 4, Eve’s information aboutKi for specific ei and G decreases
+exponentially in the excess compression c−|Ki|
+I(Ki; G, ei) = H(Ki)− H(K∗
+i|G, ei)≤ 2−(c−|Ki|)
+ln 2 , (26)
+where c is the lower bound of Eve’s conditional Renyi entropy of order two (so-called
+collision entropy) about wi, i.e.,
+R(wi|ei)≥ c. (27)
+
+===== PAGE 16 =====
+Symmetry 2025, 17, 365 16 of 30
+However, since, in the APS-VCS system, ˆSlA and ˆSlB depend on previously distilled
+secret keys, it is necessary to examine whether Eve’s information I(Ki−1, ei) about the Ki−1
+is also negligibly small. According to (26), it holds
+I(K∗
+i ; G, ei, Ki−1) = H(K∗
+i )− H(K∗
+i|G, ei, Ki−1)≤ 2−(R∗(wi|ei,Ki−1)−|K∗
+i|)
+ln 2 ≤ 2−(c∗−|K∗
+i|)
+ln 2 , (28)
+where c∗ is the lower bound of Eve’s conditional Renyi entropy of order two about wi, i.e.,
+R∗(wi|ei, Ki−1)≥ c∗. (29)
+Note that, in (28), by K∗
+i , we denote the distilled secret keys, when Eve possesses some
+information about Ki−1. Since this fact will affect her optimal strategy, and thus the length
+of the distilled keys, in the general case
+K∗
+i
+̸=|Ki|.
+The optimal PA strategy must, therefore, rely on Eve’s conditional Renyi entropy,
+which is
+min{R(wi|ei), R∗(wi|ei, Ki−1)}, (30)
+or in terms of their minimal values
+min{c, c∗}. (31)
+Remark 5. If the conditional Renyi entropies R(wi|ei) and R∗(wi|ei, Ki−1) were identical or
+slightly different (c≈ c∗), this would mean that Eve’s information about the key Ki−1 does not
+affect her information about the distilled keyKi, and that, according to (28) and (29), this information
+decreases exponentially in the excess compression c∗−
+K∗
+i
+≈ c−|Ki|.
+Whether this is true or not for APS-VCS, we have tested empirically, estimating these
+two distributions in an experiment with 1000 locally synthesized signals ˆSlA and ˆSlB of
+length 540 samples encoded with 16 bits. The SKD protocol consists of the BP algorithm for
+the AD phase, the Winnow algorithm for the IR phase followed by the optimal Huffman
+encoder and Universal hashing; see Figure 12. The selection and optimization of algorithms
+and parameters for the SKD protocol are thoroughly discussed in the works [ 14,42]. In
+this paper, we use parameters from those works that resulted in the highest key rate with
+minimal information leakage. Specifically, we use the AD algorithm for two iterations, after
+which the error becomes sufficiently small to be corrected by the Winnow algorithm. For
+the IR phase, we have chosen the 8-bit Winnow algorithm, which has been shown in [31] to
+be optimal in terms of minimizing the information that an eavesdropper can gain during
+the IR phase. For the universal class of hash functions, a binary matrix with a Toeplitz
+structure is used since its complexity is O(n·logn ).
+Figure 13 shows the distributions of conditional Renyi entropies R(wi|ei) and
+R∗(wi|ei, Ki−1), and Table 1 shows their means and variances. We can conclude that
+the distributions are almost identical and that extremely small differences originate from
+the inherent properties of random experiments on finite samples.
+Table 1. Mean values and standard deviations of corresponding Renyi entropies from Figure 13.
+Renyi Entropy Mean ± Std
+R∗(wi|ei, Ki−1) 1244.01± 97.84
+R(wi|ei) 1246.66± 101.49
+
+===== PAGE 17 =====
+Symmetry 2025, 17, 365 17 of 30
+Symmetry 2025, 17, 365 17 of 29 
+ 
+ 
+ 
+Figure 13. Alice, Bob, and Eve have the same Huﬀman encoder. Blue line: Probability density of 
+conditional Renyi entropy 𝑅∗(𝑤௜|𝑒௜, 𝐾௜ିଵ) when the random LSP parameters of Alice, Bob, and Eve 
+synthesizers are the same, i.e., 𝐿𝑆𝑃஺ = 𝐿𝑆𝑃஻ = 𝐿𝑆𝑃ா. Orange line: Probability density of conditional 
+Renyi entropy 𝑅(𝑤௜|𝑒௜) when 𝐿𝑆𝑃஺ = 𝐿𝑆𝑃஻ ≠ 𝐿𝑆𝑃ா. 
+Table 1. Mean values and standard deviations of corresponding Renyi entropies from Figure 13. 
+Renyi Entropy Mean ± Std 
+𝑅∗(𝑤௜|𝑒௜, 𝐾௜ିଵ) 1244.01 ± 97.84 
+𝑅(𝑤௜|𝑒௜) 1246.66 ± 101.49 
+6. The New Privacy Ampliﬁcation Strategy Based on So-Called Huﬀ-
+man–Renyi Diﬀerence 
+As is known, refs. [14,15,42], in order to eﬃciently utilize a particular CR source, it is 
+necessary to adaptively determine the degree of compression of the PA block. In this way, 
+the speed of generated secret keys is adjusted to the side information available to Eve. 
+Complex machine-learning systems developed for these purposes can be replaced by sim-
+pler yet still very eﬀective procedures for certain classes of CR sources. Figure 14 shows a 
+histogram of the diﬀerence 
+𝐷ுோ = |𝑤௜| − 𝑅(𝑤௜|𝑒௜) (32)
+between the length of the sequence |𝑤௜| at the output of the Huﬀman encoder and the 
+conditional Renyi entropy 𝑅(𝑤௜|𝑒௜) of that same sequence observed by Eve for synthe-
+sized signals with SNR = 39.9 dB. We will call the quantity  𝐷ுோ the Huﬀman–Renyi dif-
+ference. We notice that the mean value is very close to 0, more precisely 1.84 bits, and that 
+there is a negligible number of samples outside the range of 3𝜎 = 9.02 bits. Based on (32), 
+we can derive a simple estimator 
+𝑅෠(𝑤௜|𝑒௜) = |𝑤௜| − 𝐷෡ ுோ. (33)
+From (33), we see that with a quality estimate for 𝐷෡ ுோ and knowing |𝑤௜|, we can 
+also obtain a quality estimate for 𝑅(𝑤௜|𝑒௜). If we set 𝐷෡ ுோ equal to the mean value of 𝐷ഥுோ, 
+then with high probability 
+Figure 13. Alice, Bob, and Eve have the same Huffman encoder. Blue line: Probability density of
+conditional Renyi entropy R∗(wi|ei, Ki−1) when the random LSP parameters of Alice, Bob, and Eve
+synthesizers are the same, i.e., LSP A = LSP B = LSP E. Orange line: Probability density of conditional
+Renyi entropy R(wi|ei) when LSP A = LSP B̸= LSP E.
+Remark 6. The presented theoretical analysis and experimental verification make it possible to
+conclude that the proposed APS-VCS system is resistant to attacks on the contents of the FIFO
+memories. This property logically follows from the properties of P A based on universal hash functions,
+as well as a sufficient amount of innovative entropy that refreshes the information content of the
+synthesized signals ˆSlA and ˆSlB. Therefore, the answer to the question of whether there is an Eve
+strategy that provides it an advantage over SKD systems based on classical CR sources is negative.
+6. The New Privacy Amplification Strategy Based on So-Called
+Huffman–Renyi Difference
+As is known, refs. [14,15,42], in order to efficiently utilize a particular CR source, it
+is necessary to adaptively determine the degree of compression of the PA block. In this
+way, the speed of generated secret keys is adjusted to the side information available to
+Eve. Complex machine-learning systems developed for these purposes can be replaced by
+simpler yet still very effective procedures for certain classes of CR sources. Figure 14 shows
+a histogram of the difference
+DHR =|wi|− R(wi|ei) (32)
+between the length of the sequence |wi| at the output of the Huffman encoder and the
+conditional Renyi entropy R(wi|ei) of that same sequence observed by Eve for synthesized
+signals with SNR = 39.9 dB. We will call the quantity DHR the Huffman–Renyi difference.
+We notice that the mean value is very close to 0, more precisely 1.84 bits, and that there is a
+negligible number of samples outside the range of 3σ = 9.02 bits. Based on (32), we can
+derive a simple estimator
+ˆR(wi|ei) =|wi|− ˆDHR. (33)
+
+===== PAGE 18 =====
+Symmetry 2025, 17, 365 18 of 30
+Symmetry 2025, 17, 365 18 of 29 
+ 
+ 
+𝑅෠(𝑤௜|𝑒௜) ≥ |𝑤௜| − 𝐷ഥ ுோ − 3 ∙ 𝜎ො஽ಹೃ. (34)
+Bearing in mind that the degree of compression of the PA block is equal to 𝑅෠(𝑤௜|𝑒௜) −
+|𝐾௜|, we arrive at three possible PA strategies: 
+|𝐾௜| = |𝑤௜| − 𝐷ഥ ுோ,  “mean” (35)  
+|𝐾௜| = |𝑤௜| − 𝐷ഥ ுோ − 3 ∙ 𝜎ො஽ಹೃ “ 3𝜎” (36) 
+|𝐾௜| = |𝑤௜| − 𝐷ഥ ுோ − 3 ∙ 𝜎ො஽ಹೃ − 𝑠 “ 3𝜎 + 𝑠” (37) 
+The strategies are ordered according to the increasing degree of compression. Strat-
+egy (37) allows the security margin 𝑠 to be chosen by the predeﬁned value of the leakage 
+rate. 
+ 
+Figure 14. Empirical distribution of Huﬀman–Renyi distance  𝐷ுோ  (𝐷ഥ ுோ = 1.84, 𝜎ො஽ಹೃ = 2.39 ) for 
+synthesized signals with parameter SNR = 39.9 dB. 
+7. Experimental Evaluation 
+In the ﬁrst step of the synthesis of the APS-VCS system, it is necessary to choose 
+operational values for the main system parameters, such as the secret key rate, SNR of 
+synthesized signals, innovation entropy rate, and security margin. Figure 15 shows the 
+interdependencies of the operating ranges of these quantities, obtained on a real APS-VCS 
+system, by averaging 100 values for each SNR value in the range from 10 to 50 dB. A 
+distillation of secret keys was performed using three diﬀerent PA strategies: mean (blue 
+line), 3𝜎 (orange line), and  3𝜎 + 𝑠, 𝑠 = 20 (green line). If the PA strategy  3𝜎 + 𝑠 is taken 
+as a reference, and KR is at least 2.4 kb/s, it is obtained for an SNR [dB] working range 
+[29.4, 47.5], innovative entropy [kb/s] [65, 88], KR = 2.5 kb/s, and security margin [b] [70, 
+460]. The order of selection is as follows; see Figure 15: 
+1. The desired KR is selected. Recall that it must satisfy constraints (5) and (6).  
+2. The security margin 𝑠 is chosen in accordance with the requirements of the overall 
+security of the system. Taking into account (26) and (28), with increasing 𝑠 , the 
+degree of compression in the PA block increases, and thus, the information Eve can 
+obtain about the generated keys decreases exponentially. 
+3. The choice of security margin 𝑠 uniquely determines the SNR. 
+4. The obtained value for SNR uniquely determines the innovative entropy.  
+Figure 14. Empirical distribution of Huffman–Renyi distance DHR (DHR = 1.84, ˆσDHR = 2.39) for
+synthesized signals with parameter SNR = 39.9 dB.
+From (33), we see that with a quality estimate for ˆDHR and knowing|wi|, we can also
+obtain a quality estimate for R(wi|ei). If we set ˆDHR equal to the mean value of DHR, then
+with high probability
+ˆR(wi|ei)≥|wi|− DHR− 3·ˆσDHR . (34)
+Bearing in mind that the degree of compression of the PA block is equal to
+ˆR(wi|ei)−|Ki|, we arrive at three possible PA strategies:
+|Ki| =|wi|− DHR, “mean” (35)
+|Ki| =|wi|− DHR− 3·ˆσDHR “3σ” (36)
+|Ki| =|wi|− DHR− 3·ˆσDHR− s “3σ + s” (37)
+The strategies are ordered according to the increasing degree of compression. Strat-
+egy (37) allows the security margin s to be chosen by the predefined value of the leak-
+age rate.
+7. Experimental Evaluation
+In the first step of the synthesis of the APS-VCS system, it is necessary to choose
+operational values for the main system parameters, such as the secret key rate, SNR of
+synthesized signals, innovation entropy rate, and security margin. Figure 15 shows the
+interdependencies of the operating ranges of these quantities, obtained on a real APS-VCS
+system, by averaging 100 values for each SNR value in the range from 10 to 50 dB. A
+distillation of secret keys was performed using three different PA strategies: mean (blue
+line), 3σ (orange line), and 3σ + s, s = 20 (green line). If the PA strategy 3σ + s is taken as a
+reference, and KR is at least 2.4 kb/s, it is obtained for an SNR [dB] working range [29.4,
+47.5], innovative entropy [kb/s] [65, 88], KR = 2.5 kb/s, and security margin [b] [70, 460].
+The order of selection is as follows; see Figure 15:
+
+===== PAGE 19 =====
+Symmetry 2025, 17, 365 19 of 30
+Symmetry 2025, 17, 365 19 of 29 
+ 
+ 
+ 
+Figure 15. Interdependencies of operational ranges of main quantities: secret key rate, SNR of 
+synthesized signals, innovation entropy rate, and security margin in the synthesis of APS-VCS 
+system. Security margin dependence on SNR is shown for the secret key rate of 2.5 kb/s. 
+Remark 7. Since for each pre-ﬁxed KR, the security margin can be in a wide range, the system 
+designer has great freedom to easily choose the parameters of the synthesizer that will 
+Figure 15. Interdependencies of operational ranges of main quantities: secret key rate, SNR of
+synthesized signals, innovation entropy rate, and security margin in the synthesis of APS-VCS
+system. Security margin dependence on SNR is shown for the secret key rate of 2.5 kb/s.
+
+===== PAGE 20 =====
+Symmetry 2025, 17, 365 20 of 30
+1. The desired KR is selected. Recall that it must satisfy constraints (5) and (6).
+2. The security margin s is chosen in accordance with the requirements of the overall
+security of the system. Taking into account (26) and (28), with increasing s, the degree
+of compression in the PA block increases, and thus, the information Eve can obtain
+about the generated keys decreases exponentially.
+3. The choice of security margin s uniquely determines the SNR.
+4. The obtained value for SNR uniquely determines the innovative entropy.
+Remark 7. Since for each pre-fixed KR, the security margin can be in a wide range, the system
+designer has great freedom to easily choose the parameters of the synthesizer that will simulta-
+neously satisfy the requirements for the rate of generating secret keys, their maximum entropy,
+non-repeatability, and negligible information leakage to Eve. All these elements confirm the basic
+requirements that must be fulfilled by the secret keys of the Vernam cipher in order to maintain its
+perfect secrecy.
+Figure 16 shows the functional description of the operation of the APS-VCS system.
+The subsystem for generating secret keys starts working after the end of the open com-
+munication phase. A necessary condition for the functioning of this subblock is the initial
+successful filling of the FIFO memories on the side of Alice and Bob with distilled secret
+keys of at least 160 bits. The first 80 bits will be used as a secret key to encrypt the LSP
+of the first block of the input speech signal, while the next 80 bits will be used for the LP
+synthesizer in the SKD block. Algorithm 1 provides a detailed explanation of the process of
+transforming the binary sequence into LSP parameters, while Algorithm 2 offers a detailed
+explanation of the transformation of LSP parameters into LP synthesis filter H(z) parame-
+ters. Table 2 shows the result of the experimental evaluation of distilled secret keys based
+on source CR
+ ˆSl , ˆS
+
+during the open phase of communication. Since the average value of
+KR = 12.88 kb/s, just 1 s of open communication on average fills the FIFO memories with
+the entire 12.88 kb, which far exceeds the required 160 bits. Note that the Key Acceptance
+Rate (KAR) does not have to have a maximum value of 100%, which is an important
+indicator of the efficiency of the SKD protocol in usual applications [ 11]. The measured
+value of the exchanged bits on the public channel (average—6175 bits, max—7063 bis) per
+block of 8640 bits shows a significant information leakage about the input speech, which is
+not a security treat because it is not encrypted at this stage. The leakage rate of secret keys
+used to fill the initial content of the FIFO memories is only 0.0012 b/b. This value can be
+reduced at the request of the designer by introducing an additional security margin, which
+can be of the order of several hundred bits; see Figure 15.
+Table 2. Results of SKD protocol performed over the 24 speakers in the first open stage of communi-
+cation, measured on vPCP-V system.
+Performance Measures Mean Value
+KR [kb/s] 12.88
+KR [%] 9.98
+KAR [%] 51.93
+Mean number of parity bits [per block] 6175
+Max number of parity bits [per block] 7063
+LR [b/b] 0.0012
+
+===== PAGE 21 =====
+Symmetry 2025, 17, 365 21 of 30
+Symmetry 2025, 17, 365 21 of 29 
+ 
+ 
+higher maximum distilled KR), it is clear that the variation of the security margin will 
+follow the same dependency with changes in SNR, as also observed in Figure 15.  
+ 
+Figure 16. APS-VCS system function in transmission mode. The system function in reception mode 
+is fundamentally of the same structure. 
+Therefore, we can conclude that the experimental evaluation conﬁrms an excellent 
+agreement with the theoretically expected results, both in terms of the key rate and the 
+changes in innovation entropy and security margin with respect to the SNR of the model 
+(14). 
+Figure 16. APS-VCS system function in transmission mode. The system function in reception mode
+is fundamentally of the same structure.
+After the phase of open communication and successful filling of the FIFO memories
+with the initial content, the system transitions to secure communication. Simultaneously,
+synthesis and public channel communication are performed. Secret keys distillation based
+on source CR
+ ˆSlA , ˆSlB
+
+is now occurring. In Table 3, the results of this SKD protocol
+performed over the 1000 blocks and measured on the vPCP-V system are shown. Since the
+graphical presentation of these results is provided in Figure 15, Table 3 shows numerical
+results only for five characteristic SNRs, in the range from 10 to 50 dB. It is noted that in the
+
+===== PAGE 22 =====
+Symmetry 2025, 17, 365 22 of 30
+already mentioned operating range [29.4, 47.5], KAR does not fall below 100%, while LR is
+in the order of 0.0011–0.0042 b/b. The presented results show that the SKD over the source
+CR
+ ˆSlA , ˆSlB
+
+with large security margins ensures stable refreshment of the FIFO memories
+with newly generated secret keys, which are then used as secret keys of the Vernam cipher
+in the main channel.
+Table 3. Results of SKD protocol performed over the 1000 blocks in the secure stage of communication,
+measured on vPCP-V system.
+LSP-Based Artificial Synthesizer
+SNR [dB] 50 39.90 29.80 19.70 10
+KR [kb/s] 9.96± 1.54 6.44± 1.35 3.04± 1.06 0.53± 0.47 0.08± 0.08
+KR [%] 7.78 5.03 2.38 0.42 0.05
+KAR [%] 100 100 100 75 7
+LR [b/b] 0.0011 0.0015 0.0042 0.0399 0.0191
+As observed in Figure 15, with an increase in the SNR of the synthesizer, the KR
+increases regardless of the applied PA strategy. This behavior can be easily explained based
+on the model (14) of synthesized signals, according to which the mutual correlation between
+ˆSlA and ˆSlB increases with increasing SNR; that is, with the decreasing influence of local
+noise ξ relative to the deterministic componenthLSP∗ δ. The decrease in innovation entropy
+with increasing SNR follows the same mechanism: as SNR increases, the proportion of
+noise ξ in the total synthesized signal decreases, and, consequently, the corresponding
+innovation entropy declines.
+The increase in security margin s with rising SNR is directly related to its definition
+as the difference c−|Ki|, where c represents the lower bound of Eve’s conditional Rényi
+entropy of order two, and|Ki| is the actual length of the distilled secret key; see (26). Since
+c directly determines the maximum KR of the specific system (a higher c leads to a higher
+maximum distilled KR), it is clear that the variation of the security margin will follow the
+same dependency with changes in SNR, as also observed in Figure 15.
+Therefore, we can conclude that the experimental evaluation confirms an excellent
+agreement with the theoretically expected results, both in terms of the key rate and
+the changes in innovation entropy and security margin with respect to the SNR of the
+model (14).
+The presented order of selecting key system parameters KR, SNR, and s can also
+be interpreted in the following way. The operating point B in Figure 15 is obtained at
+the intersection of the KR dependence on SNR and the desired value of KR. This point
+determines the lower bound for SNR. Point A in Figure 15 is obtained by determining
+the maximum allowable SNR based on the minimum permitted innovation entropy. The
+allowable SNR variation interval directly dictates the range of possible values for KR,
+innovative entropy, and security margins.
+Remark 8. Since SKD over the source CR
+ ˆSlA , ˆSlB) is performed independently of the system
+operation on the main channel, its parameters, such as sampling rate and resolution of synthesized
+signals, can be almost arbitrarily different, allowing for secret key generation rates in a much wider
+range of values. The only limiting factor of the secret key distillation rate is the communication
+capacity of the public channel. Therefore, the proposed APS-VCS system can operate reliably at
+other standard vocoder rates (2.4 kb/s, 4.8 kb/s) with the appropriate public channel bandwidth.
+The price paid for the perfect secrecy of the APS-VCS system is the establishment
+and maintenance of a public channel during secure conversation. However, the main and
+public channels operate in an asynchronous mode, which significantly simplifies practical
+
+===== PAGE 23 =====
+Symmetry 2025, 17, 365 23 of 30
+implementation. The only condition that must be met is to maintain the constant FIFO
+memory read rate of 1.2 kb/s for the Vernam cipher.
+Algorithm 1 Binary sequence (FIFOout_2) to LSP parameters transformation
+Input: Binary sequence
+Output: LSP parameters
+1: Read random sequence Ek from FIFO,|Ek|= L
+2: Divide Ek in p subsequences, i.e., Ek =
+h
+Ek1, Ek2, ...Ekp
+i
+,|E ki| =
+j
+L
+p
+k
+, i = 1, ...p
+3: Transform each Eki to LSPi by rescaling Eki decimal value with factor π
+2⌊ Lp⌋−1
+4: Sort obtained LSP parameters according to (10)
+Algorithm 2 Transformation of LSP parameters to LP synthesis filter H(z) parameters
+Input: LSP parameters
+Output: H(z) parameters
+1: Calculate P(z) according to (12)
+2: Calculate Q(z) according to (13)
+3: Calculate the LP filter according to (11)
+4: Calculate the LP synthesis filter according to (7)
+Table 4 shows the bit-error rate results for four typical communication channels,
+with and without the use of error-correcting code (ECC). For the ECC, Golay(12,24) is
+used, which is specifically designed to protect the 15% most sensitive bits of the binary
+representation of LSP parameters that are subject to encryption. It is important to note that
+the first two types of GSM channels produce exceptionally good results, considering the
+impact of the input compression block in GSM devices. These experimental results confirm
+the essential functionality that a highly secure voice protection system must meet [ 21].
+The results demonstrate that the BER shown in Table 4 is independent of the SKD system,
+provided that the synthesizer parameters are selected to guarantee a key generation rate
+greater than 2.4 kb/s.
+Table 4. BER for different audio channels with and without ECC.
+Audio Channel BER
+Without FEC
+BER
+with FEC
+GSM 3G 1.20·10−3 1.02·10−3
+GSM VoLTE 1.50·10−3 1.20·10−3
+WhatsApp 5.50·10−3 4.70·10−3
+Google meet 7.90·10−3 3.40·10−3
+7.1. Comparison with State-of-the-Art QKD Methods
+Both Quantum Key Distribution (QKD) systems and our LSP-based artificial speech
+synthesizer provide a foundation for perfectly secret communication by enabling the real-
+time generation of symmetric keys. However, they differ significantly in implementation,
+autonomy, and practicality when applied to low-bit-rate secure speech communication. In
+Tables 5–9, we compare the two approaches across key aspects.
+
+===== PAGE 24 =====
+Symmetry 2025, 17, 365 24 of 30
+Table 5. Key generation and common randomness source.
+Feature LSP-Based Synthesizer QKD Systems
+Randomness source Artificially synthesized speech with LSP
+parameters and independent true randomness
+Quantum states (e.g., photon polarization,
+phase encoding)
+Autonomy Fully autonomous; does not require an
+external infrastructure
+Requires quantum hardware, optical links,
+or satellite-based transmission
+Synchronization Ensured by deterministic control over
+speech synthesis
+Requires precise alignment of
+quantum detectors
+Scalability Easily deployable over existing
+digital networks
+Limited by quantum optical
+infrastructure requirements
+Table 6. Key agreement and distribution over public channel.
+Feature LSP-Based Synthesizer QKD Systems
+Sequential Key
+Distillation (SKD)
+Public-authenticated channel used for error
+correction and privacy amplification
+Quantum transmission
+requires classical reconciliation
+Man-in-the-Middle
+Resistance
+Authentication prevents key
+injection attacks
+QKD offers provable security
+against eavesdropping
+Key Refresh Rate Matches low-bit-rate vocoder
+encryption rates (1.2–2.4 kbps)
+Limited by quantum transmission rate,
+often lower than needed for
+real-time speech
+Table 7. Infrastructure and practical deployment.
+Feature LSP-Based Synthesizer QKD Systems
+Hardware
+Requirements
+Software-implemented; requires only a
+standard vocoder
+Requires quantum transmitters, detectors,
+and optical fiber/satellite links
+Network
+Compatibility
+Operates over existing VoIP , GSM, LTE, and
+secure radio links
+Requires a dedicated quantum
+communication channel
+Real-World
+Deployability
+Can be implemented on secure mobile and
+tactical communication devices
+Limited to specialized government, military,
+and financial institutions
+Table 8. Security guarantees and theoretical limits.
+Feature LSP-Based Synthesizer QKD Systems
+Perfect Secrecy
+Guarantee
+Achieved through one-time pad encryption
+with real-time key agreement
+Provably secure key exchange, but
+requires additional
+encryption (e.g., AES)
+Information-
+Theoretic Security
+Security based on shared
+entropy extraction
+Quantum no-cloning theorem ensures
+eavesdropper detection
+Resistance to Active
+Attacks
+Immune to classical
+cryptanalysis and quantum computing threats
+Secure against quantum
+computing but vulnerable to side-channel
+attacks on
+implementation
+
+===== PAGE 25 =====
+Symmetry 2025, 17, 365 25 of 30
+Table 9. LSP-based speech synthesis vs. QKD for real-time secure speech.
+Criterion LSP-Based Synthesizer QKD Systems
+Deployment
+Feasibility High—Works with existing digital networks Low—Requires dedicated infrastructure
+Autonomy Fully autonomous, no external TTP needed Requires trusted quantum network
+infrastructure
+Scalability Easily deployable over VoIP , LTE, radio Limited to fiber-optic or satellite links
+Synchronization
+with Speech
+Encryption
+Designed to match real-time low-bit-rate
+voice coders Often too slow for real-time voice encryption
+Security Model Information-theoretic security with OTP Provable key distribution security but
+requires classical encryption
+Key Advantage: The LSP-based system provides common randomness generation
+without specialized hardware, making it significantly more practical and scalable compared
+to QKD.
+Key Advantage: The LSP-based synthesizer ensures continuous key generation syn-
+chronized with speech encryption rates, while QKD systems often struggle with lower key
+refresh rates, requiring buffering or hybrid encryption approaches.
+Key Advantage: Our LSP-based solution can be integrated into existing secure voice
+systems, whereas QKD demands costly and specialized infrastructure, limiting its practical
+use for low-bit-rate real-time speech encryption.
+Key Advantage: While QKD offers provable key exchange security, it does not inher-
+ently provide perfect secrecy for real-time speech without additional encryption. However,
+our approach directly enables perfectly secret communication in real time, eliminating
+reliance on additional cryptographic layers.
+Final Verdict: For a real-time, low-bit-rate, perfectly secret speech communication, the
+LSP-based artificial speech synthesizer is significantly more practical, autonomous, and
+scalable than QKD-based approaches. While QKD remains valuable for a high-security
+key exchange, it is impractical for direct application in real-time speech encryption due to
+infrastructure constraints and lower key refresh rates.
+7.2. Potential Attacks and Countermeasures
+Despite its strong theoretical foundation, the APS-VCS system must be resilient to
+various potential attacks. Below, we discuss major threats and how the proposed approach
+successfully mitigates them.
+Man-in-the-Middle (MitM) Attacks: Since the SKD protocol relies on a public authenticated
+channel, an adversary could attempt to inject or manipulate messages. The use of authenti-
+cation mechanisms and error correction ensures that only legitimate parties can participate
+in key generation, effectively preventing MitM attacks.
+Eavesdropping Attacks: The Vernam cipher ensures perfect secrecy, making intercepted
+ciphertexts indecipherable without the secret key. Additionally, since secret keys are
+distilled in real time and never reused, an eavesdropper gains no useful information even
+if past communications are compromised.
+Side-Channel Attacks: Attackers may attempt to extract key information by analyzing power
+consumption, timing variations, or electromagnetic emissions. Implementing counter-
+measures such as randomized computational delays and hardware shielding can mitigate
+these risks.
+
+===== PAGE 26 =====
+Symmetry 2025, 17, 365 26 of 30
+Replay Attacks: To prevent adversaries from capturing and replaying key exchange messages,
+each SKD session includes time-varying elements and freshness indicators. This ensures
+that old messages cannot be reused to compromise the system.
+Quantum Attacks: While current quantum computers do not threaten the information-
+theoretic security of the Vernam cipher, they could weaken authentication and key distilla-
+tion mechanisms. Future enhancements could incorporate quantum-resistant authentica-
+tion schemes to ensure long-term security.
+7.3. Real-World Applications and Performance Advantages
+The proposed APS-VCS system offers significant advantages in real-world applications
+where traditional cryptographic methods fail to provide both autonomy and perfect secrecy.
+Below are key scenarios where APS-VCS outperforms existing solutions:
+1. Military and government communications. APS-VCS eliminates the need for external
+trusted key distribution infrastructure, making it ideal for military and government
+operations where high security and operational autonomy are required. Unlike QKD-
+based systems, which require specialized optical infrastructure, APS-VCS operates
+over existing digital and mobile networks, providing real-time perfectly secret voice
+communication even in remote or hostile environments.
+The war in Ukraine can serve as a fresh and relevant example of the potential appli-
+cation and importance of APS-VCS. The combination of Starlink as a resilient and
+widely available public channel and APS-VCS as a secure communication system
+enables military units to maintain command coordination even in the most difficult
+circumstances without fear of eavesdropping or decryption by adversaries.
+2. Security in covert and clandestine missions. Traditional secure communication devices
+store pre-distributed secret keys, so if a device is captured by the enemy, the entire
+encryption system could be compromised. In intelligence, counterinsurgency, or
+clandestine operations, APS-VCS ensures that no sensitive secret key material is
+stored or carried by field operatives. If an operative is captured or defected, no secret
+key information can be extracted to compromise ongoing operations.
+3. Adaptability without the need for pre-deployment. Unlike traditional security systems
+that require prior key distribution (which can be logistically challenging and risky),
+APS-VCS allows users to establish secure communications dynamically. This makes it
+ideal for rapidly changing mission parameters where new communication nodes may
+need to be integrated without physical key exchanges.
+4. Industrial and corporate security. Businesses dealing with sensitive intellectual property
+or trade secrets often rely on encrypted communication channels that depend on
+conventional PKI infrastructure. APS-VCS removes the need for key management
+through external parties, preventing potential insider threats and security breaches
+associated with centralized encryption key storage.
+5. Tactical and emergency services.Emergency response teams require secure voice commu-
+nication systems that function independently of centralized infrastructure, especially
+in disaster scenarios where conventional networks may be compromised. APS-VCS
+provides a reliable, autonomous encryption system that ensures complete secrecy
+of communications between first responders, law enforcement, and crisis manage-
+ment teams.
+By addressing these practical applications, APS-VCS demonstrates clear advantages
+over existing cryptographic methods, particularly in scenarios where infrastructure inde-
+pendence, perfect secrecy, and real-time secure voice communication are crucial.
+
+===== PAGE 27 =====
+Symmetry 2025, 17, 365 27 of 30
+8. Conclusions
+The paper presents a perfectly secret voice communication system based on a MELPe
+vocoder with a speed of 1.2 kb/s and Vernam’s cipher. The generation and distribution
+of secret keys rely on two sources of common randomness and the SKD protocol, which
+requires the use of an additional authenticated channel. The primary source of CR is
+a specially designed LP synthesizer, which ensures the required amount of innovative
+entropy based on a local source of randomness. By selecting appropriate security margins
+and synthesizer parameters, such as sample rate and SNR, the system designer can achieve
+the desired secret key rate of 1.2 kb/s, thereby maintaining the perfect secrecy of the Vernam
+cipher. The maximum security margin reaches approximately 460 bits, ensuring negligible
+leakage of the generated secret keys.
+The requirement for an additional reliable authenticated public channel can be seen
+as the trade-off for achieving perfect secrecy. However, the asynchronous operation of
+the voice coder and cipher system in the main channel relative to the system components
+utilizing the public channel significantly mitigates implementation challenges, enhancing
+practical usability. An experimental evaluation of the vPCP-V system demonstrates the
+robustness of this approach across various communication channels, including the hardest
+one: GSM 3G and VoLTE, achieving an acceptable BER on the order of 10−3.
+While the proposed APS-VCS system meets the stringent requirements of perfect
+secrecy and autonomy, several directions for enhancement and integration with emerging
+technologies warrant further exploration. Let us mention just a few of the most interesting,
+such as the optimization of the SKD protocol, multiplexing of the main and public chan-
+nels, and refining synthesizer models by exploring alternative excitation methods (such
+as neural vocoder-based synthesis, for example). A particularly promising direction for
+future research is hybrid architectures that combine SKD with QKD. While QKD provides
+provable security guarantees, its current deployment limitations (e.g., infrastructure re-
+quirements) make direct substitution challenging. However, incorporating QKD-based
+key exchange as an additional security layer for key refreshing could significantly enhance
+long-term robustness.
+By addressing these future directions, the APS-VCS system can continue to evolve as
+a promising solution in the domain of perfectly secret voice communication. The findings
+presented in this paper contribute to the broader domain of secure speech transmission
+and highlight the potential for further innovation in autonomous cryptographic communi-
+cation systems.
+Author Contributions: Conceptualization, M.M. and J.R.; methodology, M.M., J.R. and Z.B.; software,
+J.R.; validation, M.M., J.R., S. ˇC. and Z.K.; formal analysis, M.M., Z.B., M.P . and D.P .; investigation,
+M.M. and J.R.; resources, Z.B.; data curation, S. ˇC. and Z.K.; writing—original draft preparation, M.M.
+and J.R.; writing—review and editing, M.M., J.R., S. ˇC., Z.K. and Z.B.; visualization, M.M. and J.R.;
+supervision, M.M. and Z.B.; project administration, M.M., Z.B., M.P . and D.P .; funding acquisition,
+Z.B. All authors have read and agreed to the published version of the manuscript.
+Funding: The research is funded by the Vlatacom Institute of High Technologies under Project #164
+EEG_Keys.
+Data Availability Statement: The raw data supporting the conclusions of this article will be made
+available by the authors upon request.
+Acknowledgments: M.M. would like to thank his daughter Jasna, who participated in the creation
+and implementation of the founding of the so-called Cyprus experiment [43], in which it was shown
+for the first time that it is practically possible to implement the SKD protocol over EEG signals, which
+opened up a whole series of practical implementations, including the implementation shown in
+this paper.
+
+===== PAGE 28 =====
+Symmetry 2025, 17, 365 28 of 30
+Conflicts of Interest: The authors declare no conflicts of interest.
+Abbreviations
+The following abbreviations are used in this manuscript:
+APS-VCS Autonomous Perfectly Secure Low-Bit-Rate Voice Communication System
+MELPe Mixed-Excitation Linear Prediction voice coder
+SKD Sequential Key Distillation
+LSP Linear Spectral Pairs
+vPCP-V Vlatacom Personal Crypto Platform for Voice encryption
+OTP One-Time-Pad
+LP Linear prediction
+KSG Key Stream Generator
+CR Common Randomness
+AD Advantage Distillation
+IR Information Reconciliation
+BP Bit Parity
+FIFO First In First Out
+vTRNG Vlatacom True Random Number Generator
+VoIP Voice over Internet Protocol
+SNR Signal-to-Noise Ratio
+KR Key Rate
+LR Leakage Rate
+KAR Key Acceptance Rate
+BER Bit Error Rate
+ECC Error-Correcting Code
+QKD Quantum Key Distribution
+PKI Public Key Infrastructure
+References
+1. Shannon, C.E. Communication theory of secrecy systems. Bell Syst. Tech. J. 1949, 28, 656–715. [CrossRef]
+2. Vernam, G.S. Secret Signaling System. U.S. Patent 1310719A, 22 July 1919.
+3. Lugrin, T. One-Time Pad. InTrends in Data Protection and Encryption Technologies; Mulder, V ., Mermoud, A., Lenders, V ., Tellenbach,
+B., Eds.; Springer Nature: Cham, Switzerland, 2023; pp. 3–6.
+4. McCree, A.V . Low-bit-rate speech coding. InSpringer Handbook of Speech Processing; Benesty, J., Sondhi, M.M., Huang, Y.A., Eds.;
+Springer Handbooks: Berlin/Heidelberg, Germany, 2008; pp. 331–350.
+5. MELPe TSVCIS. Available online: https://melpe.com/melpe-tsvcis/ (accessed on 15 November 2024).
+6. Nato Standardization Office. Available online: https://nso.nato.int/nso/nsdd/main/standards (accessed on 15 November 2024).
+7. Cao, Y.; Zhao, Y.; Wang, Q.; Zhang, J.; Ng, S.X.; Hanzo, L. The evolution of quantum key distribution networks: On the road to
+the qinternet. IEEE Commun. Surv. Tutor. 2022, 24, 839–894. [CrossRef]
+8. Ahlswede, R.; Csiszar, I. Common randomness in information theory and cryptography. Part I: Secret sharing.IEEE Trans. Inf.
+Theory 1993, 39, 1121–1132. [CrossRef]
+9. Maurer, U.M. Secret key agreement by public discussion from common information. IEEE Trans. Inf. Theory 1993, 39, 733–742.
+[CrossRef]
+10. Csiszar, I.; Narayan, P . Secrecy Capacities for Multiple Terminals. IEEE Trans. Inf. Theory 2004, 50, 3047–3061. [CrossRef]
+11. Zhang, J.; Duong, T.Q.; Marshall, A.; Woods, R. Key generation from wireless channels: A review.IEEE Access 2016, 4, 614–626.
+[CrossRef]
+12. Li, G.; Sun, C.; Zhang, J.; Jorswieck, E.; Xiao, B.; Hu, A. Physical Layer Key Generation in 5G and Beyond Wireless Communica-
+tions: Challenges and Opportunities. Entropy 2019, 21, 497. [CrossRef] [PubMed]
+13. Zhang, J.; Duong, T.Q.; Woods, R.; Marshall, A. Securing Wireless Communications of the Internet of Things from the Physical
+Layer, An Overview. Entropy 2017, 19, 420. [CrossRef]
+
+===== PAGE 29 =====
+Symmetry 2025, 17, 365 29 of 30
+14. Radomirovi´ c, J.; Milosavljevi´ c, M.; Kovaˇ cevi´ c, B.; Jovanovi´ c, M. Secret key distillation with speech input and deep neural
+network-controlled privacy amplification. Mathematics 2023, 11, 1524. [CrossRef]
+15. Galis, M.; Milosavljevi´ c, M.; Jevremovi´ c, A.; Banjac, Z.; Makarov, A.; Radomirovi´ c, J. Secret-key agreement by asynchronous EEG
+over authenticated public channels. Entropy 2021, 23, 1327. [CrossRef]
+16. Pourbemany, J.; Zhu, Y.; Bettati, R. Survey of Wearable Devices Pairing Based on Biometric Signals.arXiv 2021, arXiv:2107.11685v1.
+[CrossRef]
+17. Li, G.; Zhang, Z.; Zhang, J.; Hu, A. Encrypting wireless communications on the fly using one-time pad and key generation. IEEE
+Internet Things J. 2020, 8, 357–369. [CrossRef]
+18. McCree, A.V .; Barnwell, T.P . A mixed excitation LPC vocoder model for low bit rate speech coding.IEEE Trans. Speech Audio
+Process. 1995, 3, 242–250. [CrossRef]
+19. Vlatacom Institute–Encryption & Authentication. Available online: https://www.vlatacominstitute.com/encryption-
+authentication (accessed on 22 October 2024).
+20. Itakura, F. Line spectrum representation of linear predictive coefficients of speech signals. J. Acoust. Soc. Am. 1975, 57, S35.
+[CrossRef]
+21. Ntantogian, C.; Veroni, E.; Karopoulos, G.; Xenakis, C. A survey of voice and communication protection solutions against
+wiretapping. Comput. Electr. Eng. 2019, 77, 163–178. [CrossRef]
+22. Pekerti, A.A.; Sasongko, A.; Indrayanto, A. Secure End-to-End Voice Communication: A Comprehensive Review of Steganography,
+Modem-Based Cryptography, and Chaotic Cryptography Techniques.IEEE Access 2024, 12, 75146–75168. [CrossRef]
+23. ˇCubrilovi´ c, S.; Mandi´ c, D.; Krsti´ c, A. Evaluation of Improved Classification of Speech-Like Waveforms Used for Secure Voice
+Transmission. In Proceedings of the 21st International Symposium INFOTEH-JAHORINA (INFOTEH), East Sarajevo, Bosnia and
+Herzegovina, 16–18 March 2022.
+24. Kumar, K.; Ramkumar, K.R.; Kaur, A. A lightweight AES algorithm implementation for encrypting voice messages using field
+programmable gate arrays. J. King Saud Univ.-Comput. Inf. Sci. 2022, 34, I3878–I3885. [CrossRef]
+25. Kara, M.; Merzeh, H.R.J.; Aydın, M.A.; Balık, H.H. VoIPChain: A decentralized identity authentication in Voice over IP using
+Blockchain. Comput. Commun. 2023, 198, 247–261. [CrossRef]
+26. Ethereum. Available online: https://ethereum.org/en/ (accessed on 16 February 2025).
+27. Hamilton, A.; Barnett, J.; Hobbs, A.; Pelekanakis, K.; Petroccia, R.; Nissen, I.; Galsdorf, D. Towards Secure and Interoperable
+Underwater Acoustic Communications: Current Activities in NATO IST-174 Research Task Group.Procedia Comput. Sci. 2022, 205,
+167–178. [CrossRef]
+28. Gebereselassie, S.A.; Roy, B.K. A new Secure Speech Communication Scheme Based on Hyperchaotic Masking and Modulation.
+IFAC-PapersOnLine 2022, 55, 914–919. [CrossRef]
+29. Fu, S.; Cheng, X.; Liu, J. Dynamics, circuit design, feedback control of a new hyperchaotic system and its application in audio
+encryption. Sci. Rep. 2023, 13, 19385. [CrossRef] [PubMed]
+30. Haridas, T.; Upasana, S.D.; Vyshnavi, G.; Krishnan, M.S.; Muni, S.S. Chaos-based audio encryption: Efficacy of 2D and 3D
+hyperchaotic systems. Frankl. Open 2024, 8, 100158. [CrossRef]
+31. Wang, Q.; Wang, X.; Lv, Q.; Ye, X.; Luo, Y.; You, L. Analysis of the information theoretically secret key agreement by public
+discussion. Secur. Commun. Netw. 2015, 8, 2507–2523. [CrossRef]
+32. Liu, S.L. Information-Theoretic Secret Key Agreement. Ph.D. Thesis, Technische Universiteit Eindhoven, Eindhoven,
+The Netherlands, 2002.
+33. Peri´ c, M.; Mili´ cevi´ c, P .; Banjac, Z.; Orli´ c, V .; Mili´ cevi´ c, S. High speed random number generator for section key generation in
+encryption devices. In Proceedings of the 21st Telecommunications Forum (TELFOR), Belgrade, Serbia, 26–28 November 2013;
+pp. 117–120.
+34. Kabal, P .; Ramachandran, R.P . The computation of line spectral frequencies using Chebyshev polynomials.IEEE Trans. Acoust.
+Speech Signal Process. 1986, 34, 1419–1426. [CrossRef]
+35. Soong, F.K.; Juang, B.-W. Line spectrum pair (LSP) and speech data compression. In Proceedings of the IEEE International
+Conference on Acoustics, Speech and Signal Processing, ICASSP , San Diego, CA, USA, 19–21 March 1984; pp. 37–40.
+36. Shannon, C.E. A mathematical theory of communication. Bell Syst. Tech. J. 1948, 27, 379–423. [CrossRef]
+37. Aaron, M.R.; McDonald, R.A.; Protonotarios, E.N. Entropy Power Loss in Linear Sampled Data Filters. Proc. IEEE 1967, 55,
+1093–1094. [CrossRef]
+38. Cover, T.M.; Thomas, J.A. Elements of Information Theory, 2nd ed.; John Wiley & Sons: Hoboken, NJ, USA, 2006.
+39. Huffman, D.A. A method for the construction of minimum-redundancy codes. Proc. IRE 1952, 40, 1098–1101. [CrossRef]
+40. Carter, J.L.; Wegman, M.N. Universal classes of hash functions. J. Comput. Syst. Sci. 1979, 18, 143–154. [CrossRef]
+41. Bennett, C.H.; Brassard, G.; Crepeau, C.; Maurer, U.M. Generalized privacy amplification. IEEE Trans. Inf. Theory 1995, 41,
+1915–1923. [CrossRef]
+
+===== PAGE 30 =====
+Symmetry 2025, 17, 365 30 of 30
+42. Radomirovi´ c, J.; Milosavljevi´ c, M.; Kovaˇ cevi´ c, B.; Jovanovi´ c, M. Privacy amplification strategies in sequential secret key distillation
+protocols based on machine learning. Symmetry 2022, 14, 2028. [CrossRef]
+43. Milosaljevi´ c, M.; Adamovi´ c, S.; Jevremovic, A.; Antonijevi´ c, M. Secret key agreement by public discussion from EEG signals of
+participants. In Proceedings of the 5th International Conference on Electrical, Electronic and Computing Engineering, IcETRAN,
+Palic, Serbia, 11–14 June 2018; pp. 1256–1259.
+Disclaimer/Publisher’s Note: The statements, opinions and data contained in all publications are solely those of the individual
+author(s) and contributor(s) and not of MDPI and/or the editor(s). MDPI and/or the editor(s) disclaim responsibility for any injury to
+people or property resulting from any ideas, methods, instructions or products referred to in the content.

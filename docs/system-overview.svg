@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bgSys" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <marker id="sysArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#475569"/>
+    </marker>
+    <marker id="sysArrR" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+      <path d="M8,0 L0,3 L8,6" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="360" rx="12" fill="url(#bgSys)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <text x="450" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a" letter-spacing="0.5">SYSTEM OVERVIEW</text>
+  <text x="450" y="48" text-anchor="middle" font-size="11" fill="#64748b">Encrypted speech carried as modem tones inside an ordinary phone call</text>
+
+  <!-- Person A -->
+  <circle cx="65" cy="110" r="20" fill="#f97316" opacity="0.15" stroke="#f97316" stroke-width="1.5"/>
+  <text x="65" y="115" text-anchor="middle" font-size="20">&#x1F9D1;</text>
+  <text x="65" y="150" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Alice</text>
+  <text x="65" y="164" text-anchor="middle" font-size="9" fill="#64748b">speaks normally</text>
+
+  <!-- Arrow: Person A -> Unit A -->
+  <line x1="90" y1="110" x2="128" y2="110" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+  <text x="109" y="103" text-anchor="middle" font-size="8" fill="#94a3b8">voice</text>
+
+  <!-- Unit A box -->
+  <rect x="130" y="78" width="170" height="65" rx="10" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="2"/>
+  <text x="215" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#047857">Veilspeak Unit A</text>
+  <text x="215" y="116" text-anchor="middle" font-size="9" fill="#059669">Codec2 + AES-256 + RS + Modem</text>
+  <text x="215" y="130" text-anchor="middle" font-size="9" fill="#059669">encrypts &amp; modulates to tones</text>
+
+  <!-- Arrow: Unit A -> Phone A -->
+  <line x1="300" y1="110" x2="338" y2="110" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+  <text x="319" y="103" text-anchor="middle" font-size="8" fill="#94a3b8">tones</text>
+
+  <!-- Phone A -->
+  <rect x="340" y="85" width="80" height="50" rx="8" fill="#ef4444" opacity="0.1" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="380" y="107" text-anchor="middle" font-size="20">&#x1F4F1;</text>
+  <text x="380" y="126" text-anchor="middle" font-size="8" fill="#dc2626">Phone A</text>
+
+  <!-- Network -->
+  <rect x="435" y="75" width="130" height="70" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="500" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Phone Network</text>
+  <text x="500" y="118" text-anchor="middle" font-size="9" fill="#64748b">2G / 3G / VoLTE</text>
+  <text x="500" y="133" text-anchor="middle" font-size="8" fill="#94a3b8">AMR / AMR-WB / EVS</text>
+
+  <!-- Arrows to/from network -->
+  <line x1="420" y1="105" x2="433" y2="105" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+  <line x1="565" y1="115" x2="578" y2="115" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+
+  <!-- Phone B -->
+  <rect x="580" y="85" width="80" height="50" rx="8" fill="#ef4444" opacity="0.1" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="620" y="107" text-anchor="middle" font-size="20">&#x1F4F1;</text>
+  <text x="620" y="126" text-anchor="middle" font-size="8" fill="#dc2626">Phone B</text>
+
+  <!-- Arrow: Phone B -> Unit B -->
+  <line x1="660" y1="110" x2="698" y2="110" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+  <text x="679" y="103" text-anchor="middle" font-size="8" fill="#94a3b8">tones</text>
+
+  <!-- Unit B box -->
+  <rect x="700" y="78" width="130" height="65" rx="10" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="2"/>
+  <text x="765" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#047857">Unit B</text>
+  <text x="765" y="116" text-anchor="middle" font-size="9" fill="#059669">demodulates &amp;</text>
+  <text x="765" y="130" text-anchor="middle" font-size="9" fill="#059669">decrypts speech</text>
+
+  <!-- Arrow: Unit B -> Person B -->
+  <line x1="830" y1="110" x2="843" y2="110" stroke="#475569" stroke-width="1.2" marker-end="url(#sysArr)"/>
+
+  <!-- Person B -->
+  <circle cx="865" cy="110" r="20" fill="#3b82f6" opacity="0.15" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="865" y="115" text-anchor="middle" font-size="20">&#x1F9D1;</text>
+  <text x="865" y="150" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Bob</text>
+  <text x="865" y="164" text-anchor="middle" font-size="9" fill="#64748b">hears Alice</text>
+
+  <!-- Reverse direction arrow (below) -->
+  <path d="M 830 180 L 100 180" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#sysArrR)"/>
+  <text x="450" y="175" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">full duplex: both directions simultaneously</text>
+
+  <!-- Key properties -->
+  <rect x="50" y="210" width="250" height="130" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="175" y="233" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">What the Network Sees</text>
+  <line x1="70" y1="240" x2="280" y2="240" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="70" y="258" font-size="10" fill="#475569">&#x2022; Ordinary phone call audio</text>
+  <text x="70" y="275" font-size="10" fill="#475569">&#x2022; Modem-like tones (not speech)</text>
+  <text x="70" y="292" font-size="10" fill="#475569">&#x2022; No metadata, no IP traffic</text>
+  <text x="70" y="309" font-size="10" fill="#475569">&#x2022; Cannot decode without the key</text>
+
+  <rect x="325" y="210" width="250" height="130" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="450" y="233" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Security Properties</text>
+  <line x1="345" y1="240" x2="555" y2="240" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="345" y="258" font-size="10" fill="#475569">&#x2022; AES-256-CTR encryption</text>
+  <text x="345" y="275" font-size="10" fill="#475569">&#x2022; Per-frame HMAC integrity</text>
+  <text x="345" y="292" font-size="10" fill="#475569">&#x2022; X25519 key exchange</text>
+  <text x="345" y="309" font-size="10" fill="#475569">&#x2022; Voice-verified SAS (20-bit)</text>
+
+  <rect x="600" y="210" width="250" height="130" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="725" y="233" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Requirements</text>
+  <line x1="620" y1="240" x2="830" y2="240" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="620" y="258" font-size="10" fill="#475569">&#x2022; Any phone call (2G/3G/VoLTE)</text>
+  <text x="620" y="275" font-size="10" fill="#475569">&#x2022; No internet connection needed</text>
+  <text x="620" y="292" font-size="10" fill="#475569">&#x2022; No app on the phone itself</text>
+  <text x="620" y="309" font-size="10" fill="#475569">&#x2022; Works with any carrier</text>
+</svg>

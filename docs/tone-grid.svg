@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300" font-family="system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="860" height="300" rx="12" fill="url(#bg3)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <text x="430" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a" letter-spacing="0.5">23-TONE FREQUENCY GRID</text>
+  <text x="430" y="48" text-anchor="middle" font-size="11" fill="#64748b">Harmonics 4-26 at 100 Hz spacing, inside the telephone band (300-3400 Hz)</text>
+
+  <!-- Frequency axis -->
+  <line x1="60" y1="230" x2="820" y2="230" stroke="#94a3b8" stroke-width="1"/>
+  <text x="440" y="260" text-anchor="middle" font-size="10" fill="#64748b">Frequency (Hz)</text>
+
+  <!-- Telephone band shading -->
+  <rect x="51" y="65" width="780" height="160" rx="4" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <text x="75" y="82" font-size="9" fill="#0d9488" font-style="italic">Telephone band: 300-3400 Hz</text>
+
+  <!-- Bars for each tone (400 Hz to 2600 Hz, 23 tones) -->
+  <!-- Each bar: x = 60 + (freq-300)/3100 * 760 -->
+  <!-- Heights vary to show signal energy concept -->
+  <g>
+    <!-- 400 Hz (h4) -->
+    <rect x="84" y="110" width="22" height="120" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="95" y="246" text-anchor="middle" font-size="7" fill="#475569">400</text>
+    <text x="95" y="105" text-anchor="middle" font-size="7" fill="#0891b2" font-weight="600">h4</text>
+
+    <!-- 500 Hz (h5) -->
+    <rect x="117" y="100" width="22" height="130" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="128" y="246" text-anchor="middle" font-size="7" fill="#475569">500</text>
+    <text x="128" y="95" text-anchor="middle" font-size="7" fill="#0891b2" font-weight="600">h5</text>
+
+    <!-- 600 Hz (h6) -->
+    <rect x="150" y="90" width="22" height="140" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="161" y="246" text-anchor="middle" font-size="7" fill="#475569">600</text>
+
+    <!-- 700 Hz (h7) -->
+    <rect x="183" y="85" width="22" height="145" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="194" y="246" text-anchor="middle" font-size="7" fill="#475569">700</text>
+
+    <!-- 800 Hz (h8) -->
+    <rect x="216" y="80" width="22" height="150" rx="3" fill="url(#barGrad)" opacity="0.9"/>
+    <text x="227" y="246" text-anchor="middle" font-size="7" fill="#475569">800</text>
+
+    <!-- 900 Hz -->
+    <rect x="249" y="78" width="22" height="152" rx="3" fill="url(#barGrad)" opacity="0.9"/>
+    <text x="260" y="246" text-anchor="middle" font-size="7" fill="#475569">900</text>
+
+    <!-- 1000 Hz -->
+    <rect x="282" y="75" width="22" height="155" rx="3" fill="url(#barGrad)" opacity="0.95"/>
+    <text x="293" y="246" text-anchor="middle" font-size="7" fill="#475569">1000</text>
+
+    <!-- 1100 Hz -->
+    <rect x="315" y="73" width="22" height="157" rx="3" fill="url(#barGrad)" opacity="0.95"/>
+    <text x="326" y="246" text-anchor="middle" font-size="7" fill="#475569">1100</text>
+
+    <!-- 1200 Hz -->
+    <rect x="348" y="72" width="22" height="158" rx="3" fill="url(#barGrad)" opacity="1"/>
+    <text x="359" y="246" text-anchor="middle" font-size="7" fill="#475569">1200</text>
+
+    <!-- 1300 Hz -->
+    <rect x="381" y="71" width="22" height="159" rx="3" fill="url(#barGrad)" opacity="1"/>
+    <text x="392" y="246" text-anchor="middle" font-size="7" fill="#475569">1300</text>
+
+    <!-- 1400 Hz -->
+    <rect x="414" y="70" width="22" height="160" rx="3" fill="url(#barGrad)" opacity="1"/>
+    <text x="425" y="246" text-anchor="middle" font-size="7" fill="#475569">1400</text>
+
+    <!-- 1500 Hz -->
+    <rect x="447" y="71" width="22" height="159" rx="3" fill="url(#barGrad)" opacity="1"/>
+    <text x="458" y="246" text-anchor="middle" font-size="7" fill="#475569">1500</text>
+
+    <!-- 1600 Hz -->
+    <rect x="480" y="72" width="22" height="158" rx="3" fill="url(#barGrad)" opacity="0.95"/>
+    <text x="491" y="246" text-anchor="middle" font-size="7" fill="#475569">1600</text>
+
+    <!-- 1700 Hz -->
+    <rect x="513" y="74" width="22" height="156" rx="3" fill="url(#barGrad)" opacity="0.95"/>
+    <text x="524" y="246" text-anchor="middle" font-size="7" fill="#475569">1700</text>
+
+    <!-- 1800 Hz -->
+    <rect x="546" y="77" width="22" height="153" rx="3" fill="url(#barGrad)" opacity="0.9"/>
+    <text x="557" y="246" text-anchor="middle" font-size="7" fill="#475569">1800</text>
+
+    <!-- 1900 Hz -->
+    <rect x="579" y="80" width="22" height="150" rx="3" fill="url(#barGrad)" opacity="0.9"/>
+    <text x="590" y="246" text-anchor="middle" font-size="7" fill="#475569">1900</text>
+
+    <!-- 2000 Hz -->
+    <rect x="612" y="85" width="22" height="145" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="623" y="246" text-anchor="middle" font-size="7" fill="#475569">2000</text>
+
+    <!-- 2100 Hz -->
+    <rect x="645" y="90" width="22" height="140" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+    <text x="656" y="246" text-anchor="middle" font-size="7" fill="#475569">2100</text>
+
+    <!-- 2200 Hz -->
+    <rect x="678" y="98" width="22" height="132" rx="3" fill="url(#barGrad)" opacity="0.8"/>
+    <text x="689" y="246" text-anchor="middle" font-size="7" fill="#475569">2200</text>
+
+    <!-- 2300 Hz -->
+    <rect x="711" y="105" width="22" height="125" rx="3" fill="url(#barGrad)" opacity="0.8"/>
+    <text x="722" y="246" text-anchor="middle" font-size="7" fill="#475569">2300</text>
+
+    <!-- 2400 Hz -->
+    <rect x="744" y="112" width="22" height="118" rx="3" fill="url(#barGrad)" opacity="0.75"/>
+    <text x="755" y="246" text-anchor="middle" font-size="7" fill="#475569">2400</text>
+
+    <!-- 2500 Hz -->
+    <rect x="777" y="118" width="22" height="112" rx="3" fill="url(#barGrad)" opacity="0.75"/>
+    <text x="788" y="246" text-anchor="middle" font-size="7" fill="#475569">2500</text>
+
+    <!-- 2600 Hz (h26) -->
+    <rect x="810" y="125" width="22" height="105" rx="3" fill="url(#barGrad)" opacity="0.7"/>
+    <text x="821" y="246" text-anchor="middle" font-size="7" fill="#475569">2600</text>
+    <text x="821" y="120" text-anchor="middle" font-size="7" fill="#0891b2" font-weight="600">h26</text>
+  </g>
+
+  <!-- Annotation -->
+  <text x="430" y="285" text-anchor="middle" font-size="10" fill="#64748b">Each tone carries 4-PSK phase information &mdash; together, 23 tones encode one codebook symbol per 10 ms</text>
+</svg>

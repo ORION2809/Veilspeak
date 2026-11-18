@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 520" font-family="system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <marker id="seqArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#3b82f6"/>
+    </marker>
+    <marker id="seqArrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <rect width="700" height="520" rx="12" fill="url(#bg5)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <text x="350" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a" letter-spacing="0.5">KEY AGREEMENT PROTOCOL</text>
+  <text x="350" y="48" text-anchor="middle" font-size="11" fill="#64748b">ZRTP-style (RFC 6189): X25519 with hash commitment + SAS verification</text>
+
+  <!-- Participant boxes -->
+  <rect x="80" y="68" width="120" height="36" rx="8" fill="#3b82f6" opacity="0.15" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="140" y="91" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">Initiator</text>
+
+  <rect x="500" y="68" width="120" height="36" rx="8" fill="#8b5cf6" opacity="0.15" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="560" y="91" text-anchor="middle" font-size="13" font-weight="700" fill="#6d28d9">Responder</text>
+
+  <!-- Lifelines -->
+  <line x1="140" y1="104" x2="140" y2="480" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="560" y1="104" x2="560" y2="480" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Step 0: hello + commit -->
+  <line x1="145" y1="135" x2="555" y2="135" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#seqArrow)"/>
+  <rect x="225" y="118" width="250" height="20" rx="4" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="350" y="133" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Step 0: hello_I + commit = H(pk_I)</text>
+
+  <text x="85" y="145" font-size="8" fill="#64748b" font-style="italic">generate X25519 key</text>
+  <text x="85" y="156" font-size="8" fill="#64748b" font-style="italic">commit before seeing pk_R</text>
+
+  <!-- Step 1: hello + pk_R -->
+  <line x1="555" y1="185" x2="145" y2="185" stroke="#8b5cf6" stroke-width="1.8" marker-end="url(#seqArrowR)"/>
+  <rect x="225" y="168" width="250" height="20" rx="4" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="350" y="183" text-anchor="middle" font-size="10" fill="#6d28d9" font-weight="600">Step 1: hello_R + pk_R [+ pq_pk_R]</text>
+
+  <text x="565" y="195" font-size="8" fill="#64748b" font-style="italic">generate key pair</text>
+  <text x="565" y="206" font-size="8" fill="#64748b" font-style="italic">[+ML-KEM-768 pk if PQ]</text>
+
+  <!-- Step 2: pk_I + confirm -->
+  <line x1="145" y1="235" x2="555" y2="235" stroke="#3b82f6" stroke-width="1.8" marker-end="url(#seqArrow)"/>
+  <rect x="210" y="218" width="280" height="20" rx="4" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="350" y="233" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Step 2: pk_I [+ pq_ciphertext] + confirm_I</text>
+
+  <text x="85" y="245" font-size="8" fill="#64748b" font-style="italic">reveal pk_I (matches commit)</text>
+  <text x="85" y="256" font-size="8" fill="#64748b" font-style="italic">derive shared secret via HKDF</text>
+
+  <!-- Step 3: confirm -->
+  <line x1="555" y1="285" x2="145" y2="285" stroke="#8b5cf6" stroke-width="1.8" marker-end="url(#seqArrowR)"/>
+  <rect x="265" y="268" width="170" height="20" rx="4" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="350" y="283" text-anchor="middle" font-size="10" fill="#6d28d9" font-weight="600">Step 3: confirm_R</text>
+
+  <text x="565" y="295" font-size="8" fill="#64748b" font-style="italic">verify commit, derive same key</text>
+
+  <!-- SAS verification -->
+  <rect x="160" y="320" width="380" height="60" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="350" y="342" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">SAS Verification</text>
+  <text x="350" y="358" text-anchor="middle" font-size="10" fill="#a16207">Both sides compute a 4-character Short Authentication String</text>
+  <text x="350" y="372" text-anchor="middle" font-size="10" fill="#a16207">and compare it by voice over the call. MITM: 1 in 1,048,576 chance.</text>
+
+  <!-- Result box -->
+  <rect x="160" y="400" width="380" height="80" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="350" y="422" text-anchor="middle" font-size="12" font-weight="700" fill="#065f46">Secure Channel Established</text>
+  <text x="350" y="440" text-anchor="middle" font-size="10" fill="#047857">Classic: shared = HKDF(x25519 || retained, transcript)</text>
+  <text x="350" y="456" text-anchor="middle" font-size="10" fill="#047857">PQ hybrid: shared = HKDF(x25519 || pq_ss || retained, transcript)</text>
+  <text x="350" y="472" text-anchor="middle" font-size="10" fill="#059669">Keys: AES-256 enc + HMAC-SHA256 mac, one per direction</text>
+
+  <!-- MITM note -->
+  <text x="350" y="500" text-anchor="middle" font-size="9" fill="#64748b">The commitment (Step 0) prevents the initiator from adapting its key to the responder's.</text>
+  <text x="350" y="512" text-anchor="middle" font-size="9" fill="#64748b">A man-in-the-middle must guess the 20-bit SAS: success probability 2&#8315;&#178;&#8304; per call.</text>
+</svg>

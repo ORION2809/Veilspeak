@@ -67,23 +67,30 @@ class FrameOpener:
             return True
         return self.last - counter < self.WINDOW and not (self._seen >> (self.last - counter)) & 1
 
-    def _candidates(self, lsb, expected):
+    def _candidates(self, lsb, expected, window=None):
         if expected is None:
             return [c for c in (lsb + 64 * i for i in range(self.first)) if self._unused(c)]
-        counter = expected + ((lsb - expected + 32) & 63) - 32
-        return [counter] if counter >= 0 and self._unused(counter) and abs(counter - expected) <= self.slack else []
+        # `window` (counters either side of the prediction) defaults to `slack`. A caller that
+        # has lost counter sync after a large time shift passes a wider window to re-acquire.
+        # Only the 6 low bits travel, so one counter per 64 falls in range: the search stays
+        # a handful of candidates however wide the window, and each still needs the tag.
+        w = self.slack if window is None else window
+        base = expected + ((lsb - expected + 32) & 63) - 32        # counter = lsb (mod 64) nearest expected
+        reach = (w + 63) // 64
+        return [c for c in (base + 64 * i for i in range(-reach, reach + 1))
+                if c >= 0 and abs(c - expected) <= w and self._unused(c)]
 
-    def find(self, message, kind, expected=None):
+    def find(self, message, kind, expected=None, window=None):
         """Counter under which the message authenticates, or None."""
         ct, head, tag = message[:-OVERHEAD], message[-OVERHEAD], message[-TAG_BYTES:]
-        for counter in self._candidates(head >> 2, expected):
+        for counter in self._candidates(head >> 2, expected, window):
             if hmac.compare_digest(tag, _tag(self.mac, self.dir, counter, kind, head & 3, ct)):
                 return counter
         return None
 
-    def open(self, message, kind, expected=None):
+    def open(self, message, kind, expected=None, window=None):
         """Returns (counter, status, plaintext) or None. A counter is accepted once."""
-        counter = self.find(message, kind, expected)
+        counter = self.find(message, kind, expected, window)
         if counter is None:
             return None
         if counter > self.last:
@@ -175,9 +182,9 @@ class RekeyingOpener:
         self._next_rekey = boundary + self._interval
         self.rekey_count += 1
 
-    def find(self, message, kind, expected=None):
+    def find(self, message, kind, expected=None, window=None):
         ct, head, tag = message[:-OVERHEAD], message[-OVERHEAD], message[-TAG_BYTES:]
-        for counter in self._inner._candidates(head >> 2, expected):
+        for counter in self._inner._candidates(head >> 2, expected, window):
             if counter >= self._next_rekey:
                 boundary = (counter // self._interval) * self._interval
                 trial_mac = _rekey_derive(bytes(self._mac), boundary, b"rekey-mac")
@@ -189,8 +196,8 @@ class RekeyingOpener:
                     return counter
         return None
 
-    def open(self, message, kind, expected=None):
-        counter = self.find(message, kind, expected)
+    def open(self, message, kind, expected=None, window=None):
+        counter = self.find(message, kind, expected, window)
         if counter is None:
             return None
         self._maybe_rotate(counter)

@@ -19,7 +19,7 @@ real call yet. See "What simulation cannot show" at the end.
 source .venv/bin/activate
 sh tools/build_codecs.sh                      # once: download and build the 3GPP codecs
 sh tools/build_codecs_fixed.sh                # optional: the fixed-point versions, for the cross-checks
-python -m pytest -q tests                     # 42 tests, about 4 minutes
+python -m pytest -q tests                     # 56 tests, about 2 minutes
 python -m veilspeak                           # list the call scenarios
 python -m veilspeak "VoLTE EVS 13.2, jitter buffer, 1% loss"     # one call; writes WAV files to demo_out/
 ```

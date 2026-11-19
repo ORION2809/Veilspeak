@@ -641,3 +641,75 @@ def test_retained_secret_key_continuity():
     assert a2.sas != a1.sas
     # retained_match should indicate the secret was used
     assert a2.retained_match and b2.retained_match
+
+
+# ---------------------------------------------------------------------------------------
+# regression: real-world weak links found in audit (2026-11-19)
+# ---------------------------------------------------------------------------------------
+def test_pq_hybrid_commitment_binds_the_kem_key():
+    """The PQ-hybrid SAS must not be grindable. The initiator commits to its KEM public key
+    and contributes nothing to the KEM after the commitment (the responder encapsulates), so a
+    man-in-the-middle cannot re-encapsulate to force a matching SAS -- its only lever is a
+    fresh handshake, 2^-20 per try, as in the classic mode."""
+    # structure: the KEM public key rides in step 0 (committed); step 2 is just pk_I + confirm,
+    # with no ciphertext for the initiator to vary after it has committed.
+    assert session.STEP_BYTES_PQ[0] == 34 + session._PQ_PK_BYTES
+    assert session.STEP_BYTES_PQ[1] == 50 + session._PQ_CT_BYTES
+    assert session.STEP_BYTES_PQ[2] == 40 == session.STEP_BYTES[2]
+    a, b = session.Handshake(True, pq_hybrid=True), session.Handshake(False, pq_hybrid=True)
+    s0, p0 = a.outgoing()
+    assert s0 == 0 and len(p0) == session.STEP_BYTES_PQ[0]
+    # a man-in-the-middle swaps the KEM public key in step 0 but cannot change the commitment
+    tampered = bytearray(p0)
+    tampered[34] ^= 1                                       # a bit of pq_pk_I, which follows hello | commit
+    b.receive(0, bytes(tampered))
+    a.receive(*b.outgoing())
+    s2, _ = a.outgoing()
+    assert s2 == 2
+    with pytest.raises(session.HandshakeError):
+        b.receive(*a.outgoing())                           # the commitment check rejects the altered KEM key
+
+
+def test_dual_start_ignores_the_units_own_echo():
+    """A lone initiator that hears its own signal (sidetone / network echo) must not mistake it
+    for a second initiator and demote itself to responder. With a far end that answers a little
+    late, the call still secures."""
+    rng = np.random.default_rng(5)
+    a = Endpoint(True, speech(40, 1), "A", start_at=0)
+    b = Endpoint(False, speech(40, 2), "B", start_at=None)
+    answer_after = 14                                      # B's unit comes up only after a few seconds
+    for sf in range(50):
+        out_a = a.next_superframe()
+        out_b = b.next_superframe()
+        live = sf >= answer_after
+        echo = 10 ** (-15 / 20) * np.roll(out_a, 40)       # A hears its own signal 5 ms late, 15 dB down
+        a.push_audio((out_b if live else np.zeros(M.SF_SAMPLES)) + echo + rng.normal(0, 1e-4, M.SF_SAMPLES))
+        b.push_audio((out_a if live else np.zeros(M.SF_SAMPLES)) + rng.normal(0, 1e-4, M.SF_SAMPLES))
+    assert a.initiator is True                             # it never switched itself to responder
+    assert a.secure_at is not None and b.secure_at is not None and a.hs.sas == b.hs.sas
+
+
+def test_secure_call_resynchronises_after_a_time_shift():
+    """A large, sudden shift in the audio stream (here 2 s of one direction dropped mid-call)
+    throws off the frame counter predicted from elapsed time. The receiver must re-acquire and
+    carry on, not stay deaf for the rest of the call."""
+    from veilspeak.endpoint import FRAMES_PER_SF
+    rng = np.random.default_rng(6)
+    a = Endpoint(True, speech(70, 1), "A", start_at=0)
+    b = Endpoint(False, speech(70, 2), "B", start_at=None)
+    steps, at, skip = 130, 40, int(2.0 * 8000)
+    for sf in range(steps):
+        out_a = a.next_superframe()
+        out_b = b.next_superframe()
+        if at <= sf and skip > 0:                          # drop 2 s of the A->B audio mid-call
+            take = min(skip, len(out_a))
+            out_a, skip = out_a[take:], skip - take
+        if len(out_a):
+            b.push_audio(out_a + rng.normal(0, 1e-4, len(out_a)))
+        a.push_audio(out_b + rng.normal(0, 1e-4, M.SF_SAMPLES))
+    lo = FRAMES_PER_SF * (at - a.secure_at + 10)           # speech A sent well after the drop
+    hi = FRAMES_PER_SF * (steps - 3 - a.secure_at)
+    after = [n for n in a.sent_speech if lo <= n < hi]
+    ok = sum(1 for n in after if b.got_speech.get(n) == a.sent_speech[n])
+    assert len(after) > 100
+    assert ok > 0.9 * len(after)                           # recovered (was 0 % and permanent before the fix)

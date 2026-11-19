@@ -56,7 +56,7 @@ class RetainedStore:
             raise ValueError("handshake not complete")
         pk = handshake._seen.get(1, handshake._seen.get(2, b""))
         if handshake.initiator:
-            pk_bytes = handshake._seen[1][18:]
+            pk_bytes = handshake._seen[1][18:50]        # the peer's X25519 key (step 1: hello | pk_r | ...)
         else:
             pk_bytes = handshake._seen[2][:32]
         return hashlib.sha256(b"peer-id" + pk_bytes).digest()

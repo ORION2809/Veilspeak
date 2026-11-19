@@ -51,6 +51,13 @@ FAST_SDR_DB = 4.5               # ask for FAST from here up
 FAST_FLOOR_DB = 3.8             # and stop asking below this
 ROBUST_SDR_DB = -4.0            # below this ROBUST is not worth trying
 DEAF_AFTER = 5                  # superframes without a valid frame before an end calls itself deaf
+# After a large, sudden time shift in the audio (a dropped span, a long stall, a handover gap)
+# the counter predicted from elapsed time is off by more than the opener's normal tolerance, so
+# nothing authenticates and -- because the anchor only moves on a success -- the link would stay
+# desynchronised for the rest of the call. Once this many frames in a row fail to open despite
+# the receiver reading bursts, widen the counter search once to re-acquire and re-anchor.
+RESYNC_AFTER = 6                # consecutive authentication failures (with an anchor) before widening
+RESYNC_WINDOW = 64              # counters each side of the prediction to search while re-acquiring (~15 s)
 # What a deaf end sends: mostly speech in the safe mode (the far end may hear it perfectly
 # well), a training burst in case the far end has lost it too, and one IDLE frame, the only
 # kind that gets through the lowest codec rates.
@@ -61,9 +68,36 @@ _LOST_CYCLE = (M.TRAIN, M.IDLE, M.ROBUST, M.ROBUST)
 
 
 class _DualStartProbe:
-    """Minimal receiver sink for detecting a same-role signal during dual-start."""
+    """Receiver sink for dual-start detection (both users switch on as initiator at once).
+
+    Both initiators transmit on role 0, so this probe listens on role 0 to find the other
+    one. The catch is that a unit's own signal is role 0 too, so its echo (the phone's
+    sidetone, or echo from the network) looks just like a second initiator. To tell them
+    apart the probe decodes the role-0 CONTROL frames and reports a second initiator only
+    when it sees a step-0 whose hello differs from this unit's own: the echo carries the
+    unit's own hello and so never triggers a switch."""
+
+    def __init__(self, own_hello, own_commit):
+        self._own = own_hello + own_commit                  # 34 bytes: this unit's own step-0 head
+        self._codec = FrameCodec(M.MODES[M.CONTROL])
+        self.saw_other = False
+
     def frame(self, kind, index, symbols, confidence, when):
-        return None
+        if kind != M.CONTROL:
+            return None
+        hit = self._codec.decode(
+            symbols, confidence,
+            lambda m: binascii.crc_hqx(m[:-2], 0xFFFF) == int.from_bytes(m[-2:], "big"))
+        if hit is None:
+            return None
+        body = hit[0]
+        step, chunk_index = body[0] >> 6, (body[0] >> 4) & 3
+        if step == 0 and chunk_index == 0:                  # chunk 0 of a step-0 message holds hello | commit
+            head = body[1:1 + len(self._own)]
+            if head != self._own:
+                self.saw_other = True
+        return hit[1]
+
     def superframe(self, kind, when, info):
         pass
 
@@ -97,6 +131,7 @@ class Endpoint:
         self._fresh = False                         # the newest window of audio carried a report
         self._lost_run = 0                          # windows in a row whose report was LOST
         self._anchor = None                         # (counter, stream time) of the newest accepted frame
+        self._auth_fail_run = 0                     # frames in a row that failed to open since the last success
         # our own view of the incoming direction, reported to the far end
         self.want = WANT_ROBUST
         self.rx_slots = 0                           # 480 ms windows of audio processed by our receiver
@@ -155,12 +190,12 @@ class Endpoint:
                 and self.rx.mu is None
                 and sf - self.active_at >= DUAL_START_TIMEOUT
                 and not hs.keys_ready):
-            if self._probe_rx is not None and self._probe_rx.mu is not None:
-                # probe detected a role-0 signal: a second initiator is out there
+            if self._probe_rx is not None and self._probe_rx.sink.saw_other:
+                # probe decoded a hello from another initiator (not the echo of our own signal)
                 self._switch_to_responder(sf)
                 hs = self.hs
             elif self._probe_rx is None:
-                self._probe_rx = Receiver(_DualStartProbe(), 0)
+                self._probe_rx = Receiver(_DualStartProbe(hs._hello, hs._commit), 0)
         if self.initiator and (hs.complete or self.peer_secure):
             self._go_secure(sf)
             return None
@@ -282,11 +317,17 @@ class Endpoint:
         if self._anchor is not None:
             counter0, when0 = self._anchor
             expected = counter0 - counter0 % 2 + 2 * int(round((when - when0) / M.SF_SAMPLES)) + index
+        # Widen the counter search only after the prediction has failed repeatedly, i.e. after a
+        # time shift too large for the normal tolerance; a passing tag is still required.
+        window = RESYNC_WINDOW if self._auth_fail_run >= RESYNC_AFTER else None
         hit = self.codecs[kind].decode(symbols, confidence,
-                                       lambda m: self.opener.find(m, kind, expected) is not None)
-        opened = self.opener.open(hit[0], kind, expected) if hit else None
+                                       lambda m: self.opener.find(m, kind, expected, window) is not None)
+        opened = self.opener.open(hit[0], kind, expected, window) if hit else None
         if opened is None:
+            if expected is not None:
+                self._auth_fail_run += 1
             return None
+        self._auth_fail_run = 0
         counter, status, plain = opened
         if self._anchor is None or counter >= self._anchor[0]:
             self._anchor = (counter, when)

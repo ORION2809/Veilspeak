@@ -10,16 +10,24 @@ Classic (pq_hybrid=False):
 
 Post-quantum hybrid (pq_hybrid=True):
 
-    step 0  I -> R   hello_I | commit = H(pk_I | hello_I)[:16]      (same)
-    step 1  R -> I   hello_R | pk_R_x25519 | pq_pk_R
-    step 2  I -> R   pk_I_x25519 | pq_ct (encapsulated to pq_pk_R) | confirm_I
+    step 0  I -> R   hello_I | commit = H(pk_I | pq_pk_I | hello_I)[:16] | pq_pk_I
+    step 1  R -> I   hello_R | pk_R_x25519 | pq_ct (encapsulated to pq_pk_I)
+    step 2  I -> R   pk_I_x25519 | confirm_I
     step 3  R -> I   confirm_R                                       (same)
 
     The shared secret is HKDF(x25519_shared || pq_shared || retained, transcript, label).
     If the PQ primitive is broken, X25519 alone still protects the call; if X25519 is broken
     (e.g. by a future quantum computer), the PQ primitive alone does.
 
-The commitment fixes the initiator's key before it sees the responder's, so a
+    The KEM runs the same way round as the X25519: the *initiator* owns the key pair and the
+    *responder* encapsulates. The initiator sends its KEM public key in its very first message
+    and commits to it, so neither side can grind the KEM to steer the SAS. (An earlier design
+    had the responder own the KEM key and the initiator encapsulate in step 2, after the
+    commitment; because each encapsulation yields a fresh shared secret and so a fresh SAS, a
+    man-in-the-middle could re-encapsulate ~2^20 times to force a matching SAS. The commitment
+    must cover every value the initiator contributes, the KEM public key included.)
+
+The commitment fixes the initiator's contribution before it sees the responder's, so a
 man-in-the-middle gets one guess at matching the 20-bit SAS (success chance 2^-20 per call).
 Keys come from HKDF-SHA256 over the shared secrets and an optional retained secret from an
 earlier verified call, salted with the hash of every handshake message.
@@ -96,7 +104,7 @@ if _PQ_BACKEND is None:
 
     _PQ_BACKEND = "X25519 placeholder (not post-quantum)"
 
-STEP_BYTES_PQ = (34, 50 + _PQ_PK_BYTES, 40 + _PQ_CT_BYTES, 8)
+STEP_BYTES_PQ = (34 + _PQ_PK_BYTES, 50 + _PQ_CT_BYTES, 40, 8)
 PQ_BACKEND = _PQ_BACKEND
 
 
@@ -119,10 +127,13 @@ class Handshake:
         self._pk = self._sk.public_key().public_bytes(
             serialization.Encoding.Raw, serialization.PublicFormat.Raw)
         self._pq = _PQKeyPair() if pq_hybrid else None
+        self._pq_pk = self._pq.public_key if pq_hybrid else b""
         version = VERSION_PQ if pq_hybrid else VERSION
         self._hello = bytes([version, 1 if pq_hybrid else 0]) + entropy(16)
-        self._commit = hashlib.sha256(b"commit" + self._pk + self._hello).digest()[:16]
-        self._out = (0, self._hello + self._commit) if initiator else None
+        # The commitment binds every value the initiator contributes, the KEM public key
+        # included, so a man-in-the-middle cannot grind the KEM to force a matching SAS.
+        self._commit = hashlib.sha256(b"commit" + self._pk + self._pq_pk + self._hello).digest()[:16]
+        self._out = (0, self._hello + self._commit + self._pq_pk) if initiator else None
         self._seen = {}
         self._step_bytes = STEP_BYTES_PQ if pq_hybrid else STEP_BYTES
         self.keys_ready = False
@@ -152,18 +163,14 @@ class Handshake:
                 hello_r = payload[:18]
                 self._check_hello(hello_r)
                 pk_r = payload[18:50]
-                pq_ss = None
+                pq_ss, pq_ct = None, b""
                 if self.pq_hybrid:
-                    pq_pk_r = payload[50:]
-                    pq_ct, pq_ss = _pq_encapsulate(pq_pk_r)
-                    self._pq_ct = pq_ct
-                self._derive(self._hello, self._commit, hello_r, pk_r, self._pk, pk_r, pq_ss)
+                    pq_ct = payload[50:]
+                    pq_ss = self._pq.decapsulate(pq_ct)       # responder encapsulated to our committed KEM key
+                self._derive(self._hello, self._commit, hello_r, pk_r, self._pk, pk_r,
+                             pq_ss, self._pq_pk, pq_ct)
                 self._seen[1] = payload
-                step2 = self._pk
-                if self.pq_hybrid:
-                    step2 += self._pq_ct
-                step2 += self._confirm(True)
-                self._out = (2, step2)
+                self._out = (2, self._pk + self._confirm(True))
             elif step == 3 and self.keys_ready:
                 self._check_confirm(payload, False)
                 self._seen[3] = payload
@@ -174,22 +181,19 @@ class Handshake:
                 self._seen[0] = payload
                 step1 = self._hello + self._pk
                 if self.pq_hybrid:
-                    step1 += self._pq.public_key
+                    pq_pk_i = payload[34:]                     # hello(18) + commit(16), then the KEM public key
+                    self._pq_ct, self._pq_ss = _pq_encapsulate(pq_pk_i)
+                    step1 += self._pq_ct
                 self._out = (1, step1)
             elif step == 2 and 0 in self._seen:
-                hello_i, commit = self._seen[0][:18], self._seen[0][18:]
-                pk_i = payload[:32]
-                pq_ss = None
-                if self.pq_hybrid:
-                    pq_ct = payload[32:32 + _PQ_CT_BYTES]
-                    confirm = payload[32 + _PQ_CT_BYTES:]
-                    pq_ss = self._pq.decapsulate(pq_ct)
-                else:
-                    confirm = payload[32:]
-                expected = hashlib.sha256(b"commit" + pk_i + hello_i).digest()[:16]
+                hello_i, commit, pq_pk_i = self._seen[0][:18], self._seen[0][18:34], self._seen[0][34:]
+                pk_i, confirm = payload[:32], payload[32:]
+                pq_ss = self._pq_ss if self.pq_hybrid else None
+                expected = hashlib.sha256(b"commit" + pk_i + pq_pk_i + hello_i).digest()[:16]
                 if not hmac.compare_digest(expected, commit):
                     raise HandshakeError("initiator's key does not match its commitment")
-                self._derive(hello_i, commit, self._hello, self._pk, pk_i, pk_i, pq_ss)
+                self._derive(hello_i, commit, self._hello, self._pk, pk_i, pk_i,
+                             pq_ss, pq_pk_i, self._pq_ct if self.pq_hybrid else b"")
                 self._check_confirm(confirm, True)
                 self._seen[2] = payload
                 self.complete, self._out = True, (3, self._confirm(False))
@@ -198,12 +202,15 @@ class Handshake:
         if hello[0] not in (VERSION, VERSION_PQ):
             raise HandshakeError("unsupported protocol version")
 
-    def _derive(self, hello_i, commit, hello_r, pk_r, pk_i, peer_pk, pq_ss=None):
+    def _derive(self, hello_i, commit, hello_r, pk_r, pk_i, peer_pk, pq_ss=None, pq_pk=b"", pq_ct=b""):
         try:
             shared = self._sk.exchange(X25519PublicKey.from_public_bytes(peer_pk))
         except ValueError as exc:
             raise HandshakeError("invalid peer key") from exc
-        transcript = hashlib.sha256(hello_i + commit + hello_r + pk_r + pk_i).digest()
+        # The transcript carries the KEM public key and ciphertext too, so the confirmation MAC
+        # authenticates them. (For the classic handshake pq_pk and pq_ct are empty and this is
+        # byte-for-byte the previous transcript.)
+        transcript = hashlib.sha256(hello_i + commit + hello_r + pk_r + pk_i + pq_pk + pq_ct).digest()
         ikm = shared
         if pq_ss is not None:
             ikm += pq_ss

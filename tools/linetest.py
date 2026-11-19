@@ -94,30 +94,70 @@ class Sink:
             self.sdr[kind].append(info["sdr_db"])
 
 
+def _pick_channel(data, which):
+    """Which channel of the recording to use. 'auto' picks the loudest."""
+    nch = data.shape[1]
+    if which == "auto":
+        return int(np.argmax([np.sqrt(np.mean(data[:, i] ** 2)) for i in range(nch)])) if nch > 1 else 0
+    ch = int(which)
+    return ch if 0 <= ch < nch else 0
+
+
 def check(args):
     data, rate = sf.read(args.wav, dtype="float64", always_2d=True)
-    x = data[:, args.channel] if data.shape[1] > 1 else data[:, 0]
-    if rate != 8000:
-        x = resample_poly(x, 8000, rate)
+    nch = data.shape[1]
+    ch = _pick_channel(data, args.channel)
+    raw = data[:, ch]
+
+    # --- recording health: the usual real-call problems show up here first ---
+    peak = float(np.max(np.abs(raw))) if len(raw) else 0.0
+    rms = float(np.sqrt(np.mean(raw ** 2))) if len(raw) else 0.0
+    dc = float(np.mean(raw)) if len(raw) else 0.0
+    clip = float(np.mean(np.abs(raw) > 0.99)) if len(raw) else 0.0
+    print("%s: %.1f s, %d Hz, %d channel(s); using channel %d" % (
+        args.wav, len(raw) / rate, rate, nch, ch))
+    print("  level: peak %.1f dBFS, RMS %.1f dBFS; DC offset %.4f; clipped %.2f%% of samples" % (
+        20 * np.log10(peak + 1e-12), 20 * np.log10(rms + 1e-12), dc, 100 * clip))
+    if rms < 1e-4:
+        print("  ! the recording is essentially silent -- nothing was captured on this channel")
+    elif 20 * np.log10(rms + 1e-12) < -45:
+        print("  ! very low level (< -45 dBFS RMS): raise the recording gain, or the signal did not get through")
+    if clip > 0.001:
+        print("  ! clipping (%.2f%% of samples at full scale): lower the level into the phone or the recorder;"
+              " clipping corrupts the tone phases" % (100 * clip))
+    if abs(dc) > 0.01:
+        print("  ! large DC offset (%.3f): use an AC-coupled / high-pass input" % dc)
+
+    x = resample_poly(raw, 8000, rate) if rate != 8000 else raw
     sent = plan(int(len(x) / 8000 / 0.48) + 2)
     sink = Sink(sent)
     rx = modem.Receiver(sink)
     for i in range(0, len(x), 4000):
         rx.push(x[i:i + 4000])
-    print("%s: %.0f s; receiver read %d bursts, followed %d time shifts, repaired %d bursts, started over %d times" % (
-        args.wav, len(x) / 8000, rx.stats["superframes"], rx.stats["jumps"], rx.stats["repaired"], rx.stats["relocks"]))
+    print("  receiver: read %d bursts, followed %d time shifts, repaired %d bursts, started over %d times" % (
+        rx.stats["superframes"], rx.stats["jumps"], rx.stats["repaired"], rx.stats["relocks"]))
     if rx.stats["superframes"] == 0:
-        print("No training burst was found: the signal did not get through, or the recording is of something else.")
+        print("No training burst was found: the signal did not get through, the recording is of something else,"
+              " or (if this is a stereo file) try --channel 1.")
         return
     # only count what the recording is long enough to contain
     heard = max((i for i, (kind, msgs) in enumerate(sent) if any((kind, m) in sink.got for m in msgs)), default=0)
     print("%-8s %-22s %10s %8s" % ("mode", "carries", "frames", "SDR dB"))
+    best = None
     for kind, carries in ((M.FAST, "speech, Codec2 1200"), (M.ROBUST, "speech, Codec2 700C"), (M.IDLE, "keep-alive only")):
         want = [(kind, m) for k, msgs in sent[:heard + 1] if k == kind for m in msgs]
         if want:
             ok = sum(w in sink.got for w in want)
+            share = ok / len(want)
             sdr = "%.1f" % np.median(sink.sdr[kind]) if sink.sdr[kind] else "-"
-            print("%-8s %-22s %4d/%-4d %3.0f%% %6s" % (M.MODES[kind].name, carries, ok, len(want), 100.0 * ok / len(want), sdr))
+            print("%-8s %-22s %4d/%-4d %3.0f%% %6s" % (M.MODES[kind].name, carries, ok, len(want), 100.0 * share, sdr))
+            if kind in (M.FAST, M.ROBUST) and share >= 0.9 and best is None:
+                best = M.MODES[kind].name
+    if best:
+        print("Verdict: this call carries speech in %s mode (>=90%% of frames)." % best)
+    else:
+        print("Verdict: no speech mode cleared 90%% on this call -- compare with the simulated tables in"
+              " repro_results/ to see where it fell short.")
 
 
 if __name__ == "__main__":
@@ -129,6 +169,6 @@ if __name__ == "__main__":
     m.add_argument("--rate", type=int, default=8000, help="sample rate of the WAV file")
     c = sub.add_parser("check")
     c.add_argument("wav")
-    c.add_argument("--channel", type=int, default=0, help="which channel of a stereo recording")
+    c.add_argument("--channel", default="auto", help="which channel of a stereo recording (0, 1, ... or 'auto')")
     a = ap.parse_args()
     (make if a.cmd == "make" else check)(a)

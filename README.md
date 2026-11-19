@@ -118,6 +118,12 @@ Key agreement follows **ZRTP (RFC 6189)**:
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+> **Status of the hardening above.** All four are implemented and unit-tested at the protocol
+> level. Dual-start detection is active in a call and ignores the unit's own echo (sidetone or
+> network echo). Post-quantum hybrid, in-call re-keying, and retained-secret continuity are not
+> yet switched on in the live call path — `endpoint.py` runs a classic X25519 handshake — so
+> treat them as ready building blocks rather than active defenses until they are wired in.
+
 ---
 
 ## Performance Results
@@ -192,20 +198,21 @@ veilspeak/                  The core system
 └── data/                   Codebooks, pilots, scrambling sequences, test audio
 
 tools/                      Testing and measurement
+├── preflight.py            Software readiness check before real-phone testing
 ├── campaign.py             Run large test campaigns
 ├── coverage.py             Codec coverage measurement
 ├── speech_quality.py       PESQ / STOI / Whisper WER measurement
 ├── clicktest.py            One-way delay measurement
-├── linetest.py             Real-call test recording generator
+├── linetest.py             Real-call test signal generator + recording checker
 ├── rxbench.py              Receiver performance benchmarks
 ├── soak.py                 Long-duration soak tests
 └── trace_call.py           Detailed call tracing
 
-tests/                      53 automated tests
+tests/                      56 automated tests
 third_party/                3GPP reference codec builds
 papers_text/                Source papers (text extracts)
 repro_results/              All simulation results + reproduction tables
-docs/                       Diagrams and visuals
+docs/                       Diagrams, visuals, and REAL_PHONE_TESTING.md (the test runbook)
 ```
 
 ---
@@ -226,11 +233,23 @@ python -m veilspeak "VoLTE EVS 13.2, jitter buffer, 1% loss"
 python -m pytest -q tests/
 
 # Loopback test (two units, no hardware)
-python -m veilspeak.live --loopback 30
+python -m veilspeak.live --loopback --seconds 30
 
-# Terminal UI mode
-python -m veilspeak.live --loopback 30 --ui
+# Terminal UI mode (software status display)
+python -m veilspeak.live --loopback --seconds 30 --ui
 ```
+
+### Testing on real phones
+
+```bash
+# Software readiness check — run this before touching any phone (no hardware needed)
+python tools/preflight.py
+```
+
+When `preflight.py` prints **GO**, follow [docs/REAL_PHONE_TESTING.md](docs/REAL_PHONE_TESTING.md):
+a one-way line test (`tools/linetest.py`) first, then a live two-way call. That document is also
+the map from each failure symptom to its likely cause. Nothing here has run on a real call yet —
+see **Known Limitations**.
 
 ---
 

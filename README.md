@@ -10,9 +10,7 @@ Veilspeak places an encryption unit between each person and their phone. Speech 
 
 ## How It Works
 
-<p align="center">
-  <img src="docs/system-overview.svg" alt="System Overview — two units communicating over a phone call" width="800">
-</p>
+![System Overview — two units communicating over a phone call](docs/system-overview.svg)
 
 Each unit runs the same processing pipeline in both directions simultaneously (full duplex). Alice's speech becomes encrypted modem tones sent through the call; Bob's unit receives and decrypts them back to speech. Neither the phone nor the network knows encryption is happening — they just carry audio.
 
@@ -20,9 +18,7 @@ Each unit runs the same processing pipeline in both directions simultaneously (f
 
 ## Signal Processing Pipeline
 
-<p align="center">
-  <img src="docs/signal-chain.svg" alt="Signal processing pipeline — sender and receiver chains" width="800">
-</p>
+![Signal processing pipeline — sender and receiver chains](docs/signal-chain.svg)
 
 The signal passes through five stages:
 
@@ -40,9 +36,7 @@ The receiver reverses the chain: demodulate → RS decode → verify HMAC → AE
 
 ## Superframe Structure
 
-<p align="center">
-  <img src="docs/superframe.svg" alt="Superframe structure — 480ms timing diagram" width="800">
-</p>
+![Superframe structure — 480ms timing diagram](docs/superframe.svg)
 
 Every 480 ms, the unit sends one **superframe**: a burst of modulated tones bracketed by silence. The 80 ms pause is critical — without it, the phone's codec detects a steady signal and mutes it. This pattern keeps the codec treating the modem tones as speech.
 
@@ -50,9 +44,7 @@ Every 480 ms, the unit sends one **superframe**: a burst of modulated tones brac
 
 ## 23-Tone Frequency Grid
 
-<p align="center">
-  <img src="docs/tone-grid.svg" alt="23 tones from 400 to 2600 Hz inside the telephone band" width="800">
-</p>
+![23 tones from 400 to 2600 Hz inside the telephone band](docs/tone-grid.svg)
 
 The modem uses 23 harmonics spaced 100 Hz apart (400–2600 Hz), all within the telephone passband. Each tone carries a 4-PSK phase value, and the 23 phases together form one **codebook symbol** drawn from a quaternary code with large minimum Lee distance. At 10 ms per symbol, the modem sends 100 symbols per second.
 
@@ -88,9 +80,7 @@ Each frame carries a 2-bit **link report** from the receiver, telling the sender
 
 ## Key Agreement Protocol
 
-<p align="center">
-  <img src="docs/key-agreement.svg" alt="ZRTP-style key agreement — 4-step handshake with SAS verification" width="620">
-</p>
+![ZRTP-style key agreement — 4-step handshake with SAS verification](docs/key-agreement.svg)
 
 Key agreement follows **ZRTP (RFC 6189)**:
 
@@ -132,9 +122,7 @@ Key agreement follows **ZRTP (RFC 6189)**:
 
 ## Performance Results
 
-<p align="center">
-  <img src="docs/performance.svg" alt="Speech delivery rates across 17 network scenarios" width="800">
-</p>
+![Speech delivery rates across 17 network scenarios](docs/performance.svg)
 
 ### Summary
 
